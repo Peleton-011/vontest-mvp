@@ -1,5 +1,11 @@
 <script setup lang="ts">
-const user = useSupabaseUser();
+const user = false; // useSupabaseUser();
+
+const supabase = useSupabaseClient()
+
+const config = useRuntimeConfig()
+console.log(config.public) // should show the Supabase keys
+
 </script>
 
 <template>
@@ -13,7 +19,9 @@ const user = useSupabaseUser();
 				<li v-if="!user">
 					<NuxtLink to="/signup">Signup</NuxtLink>
 				</li>
-				<li v-else><NuxtLink to="/protected">Protected</NuxtLink></li>
+				<li v-else>
+					<NuxtLink to="/protected">Protected</NuxtLink>
+				</li>
 			</ul>
 		</nav>
 		<NuxtPage />
