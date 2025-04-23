@@ -1,8 +1,4 @@
-<template>
-    <NuxtPage :key="$route.fullPath" />
-  </template>
-  
-<!-- <script setup lang="ts">
+<script setup lang="ts">
 const user = false; // useSupabaseUser();
 
 const supabase = useSupabaseClient()
@@ -26,4 +22,4 @@ const supabase = useSupabaseClient()
 		</nav>
 		<NuxtPage />
 	</div>
-</template> -->
+</template>
