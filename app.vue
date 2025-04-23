@@ -1,7 +1,5 @@
 <script setup lang="ts">
-const user = false; // useSupabaseUser();
-
-const supabase = useSupabaseClient()
+const user = useSupabaseUser();
 </script>
 
 <template>
