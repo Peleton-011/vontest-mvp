@@ -10,7 +10,7 @@ const signup = async () => {
 	return;
 	loading.value = true;
 	const { error } = await supabase.auth.signUp(form);
-	if (error) alert(error.message);
+	if (error) alert(error?.message);
 	else router.push("/");
 	loading.value = false;
 };
@@ -52,7 +52,7 @@ const signupWithGoogle = async () => {
 
 			<form
 				@submit.prevent="
-					(e) => {
+					() => {
 						console.log('SUBMIT TRIGGERED');
 					}
 				"

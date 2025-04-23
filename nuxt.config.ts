@@ -17,4 +17,12 @@ export default defineNuxtConfig({
 			exclude: ["/login", "/signup", "/", "/test"],
 		},
 	},
+
+	vite: {
+		build: {
+			rollupOptions: {
+				external: ["#supabase/server"],
+			},
+		},
+	},
 });
