@@ -5,9 +5,8 @@ const form = reactive({ email: "", password: "" });
 const loading = ref(false);
 
 const signup = async () => {
-	console.log(form);
-	alert(`email: ${form.email}, password: ${form.password}`);
-	return;
+	console.log(`email: ${form.email}, password: ${form.password}`);
+
 	loading.value = true;
 	const { error } = await supabase.auth.signUp(form);
 	if (error) alert(error?.message);
@@ -24,7 +23,6 @@ const signupWithGoogle = async () => {
 </script>
 
 <template>
-	<ClientOnly>
 		<div
 			class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8"
 		>
@@ -82,5 +80,4 @@ const signupWithGoogle = async () => {
 				>
 			</div>
 		</div>
-	</ClientOnly>
 </template>
