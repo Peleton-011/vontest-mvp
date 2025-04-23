@@ -23,48 +23,37 @@ const signupWithGoogle = async () => {
 </script>
 
 <template>
-		<div
-			class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8"
-		>
-			<h2 class="mb-6 text-center text-3xl font-bold">
-				Create your account
-			</h2>
-			<LoginCard>
-				<UInput
-					v-model="form.email"
-					type="email"
-					placeholder="you@example.com"
-					required
-					class="w-full"
-					name="email"
-				/>
-				<UInput
-					v-model="form.password"
-					type="password"
-					placeholder="••••••••"
-					required
-					class="w-full"
-					name="password"
-				/>
-			</LoginCard>
+	<div class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+		<h2 class="mb-6 text-center text-3xl font-bold">Create your account</h2>
+		<LoginCard>
+			<UInput
+				v-model="form.email"
+				type="email"
+				placeholder="you@example.com"
+				required
+				class="w-full"
+				name="email"
+			/>
+			<UInput
+				v-model="form.password"
+				type="password"
+				placeholder="••••••••"
+				required
+				class="w-full"
+				name="password"
+			/>
+		</LoginCard>
 
-			<form
-				@submit.prevent="
-					() => {
-						console.log('SUBMIT TRIGGERED');
-					}
-				"
-				class="space-y-4 mt-6"
+		<form @submit.prevent="signup" class="space-y-4 mt-6">
+			<UButton
+				as="button"
+				type="submit"
+				:loading="loading"
+				class="w-full"
 			>
-				<UButton
-					as="button"
-					type="submit"
-					:loading="loading"
-					class="w-full"
-				>
-					Create Account
-				</UButton>
-				<!-- <UButton
+				Create Account
+			</UButton>
+			<!-- <UButton
           variant="outline"
           class="w-full"
           icon="i-simple-icons-google"
@@ -72,12 +61,12 @@ const signupWithGoogle = async () => {
         >
           Sign up with Google
         </UButton> -->
-			</form>
-			<div class="mt-6 text-sm text-center">
-				Already have an account?
-				<NuxtLink to="/login" class="text-primary font-medium"
-					>Log in</NuxtLink
-				>
-			</div>
+		</form>
+		<div class="mt-6 text-sm text-center">
+			Already have an account?
+			<NuxtLink to="/login" class="text-primary font-medium"
+				>Log in</NuxtLink
+			>
 		</div>
+	</div>
 </template>
