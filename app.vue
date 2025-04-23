@@ -1,11 +1,11 @@
-<script setup lang="ts">
+<template>
+    <NuxtPage :key="$route.fullPath" />
+  </template>
+  
+<!-- <script setup lang="ts">
 const user = false; // useSupabaseUser();
 
 const supabase = useSupabaseClient()
-
-const config = useRuntimeConfig()
-console.log(config.public) // should show the Supabase keys
-
 </script>
 
 <template>
@@ -26,4 +26,4 @@ console.log(config.public) // should show the Supabase keys
 		</nav>
 		<NuxtPage />
 	</div>
-</template>
+</template> -->

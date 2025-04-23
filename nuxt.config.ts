@@ -5,16 +5,16 @@ export default defineNuxtConfig({
 
 	modules: [
 		"@nuxt/ui",
-		"@nuxt/icon",
-		"@nuxt/fonts",
-		"@nuxt/eslint",
+		// "@nuxt/icon",
+		// "@nuxt/fonts",
+		// "@nuxt/eslint",
 		"@nuxtjs/supabase",
 	],
 	supabase: {
 		redirectOptions: {
-			login: "/",
+			login: "/login",
 			callback: "/confirm",
-			exclude: ["/login", "/signup", "/"],
+			exclude: ["/login", "/signup", "/", "/test"],
 		},
 	},
 });

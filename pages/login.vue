@@ -43,14 +43,14 @@ const loginWithGoogle = async () => {
         <UButton type="submit" :loading="loading" class="w-full">
           Continue with Email
         </UButton>
-        <UButton
+        <!-- <UButton
           variant="outline"
           class="w-full"
           icon="i-simple-icons-google"
           @click="loginWithGoogle"
         >
           Sign in with Google
-        </UButton>
+        </UButton> -->
       </form>
       <div class="mt-6 text-sm text-center">
         Don't have an account?
