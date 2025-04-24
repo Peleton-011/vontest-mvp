@@ -21,6 +21,5 @@ const user = useSupabaseUser();
 			</ul>
 		</nav>
 		<NuxtPage />
-        <LoginForm />
 	</div>
 </template>
