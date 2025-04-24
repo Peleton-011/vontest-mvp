@@ -1,13 +1,16 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+import tailwindcss from "@tailwindcss/vite";
+
 export default defineNuxtConfig({
 	compatibilityDate: "2024-11-01",
 	devtools: { enabled: true },
 
+	css: ["~/assets/css/main.css"],
+
 	modules: [
 		"@nuxt/ui",
-		// "@nuxt/icon",
-		// "@nuxt/fonts",
-		// "@nuxt/eslint",
+		"@nuxt/icon",
+		"@nuxt/fonts",
+		"@nuxt/eslint",
 		"@nuxtjs/supabase",
 	],
 	supabase: {
@@ -19,6 +22,7 @@ export default defineNuxtConfig({
 	},
 
 	vite: {
+		plugins: [tailwindcss()],
 		build: {
 			rollupOptions: {
 				external: ["#supabase/server"],
