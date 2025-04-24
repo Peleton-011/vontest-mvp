@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import LoginForm from './components/ui/auth/LoginForm.vue';
+
 const user = useSupabaseUser();
 </script>
 
@@ -19,5 +21,6 @@ const user = useSupabaseUser();
 			</ul>
 		</nav>
 		<NuxtPage />
+        <LoginForm />
 	</div>
 </template>

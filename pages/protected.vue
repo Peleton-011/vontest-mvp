@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
-	middleware: "authenticated",
+	middleware: "auth",
 });
 
 const supaAuth = useSupabaseClient().auth;
