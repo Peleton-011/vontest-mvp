@@ -14,6 +14,50 @@ onMounted(async () => {
 	await fetchUsers();
 });
 
+const upgradeUser = async (role: string) => {
+
+    const user = useSupabaseUser();
+
+	if (!user.value?.id) return;
+
+	try {
+		const response: { body: { data: any } } = await $fetch("/api/admin/promote", {
+			method: "POST",
+			body: {
+				userId: user.value.id,
+				role, // Pass the role (e.g., 'admin') in the body
+			},
+		});
+
+		if ("data" in response.body) {
+			return response.body.data;
+		} else {
+			return response.body;
+		}
+	} catch (err: any) {
+		error.value = err?.message || "Something went wrong";
+	}
+};
+
+const demoteUser = async (userId: string) => {
+  try {
+    const response: { body: { data: any}, error: any } = await $fetch('/api/demote', {
+      method: 'POST',
+      body: { userId },
+    })
+
+    if (response.error) {
+      alert('Failed to demote user: ' + response.error)
+    } else {
+      alert('User demoted successfully')
+      // Optionally, refresh the user list or update the UI
+    }
+  } catch (err: any) {
+    error.value = err?.message || "Something went wrong";
+  }
+}
+
+
 const fetchUsers = async () => {
 	try {
 		const response = await fetch("/api/admin/users");

@@ -18,7 +18,7 @@ const signup = async () => {
 	if (error) {
 		alert(error.message);
 	} else {
-		router.push("/");
+		router.push("/confirm");
 	}
 	loading.value = false;
 };
@@ -29,7 +29,7 @@ const signUpWithEmail = async () => {
 		email: form.email,
 		options: {
 			shouldCreateUser: true, // allow new user creation
-			emailRedirectTo: window.location.origin,
+			emailRedirectTo: window.location.origin + "/confirm/email",
 		},
 	});
 
@@ -93,7 +93,7 @@ const signUpWithEmail = async () => {
 					Sign Up
 				</UButton>
 
-				<UButton
+				<!-- <UButton
 					variant="outline"
 					@click.prevent="signUpWithEmail"
 					trailing-icon="i-lucide-mail"
@@ -101,7 +101,7 @@ const signUpWithEmail = async () => {
 					class="font-bold"
 				>
 					Sign Up with Magic Link
-				</UButton>
+				</UButton> -->
 			</form>
 
 			<template #footer>
