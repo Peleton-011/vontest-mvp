@@ -16,7 +16,7 @@ onMounted(async () => {
 const fetchUsers = async () => {
   try {
     const response = await fetch('/api/admin/users');
-    const result = await response.json();
+    const {body: result} = await response.json();
     if (response.ok) {
       users.value = result.users;
     } else {
