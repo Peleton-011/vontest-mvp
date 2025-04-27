@@ -1,15 +1,6 @@
 <script setup lang="ts">
 const user = useSupabaseUser();
 const route = useRoute();
-
-const logout = async () => {
-	const { error } = await useSupabaseClient().auth.signOut();
-	if (error) {
-		alert(error.message);
-	} else {
-		await navigateTo("/login");
-	}
-};
 </script>
 
 <template>
@@ -51,14 +42,12 @@ const logout = async () => {
 					</NuxtLink>
 				</template>
 				<template v-else-if="user">
-					<UButton
-						@click="logout"
-						variant="outline"
-						class="font-bold"
-					>
-						Log Out
-						<UIcon name="i-lucide-log-out" class="ml-2" />
-					</UButton>
+                    <NuxtLink to="/logout">
+						<UButton class="font-bold" variant="outline">
+							Log Out
+							<UIcon name="i-lucide-log-out" class="ml-2" />
+						</UButton>
+					</NuxtLink>
 				</template>
 			</div>
 		</div>
