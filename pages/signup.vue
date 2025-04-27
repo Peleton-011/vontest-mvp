@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SignupForm from "@/components/ui/auth/SignupForm.vue";
 const supabase = useSupabaseClient();
 const router = useRouter();
 const form = reactive({ email: "", password: "" });
@@ -23,7 +24,9 @@ const signupWithGoogle = async () => {
 </script>
 
 <template>
-	<div class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <SignupForm />
+        <!-- 
 		<h2 class="mb-6 text-center text-3xl font-bold">Create your account</h2>
 		<LoginCard>
 			<UInput
@@ -53,14 +56,14 @@ const signupWithGoogle = async () => {
 			>
 				Create Account
 			</UButton>
-			<!-- <UButton
+			 <UButton
           variant="outline"
           class="w-full"
           icon="i-simple-icons-google"
           @click="signupWithGoogle"
         >
           Sign up with Google
-        </UButton> -->
+        </UButton> 
 		</form>
 		<div class="mt-6 text-sm text-center">
 			Already have an account?
@@ -68,5 +71,6 @@ const signupWithGoogle = async () => {
 				>Log in</NuxtLink
 			>
 		</div>
-	</div>
+        -->
+	</div> 
 </template>
