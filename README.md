@@ -4,6 +4,12 @@ Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduct
 
 ## Setup
 
+Generate types:
+
+```bash
+npx supabase gen types typescript --project-id your-project-id > types/supabase.ts
+```
+
 Make sure to install dependencies:
 
 ```bash
