@@ -16,6 +16,13 @@ const route = useRoute();
 				>
 					Home
 				</NuxtLink>
+                <NuxtLink
+					v-if="user"
+					to="/dashboard"
+					class="text-lg font-semibold hover:text-primary-400 transition"
+				>
+					Dashboard
+				</NuxtLink>
 				<NuxtLink
 					v-if="user"
 					to="/protected"
