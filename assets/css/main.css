@@ -1,2 +1,11 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+@import 'github-markdown-css/github-markdown-dark.css';
+
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 100%;
+  color-scheme: dark;
+  background: none;
+}
+

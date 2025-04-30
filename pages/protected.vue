@@ -25,7 +25,7 @@ definePageMeta({
 				<div class="text-lg font-semibold">Markdown Content</div>
 			</template>
 
-			<div class="prose prose-invert max-w-none">
+			<div class="markdown-body max-w-none">
 				<ContentRenderer :value="doc" v-if="doc" />
 				<div v-else class="text-gray-400">Loading content...</div>
 			</div>
