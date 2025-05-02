@@ -50,6 +50,31 @@ const createVontest = async () => {
 	loading.value = false;
 };
 
+const searchQuery = ref("");
+const currentPage = ref(1);
+const pageSize = 6;
+
+const filteredVontests = computed(() => {
+	return vontests.value.filter((v) => {
+		return (
+			v.title?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+			v.description
+				?.toLowerCase()
+				.includes(searchQuery.value.toLowerCase())
+		);
+	});
+});
+
+const paginatedVontests = computed(() => {
+	const start = (currentPage.value - 1) * pageSize;
+	const end = start + pageSize;
+	return filteredVontests.value.slice(start, end);
+});
+
+const totalPages = computed(() =>
+	Math.ceil(filteredVontests.value.length / pageSize)
+);
+
 onMounted(fetchVontests);
 </script>
 
@@ -93,8 +118,20 @@ onMounted(fetchVontests);
 
 		<div v-if="vontests.length" class="space-y-4">
 			<h2 class="text-2xl font-semibold mb-2">Recent Vontests</h2>
+
+			<!-- Search Bar -->
+			<div class="mb-6 flex items-center justify-between">
+				<UInput
+					v-model="searchQuery"
+					placeholder="Search Vontests..."
+					icon="i-lucide-search"
+					class="w-full max-w-md"
+				/>
+			</div>
+
+			<!-- Vontest Cards -->
 			<NuxtLink
-				v-for="vontest in vontests"
+				v-for="vontest in paginatedVontests"
 				:key="vontest.id"
 				:to="`/vontests/${vontest.id}`"
 				class="block"
@@ -120,6 +157,28 @@ onMounted(fetchVontests);
 					</template>
 				</UCard>
 			</NuxtLink>
+
+			<!-- Pagination Controls -->
+			<div
+				v-if="totalPages > 1"
+				class="mt-8 flex justify-center items-center space-x-2 text-sm"
+			>
+				<UButton
+					size="sm"
+					icon="i-lucide-chevron-left"
+					:disabled="currentPage === 1"
+					@click="currentPage--"
+				/>
+				<span class="text-gray-400"
+					>Page {{ currentPage }} of {{ totalPages }}</span
+				>
+				<UButton
+					size="sm"
+					icon="i-lucide-chevron-right"
+					:disabled="currentPage === totalPages"
+					@click="currentPage++"
+				/>
+			</div>
 		</div>
 		<div v-else class="text-gray-500 text-center">
 			No Vontests yet. Be the first to create one!
