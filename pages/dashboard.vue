@@ -117,16 +117,18 @@ onMounted(fetchVontests);
 		</UCard>
 
 		<div v-if="vontests.length" class="space-y-4">
-			<h2 class="text-2xl font-semibold mb-2">Recent Vontests</h2>
+			<div class="flex items-center justify-between mb-6">
+				<h2 class="text-2xl font-semibold mb-2">Browse Vontests</h2>
 
-			<!-- Search Bar -->
-			<div class="mb-6 flex items-center justify-between">
-				<UInput
-					v-model="searchQuery"
-					placeholder="Search Vontests..."
-					icon="i-lucide-search"
-					class="w-full max-w-md"
-				/>
+				<!-- Search Bar -->
+				<div class="mb-6 flex items-center justify-between">
+					<UInput
+						v-model="searchQuery"
+						placeholder="Search Vontests..."
+						icon="i-lucide-search"
+						class="w-full max-w-md"
+					/>
+				</div>
 			</div>
 
 			<!-- Vontest Cards -->
@@ -146,14 +148,26 @@ onMounted(fetchVontests);
 						{{ vontest.description }}
 					</p>
 					<template #footer>
-						<small class="text-gray-500 border-neutral-700"
-							>Created
-							{{
-								new Date(
-									vontest.created_at ?? ""
-								).toLocaleString()
-							}}</small
-						>
+						<div class="flex justify-between items-center gap-2">
+							<small class="text-gray-500 border-neutral-700"
+								>Created
+								{{
+									new Date(
+										vontest.created_at ?? ""
+									).toLocaleString()
+								}}</small
+							>
+
+							<NuxtLink :to="`/vontests/${vontest.id}/vote`" class="w-1/3">
+								<UButton
+									block
+									variant="outline"
+									icon="i-lucide-vote"
+								>
+									Vote
+								</UButton>
+							</NuxtLink>
+						</div>
 					</template>
 				</UCard>
 			</NuxtLink>
