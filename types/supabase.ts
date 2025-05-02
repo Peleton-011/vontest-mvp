@@ -34,7 +34,15 @@ export type Database = {
           title?: string | null
           vontest_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "proposals_vontest_id_fkey"
+            columns: ["vontest_id"]
+            isOneToOne: false
+            referencedRelation: "vontests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vontests: {
         Row: {
@@ -59,6 +67,45 @@ export type Database = {
           title?: string | null
         }
         Relationships: []
+      }
+      votes: {
+        Row: {
+          id: string
+          points: number | null
+          proposal_id: string | null
+          user_id: string | null
+          vontest_id: string | null
+        }
+        Insert: {
+          id?: string
+          points?: number | null
+          proposal_id?: string | null
+          user_id?: string | null
+          vontest_id?: string | null
+        }
+        Update: {
+          id?: string
+          points?: number | null
+          proposal_id?: string | null
+          user_id?: string | null
+          vontest_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "votes_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: true
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "votes_vontest_id_fkey"
+            columns: ["vontest_id"]
+            isOneToOne: false
+            referencedRelation: "vontests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
