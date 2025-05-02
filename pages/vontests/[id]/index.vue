@@ -129,13 +129,31 @@ onMounted(() => {
 					<div class="text-lg font-bold">{{ proposal.title }}</div>
 				</template>
 				<p class="text-gray-400">{{ proposal.description }}</p>
+
 				<template #footer>
-					<small class="text-gray-500"
-						>Submitted on
-						{{
-							new Date(proposal.created_at ?? "").toLocaleString()
-						}}</small
-					>
+					<div class="flex justify-between items-center gap-2">
+						<small class="text-gray-500"
+							>Submitted on
+							{{
+								new Date(
+									proposal.created_at ?? ""
+								).toLocaleString()
+							}}</small
+						>
+
+						<NuxtLink
+							:to="`/vontests/${vontest?.id}/vote`"
+							class="w-1/3"
+						>
+							<UButton
+								block
+								variant="outline"
+								icon="i-lucide-vote"
+							>
+								Vote
+							</UButton>
+						</NuxtLink>
+					</div>
 				</template>
 			</UCard>
 		</div>
