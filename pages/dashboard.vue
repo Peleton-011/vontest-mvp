@@ -158,15 +158,32 @@ onMounted(fetchVontests);
 								}}</small
 							>
 
-							<NuxtLink :to="`/vontests/${vontest.id}/vote`" class="w-1/3">
-								<UButton
-									block
-									variant="outline"
-									icon="i-lucide-vote"
+							<div class="flex gap-2">
+								<NuxtLink
+									:to="`/vontests/${vontest.id}/vote`"
+									class="w-1/2"
 								>
-									Vote
-								</UButton>
-							</NuxtLink>
+									<UButton
+										block
+										variant="outline"
+										icon="i-lucide-vote"
+									>
+										Vote
+									</UButton>
+								</NuxtLink>
+								<NuxtLink
+									:to="`/vontests/${vontest?.id}/results`"
+									class="w-1/2"
+								>
+									<UButton
+										block
+										variant="outline"
+										icon="i-lucide-chart-bar"
+									>
+										Results
+									</UButton>
+								</NuxtLink>
+							</div>
 						</div>
 					</template>
 				</UCard>
