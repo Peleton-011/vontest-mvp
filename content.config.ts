@@ -18,5 +18,21 @@ export default defineContentConfig({
 					.optional(),
 			}),
 		}),
+        updates: defineCollection({
+			type: "page",
+			source: "updates/*.md",
+			schema: z.object({
+				links: z
+					.array(
+						z.object({
+							label: z.string(),
+							icon: z.string(),
+							to: z.string(),
+							target: z.string().optional(),
+						})
+					)
+					.optional(),
+			}),
+		}),
 	},
 });

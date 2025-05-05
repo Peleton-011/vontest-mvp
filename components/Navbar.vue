@@ -30,6 +30,13 @@ const route = useRoute();
 				>
 					Protected
 				</NuxtLink>
+                <NuxtLink
+					v-if="user"
+					to="/updates"
+					class="text-lg font-semibold hover:text-primary-400 transition"
+				>
+					Updates
+				</NuxtLink>
 			</div>
 
 			<!-- Right side buttons -->
