@@ -1,0 +1,1 @@
+Vue 3 SFC for Editor.js using v-model with custom vue component. Taken from [here](https://gist.github.com/bettysteger/d7f2b1a52bb1c23a0c24f3a9ff5832d9)
