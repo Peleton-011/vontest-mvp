@@ -59,6 +59,8 @@ export default defineEventHandler(async (event) => {
       };
     }
 
+    console.log(existingUser.user.app_metadata);
+
     // Update user_metadata to change the role to admin or another role
     const { data, error } = await supabase.auth.admin.updateUserById(userId, {
       app_metadata: { role },
