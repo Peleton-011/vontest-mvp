@@ -6,7 +6,7 @@ type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
 const supabase = useSupabaseClient<Database>();
 const user = useSupabaseUser();
 
-const { vontests, refresh, loading, error } = useFetchVontests();
+const { vontests, refresh, loading, error } = useVontests();
 
 const searchQuery = ref("");
 const currentPage = ref(1);
