@@ -1,11 +1,30 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
-@import 'github-markdown-css/github-markdown-dark.css';
+@import "github-markdown-css/github-markdown-dark.css";
 
 .markdown-body {
-  box-sizing: border-box;
-  min-width: 100%;
-  color-scheme: dark;
-  background: none;
+	box-sizing: border-box;
+	min-width: 100%;
+	color-scheme: dark;
+	background: none;
 }
 
+.cdx-block,
+.ce-inline-tool,
+.ce-inline-tool--active,
+.cdx-input,
+.cdx-loader,
+.cdx-button {
+
+    @apply text-white bg-neutral-800
+}
+
+.ce-toolbar__settings-btn,
+.ce-toolbar__plus,
+ce-popover__container {
+    @apply text-white bg-neutral-700
+
+    /* &:hover {
+        @apply bg-neutral-600
+    } */
+}
