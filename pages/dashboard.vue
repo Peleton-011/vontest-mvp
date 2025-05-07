@@ -36,7 +36,7 @@ const totalPages = computed(() =>
 
 <template>
 	<section class="p-6 max-w-4xl mx-auto text-white">
-		<FormVontest :fetch="refresh" :loading="loading" />
+		<FormVontest :fetch-vontests="refresh" :loading="loading" />
 
 		<div v-if="vontests.length > 0" class="space-y-4">
 			<div class="flex items-center justify-between mb-6">
