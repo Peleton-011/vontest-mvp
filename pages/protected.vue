@@ -10,7 +10,7 @@ definePageMeta({
 
 <template>
 	<section class="max-w-3xl mx-auto p-6 text-white">
-		<UCard >
+		<UCard class="bg-neutral-800">
 			<template #header>
 				<h1 class="text-2xl font-bold">Protected Page</h1>
 			</template>
@@ -20,7 +20,7 @@ definePageMeta({
 			</p>
 		</UCard>
 
-		<UCard class="mt-6">
+		<UCard class="bg-neutral-800 mt-6">
 			<template #header>
 				<div class="text-lg font-semibold">Markdown Content</div>
 			</template>
