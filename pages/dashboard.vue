@@ -36,20 +36,22 @@ const totalPages = computed(() =>
 
 <template>
 	<section class="p-6 max-w-4xl mx-auto text-white">
-		<FormVontest :fetch-vontests="refresh" :loading="loading" />
-
 		<div v-if="vontests.length > 0" class="space-y-4">
-			<div class="flex items-center justify-between mb-6">
-				<h2 class="text-2xl font-semibold mb-2">Browse Vontests</h2>
+			<div class="flex items-center justify-between">
+				<h2 class="text-2xl font-semibold">Browse Vontests</h2>
 
-				<!-- Search Bar -->
-				<div class="mb-6 flex items-center justify-between">
-					<UInput
-						v-model="searchQuery"
-						placeholder="Search Vontests..."
-						icon="i-lucide-search"
-						class="w-full max-w-md"
-					/>
+				<div class="flex justify-center items-center gap-2">
+					<!-- Search Bar -->
+					<div class="flex items-center justify-between">
+						<UInput
+							v-model="searchQuery"
+							placeholder="Search Vontests..."
+							icon="i-lucide-search"
+							class="w-full max-w-md"
+						/>
+					</div>
+					<!-- Add Vontest -->
+					<FormVontest :fetch-vontests="refresh" :loading="loading" />
 				</div>
 			</div>
 
@@ -60,9 +62,7 @@ const totalPages = computed(() =>
 				:to="`/vontests/${vontest.id}`"
 				class="block"
 			>
-				<UCard
-					class="group bg-neutral-800 text-white hover:bg-neutral-700 [&>*]:group-hover:border-neutral-700 [&>*]:transition transition vontest-card"
-				>
+				<UCard variant="light">
 					<template #header>
 						<div class="text-lg font-bold">{{ vontest.title }}</div>
 					</template>

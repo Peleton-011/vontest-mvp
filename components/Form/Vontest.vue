@@ -8,7 +8,7 @@ const supabase = useSupabaseClient<Database>();
 const open = ref(false);
 
 const props = defineProps({
-	fetchVontests: {type: Function, required: true},
+	fetchVontests: { type: Function, required: true },
 	loading: Boolean,
 });
 
@@ -30,7 +30,7 @@ const createVontest = async () => {
 	if (error) {
 		alert(error.message);
 	} else {
-        open.value = false;
+		open.value = false;
 		form.title = "";
 		form.description = "";
 		props.fetchVontests();
@@ -38,7 +38,7 @@ const createVontest = async () => {
 };
 </script>
 <template>
-	<UModal class="bg-neutral-800 mb-6" title="Start a New Vontest" v-model:open="open">
+	<UModal title="Start a New Vontest" v-model:open="open" :overlay="true">
         <UButton label="New Vontest" color="primary" variant="subtle" />
 		<!-- <template #header>
 			<div class="text-xl font-bold">Start a New Vontest</div>
