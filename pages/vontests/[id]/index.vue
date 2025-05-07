@@ -2,66 +2,30 @@
 import type { Database } from "~/types/supabase";
 
 type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
-type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
-type ProposalInsert = Database["public"]["Tables"]["proposals"]["Insert"];
 
 const route = useRoute();
 const supabase = useSupabaseClient<Database>();
-const user = useSupabaseUser();
 
 const vontestId = route.params.id as string;
-const vontest = ref<Vontest | null>(null);
-const proposals = ref<Proposal[]>([]);
-const loading = ref(false);
 
-const proposalForm = reactive({
-	title: "",
-	description: "",
-});
+const vontest = ref<Vontest | null>(null);
+
+const { proposals, form, loading, fetchProposals, submitProposal } =
+	useProposals(vontestId);
 
 const fetchVontest = async () => {
-	const { data, error } = await supabase
+	const { data } = await supabase
 		.from("vontests")
 		.select("*")
 		.eq("id", vontestId)
 		.single();
-	if (!error) vontest.value = data;
+
+	if (data) vontest.value = data;
 };
 
-const fetchProposals = async () => {
-	const { data, error } = await supabase
-		.from("proposals")
-		.select("*")
-		.eq("vontest_id", vontestId)
-		.order("created_at", { ascending: false });
-	if (!error) proposals.value = data;
-};
-
-const submitProposal = async () => {
-	loading.value = true;
-	const newProposal: ProposalInsert = {
-		vontest_id: vontestId,
-		title: proposalForm.title,
-		description: proposalForm.description,
-	};
-	const { data, error } = await supabase
-		.from("proposals")
-		.insert(newProposal)
-		.select();
-
-	if (!error) {
-		proposalForm.title = "";
-		proposalForm.description = "";
-		await fetchProposals();
-	} else {
-		alert(error.message);
-	}
-	loading.value = false;
-};
-
-onMounted(() => {
-	fetchVontest();
-	fetchProposals();
+onMounted(async () => {
+	await fetchVontest();
+	await fetchProposals();
 });
 </script>
 
@@ -72,49 +36,8 @@ onMounted(() => {
 				<h1 class="text-2xl font-bold">{{ vontest.title }}</h1>
 			</template>
 			<p class="text-gray-400">{{ vontest.description }}</p>
-		</UCard>
-
-		<!-- Add Proposal Form -->
-		<UCard class="bg-neutral-800 mb-6">
-			<template #header>
-				<div class="text-lg font-semibold">Propose a Solution</div>
-			</template>
-			<form @submit.prevent="submitProposal" class="space-y-4">
-				<div>
-					<label
-						class="block text-sm font-medium text-gray-300"
-						for="title"
-						>Title</label
-					>
-					<UInput
-						id="title"
-						v-model="proposalForm.title"
-						required
-						class="w-full mt-1"
-					/>
-				</div>
-				<div>
-					<label
-						class="block text-sm font-medium text-gray-300"
-						for="desc"
-						>Description</label
-					>
-					<UTextarea
-						id="desc"
-						v-model="proposalForm.description"
-						:rows="4"
-						class="w-full mt-1"
-					/>
-				</div>
-				<UButton
-					type="submit"
-					:loading="loading"
-					class="font-bold"
-					trailing-icon="i-lucide-send"
-				>
-					Submit Proposal
-				</UButton>
-			</form>
+			<!-- Add Proposal Form -->
+			<FormProposal :vontest-id="vontestId" @submit="submitProposal" />
 		</UCard>
 
 		<!-- Proposal List -->
