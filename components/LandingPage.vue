@@ -4,7 +4,7 @@
 	>
 		<!-- Hero Section (without image) -->
 		<div class="relative z-10 text-center px-6 py-12 sm:px-12 sm:py-24">
-			<UCard class="mx-auto p-6 bg-neutral-800 rounded-lg">
+			<UCard class="mx-auto p-6 rounded-lg">
 				<template #header>
 					<h1 class="text-4xl font-semibold text-neutral-100">
 						Vontests: Where Practical Decisions Emerge
@@ -45,7 +45,7 @@
 		<!-- Features Section with Icons -->
 		<div class="mt-16 max-w-7xl mx-auto px-6 sm:px-12">
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
-				<UCard class="flex flex-col items-center text-center bg-neutral-800">
+				<UCard class="flex flex-col items-center text-center ">
 					<UIcon
 						name="i-lucide-lightbulb"
 						class="h-12 w-12 text-primary-500"
@@ -58,7 +58,7 @@
 					</p>
 				</UCard>
 
-				<UCard class="flex flex-col items-center text-center bg-neutral-800">
+				<UCard class="flex flex-col items-center text-center ">
 					<UIcon
 						name="i-lucide-message-square"
 						class="h-12 w-12 text-primary-500"
@@ -71,7 +71,7 @@
 					</p>
 				</UCard>
 
-				<UCard class="flex flex-col items-center text-center bg-neutral-800">
+				<UCard class="flex flex-col items-center text-center ">
 					<UIcon
 						name="i-lucide-check-circle"
 						class="h-12 w-12 text-primary-500"

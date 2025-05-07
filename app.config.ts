@@ -62,7 +62,7 @@ export default defineAppConfig({
 				},
 			},
 			defaultVariants: {
-				variant: "outline",
+				variant: "light",
 			},
 		},
 	},

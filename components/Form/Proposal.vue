@@ -14,7 +14,7 @@ const submit = async () => {
 
 <template>
 	<div>
-		<UButton label="New Proposal" variant="subtle" @click="open = true" />
+		<UButton label="New Proposal" variant="subtle" @click="open = true" block/>
 		<UModal title="Submit a Proposal" v-model:open="open">
 			<template #body>
 				<form @submit.prevent="submit" class="space-y-4">

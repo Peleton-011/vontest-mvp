@@ -62,7 +62,7 @@ const totalPages = computed(() =>
 				:to="`/vontests/${vontest.id}`"
 				class="block"
 			>
-				<UCard variant="light">
+				<UCard>
 					<template #header>
 						<div class="text-lg font-bold">{{ vontest.title }}</div>
 					</template>

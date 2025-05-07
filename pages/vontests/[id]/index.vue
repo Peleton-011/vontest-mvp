@@ -31,18 +31,34 @@ onMounted(async () => {
 
 <template>
 	<section class="max-w-4xl mx-auto px-4 py-8 text-white">
-		<UCard v-if="vontest" class="bg-neutral-800 mb-8">
+		<h2 class="text-2xl font-semibold mb-4">The Question:</h2>
+
+		<UCard v-if="vontest">
 			<template #header>
 				<h1 class="text-2xl font-bold">{{ vontest.title }}</h1>
 			</template>
 			<p class="text-gray-400">{{ vontest.description }}</p>
-			<!-- Add Proposal Form -->
-			<FormProposal :vontest-id="vontestId" @submit="submitProposal" />
+			<template #footer>
+				<div class="flex justify-between items-center gap-2">
+					<small class="text-gray-500"
+						>Created on
+						{{
+							new Date(vontest.created_at ?? "").toLocaleString()
+						}}</small
+					>
+					<div class="w-1/3">
+						<FormProposal
+							:vontest-id="vontestId"
+							@submit="submitProposal"
+						/>
+					</div>
+				</div>
+			</template>
 		</UCard>
 
 		<!-- Proposal List -->
 		<div v-if="proposals.length">
-			<h2 class="text-xl font-semibold mb-4">Proposals</h2>
+			<h2 class="text-2xl font-semibold my-4">Proposals</h2>
 			<UCard
 				v-for="proposal in proposals"
 				:key="proposal.id"
