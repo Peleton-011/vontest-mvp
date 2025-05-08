@@ -5,6 +5,6 @@ const editor = new EditorJS();
 </script>
 <template>
 	<ClientOnly>
+        <MdEditor />
 	</ClientOnly>
-		<MdEditor />
 </template>

@@ -5,7 +5,6 @@ const editorRef = ref();
 const output = ref(null);
 
 onMounted(async () => {
-
 	const EditorJS = (await import("@editorjs/editorjs")).default;
 	const Header = (await import("@editorjs/header")).default;
 	const ImageTool = (await import("@editorjs/image")).default;
@@ -24,6 +23,7 @@ onMounted(async () => {
 	const editor = new EditorJS({
 		holder: editorRef.value,
 		tools: {
+            //  Check out all the tools at https://github.com/codex-team/editor.js?tab=readme-ov-file
 			paragraph: {
 				config: {
 					placeholder: "Escribe algo...",
@@ -34,7 +34,13 @@ onMounted(async () => {
 				inlineToolbar: ["link"],
 				shortcut: "CMD+SHIFT+H",
 			},
-			image: ImageTool,
+			// image: ImageTool,
+			/* 
+            
+            Check out https://www.npmjs.com/package/@editorjs/image to make it work.
+            Add arbitrary file uploads too
+            
+            */
 			list: { class: List, inlineToolbar: true, shortcut: "CMD+SHIFT+L" },
 			checklist: { class: Checklist, inlineToolbar: true },
 			quote: {
@@ -51,7 +57,10 @@ onMounted(async () => {
 			code: { class: CodeTool, shortcut: "CMD+SHIFT+C" },
 			delimiter: Delimiter,
 			inlineCode: { class: InlineCode, shortcut: "CMD+SHIFT+C" },
-			linkTool: LinkTool,
+			// linkTool: LinkTool,
+			/*
+            Check out https://github.com/editor-js/link
+            */
 			embed: Embed,
 			table: { class: Table, inlineToolbar: true, shortcut: "CMD+ALT+T" },
 		},
@@ -136,13 +145,7 @@ onMounted(async () => {
 			blocks: [
 				{
 					type: "header",
-					data: { text: "Editor.js en Nuxt", level: 2 },
-				},
-				{
-					type: "paragraph",
-					data: {
-						text: "Este es un editor rich text integrado con soporte para internacionalización en español.",
-					},
+					data: { text: "Escribe aquí...", level: 2 },
 				},
 			],
 		},
@@ -150,16 +153,24 @@ onMounted(async () => {
 			editor
 				.save()
 				.then((data) => (output.value = JSON.stringify(data, null, 2))),
+		onChange: () => {
+			editor
+				.save()
+				.then((data) => (output.value = JSON.stringify(data, null, 2)));
+		},
 	});
 });
 </script>
 
 <template>
 	<div class="p-6 max-w-4xl mx-auto">
-		<div ref="editorRef" class="border rounded p-4 bg-neutral-800"></div>
+		<div
+			ref="editorRef"
+			class="rounded p-4 !bg-neutral-800 markdown-body"
+		></div>
 		<div class="mt-4">
 			<h3 class="text-lg font-semibold">Contenido guardado:</h3>
-			<pre class="bg-neutral-800 p-2 text-sm overflow-auto">{{
+			<pre class="rounded bg-neutral-800 p-2 text-sm overflow-auto">{{
 				output
 			}}</pre>
 		</div>
