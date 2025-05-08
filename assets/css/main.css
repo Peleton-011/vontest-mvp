@@ -12,7 +12,6 @@
 :root {
 	--color-text-primary: #fff !important;
 }
-
 .cdx-block,
 .ce-inline-tool,
 .ce-inline-tool--active,
@@ -51,8 +50,10 @@
 
 .ce-toolbar__settings-btn,
 .ce-toolbar__plus,
-.ce-popover-item {
-	@apply bg-neutral-700 hover:!bg-neutral-600;
+.ce-popover-item,
+.tc-row--selected,
+.tc-popover__item-icon {
+	@apply bg-none !bg-neutral-700 hover:!bg-neutral-600;
 }
 
 .ce-popover-item__secondary-title {
@@ -60,12 +61,14 @@
 }
 
 .ce-popover__container,
+.tc-popover,
 .cdx-search-field,
 .cdx-notify {
 	@apply bg-none !bg-neutral-700;
 }
 
-.ce-popover__container {
+.ce-popover__container,
+.tc-popover {
 	@apply !border-neutral-700;
 }
 
