@@ -35,6 +35,7 @@ const submit = async () => {
 					<label for="description" class="block text-sm mb-1"
 						>Context (optional)</label
 					>
+                    <MdEditor v-model="form.description" id="description" />
 					<UTextarea
 						id="description"
 						v-model="form.description"
