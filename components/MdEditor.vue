@@ -1,10 +1,30 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import {
+	ref,
+	onMounted,
+	onBeforeUnmount,
+	watch,
+	defineProps,
+	defineEmits,
+} from "vue";
+
+const props = defineProps({
+	modelValue: {
+		type: Object,
+		default: () => ({ blocks: [] }),
+	},
+	showOutput: {
+		type: Boolean,
+		default: false,
+	},
+});
+
+const emit = defineEmits(["update:modelValue"]);
 
 const editorRef = ref();
-const output = ref(null);
+let editorInstance = null;
 
-onMounted(async () => {
+const initEditor = async () => {
 	const EditorJS = (await import("@editorjs/editorjs")).default;
 	const Header = (await import("@editorjs/header")).default;
 	const ImageTool = (await import("@editorjs/image")).default;
@@ -20,8 +40,9 @@ onMounted(async () => {
 	const Marker = (await import("@editorjs/marker")).default;
 	const InlineCode = (await import("@editorjs/inline-code")).default;
 
-	const editor = new EditorJS({
+	editorInstance = new EditorJS({
 		holder: editorRef.value,
+		data: props.modelValue,
 		tools: {
             //  Check out all the tools at https://github.com/codex-team/editor.js?tab=readme-ov-file
 			paragraph: {
@@ -64,101 +85,21 @@ onMounted(async () => {
 			embed: Embed,
 			table: { class: Table, inlineToolbar: true, shortcut: "CMD+ALT+T" },
 		},
-		i18n: {
-			messages: {
-				ui: {
-					blockTunes: {
-						toggler: {
-							"Click to tune": "Haz clic para ajustar",
-							"or drag to move": "o arrastra para mover",
-						},
-					},
-					inlineToolbar: {
-						converter: {
-							"Convert to": "Convertir a",
-						},
-					},
-					toolbar: {
-						toolbox: {
-							Add: "Añadir",
-						},
-					},
-					popover: {
-						Filter: "Buscar",
-						"Nothing found": "No se encontró nada",
-					},
-				},
-				toolNames: {
-					Text: "Párrafo",
-					Heading: "Encabezado",
-					List: "Lista",
-					Warning: "Advertencia",
-					Checklist: "Lista de tareas",
-					Quote: "Cita",
-					Code: "Código",
-					Delimiter: "Separador",
-					"Raw HTML": "HTML",
-					Table: "Tabla",
-					Link: "Enlace",
-					Marker: "Marcador",
-					Bold: "Negrita",
-					Italic: "Cursiva",
-					InlineCode: "Código inline",
-					Image: "Imagen",
-				},
-				tools: {
-					warning: { Title: "Título", Message: "Mensaje" },
-					link: { "Add a link": "Añadir enlace" },
-					stub: {
-						"The block can not be displayed correctly.":
-							"No se puede mostrar el bloque.",
-					},
-					image: {
-						Caption: "Subtítulo",
-						"Select an Image": "Selecciona una imagen",
-						"With border": "Con borde",
-						"Stretch image": "Estirar imagen",
-						"With background": "Con fondo",
-					},
-					code: { "Enter a code": "Introduce un código" },
-					linkTool: {
-						Link: "Enlace",
-						"Couldn't fetch the link data":
-							"No se pudieron obtener los datos del enlace",
-						"Couldn't get this link data, try the other one":
-							"Prueba con otro enlace",
-						"Wrong response format from the server":
-							"Formato de respuesta inválido del servidor",
-					},
-					header: { Header: "Encabezado" },
-					paragraph: { "Enter something": "Escribe algo" },
-					list: { Ordered: "Ordenada", Unordered: "Desordenada" },
-				},
-				blockTunes: {
-					delete: { Delete: "Eliminar" },
-					moveUp: { "Move up": "Mover arriba" },
-					moveDown: { "Move down": "Mover abajo" },
-				},
-			},
-		},
-		data: {
-			blocks: [
-				{
-					type: "header",
-					data: { text: "Escribe aquí...", level: 2 },
-				},
-			],
-		},
-		onReady: () =>
-			editor
-				.save()
-				.then((data) => (output.value = JSON.stringify(data, null, 2))),
-		onChange: () => {
-			editor
-				.save()
-				.then((data) => (output.value = JSON.stringify(data, null, 2)));
+		onChange: async () => {
+			const data = await editorInstance.save();
+			emit("update:modelValue", data);
 		},
 	});
+};
+
+onMounted(() => {
+	initEditor();
+});
+
+onBeforeUnmount(() => {
+	if (editorInstance && typeof editorInstance.destroy === "function") {
+		editorInstance.destroy();
+	}
 });
 </script>
 
@@ -168,11 +109,12 @@ onMounted(async () => {
 			ref="editorRef"
 			class="rounded p-4 !bg-neutral-800 markdown-body"
 		></div>
-		<div class="mt-4">
+		<div v-if="showOutput" class="mt-4">
 			<h3 class="text-lg font-semibold">Contenido guardado:</h3>
-			<pre class="rounded bg-neutral-800 p-2 text-sm overflow-auto">{{
-				output
-			}}</pre>
+			<pre class="rounded bg-neutral-800 p-2 text-sm overflow-auto"
+				>{{ JSON.stringify(modelValue, null, 2) }}
+      </pre
+			>
 		</div>
 	</div>
 </template>
