@@ -3,7 +3,7 @@ import { ref, onMounted } from "vue";
 import MdEditor from "~/components/MdEditor.vue";
 
 const quillRef = ref();
-const content = ref({ ops: [] });
+const content = ref();
 const contentMarkdown = ref("");
 const range = ref(null);
 const lastChange = ref(null);
@@ -38,6 +38,7 @@ function getContentLength() {
 	<div>
 		<ClientOnly>
             <MdEditor
+            v-if="content"
             ref="quillRef"
             v-model="content"
             v-model:contentMarkdown="contentMarkdown"
