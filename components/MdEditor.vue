@@ -57,8 +57,13 @@ function handleReady(editorEl) {
 function updateMarkdown() {
 	if (editor.value?.getHTML) {
 		const html = editor.value.getHTML();
-		const turndownService = new TurndownService();
+		const turndownService = new TurndownService({
+			codeBlockStyle: "fenced",
+			hr: "---",
+			headingStyle: "atx",
+		});
 		contentMarkdown.value = turndownService.turndown(html);
+		console.log(turndownService.turndown("<h1> Heading </h1>"));
 		emit("update:contentMarkdown", contentMarkdown.value);
 	}
 }
