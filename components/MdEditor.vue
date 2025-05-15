@@ -51,6 +51,8 @@ function handleReady(editorEl) {
 	// Store the underlying Quill instance
 	quillInstance.value = editorEl;
 	updateMarkdown();
+	// Delay to wait for DOM render
+	nextTick(() => styleEditor());
 }
 
 // Only compute markdown when ready and content changes
@@ -65,6 +67,30 @@ function updateMarkdown() {
 		contentMarkdown.value = turndownService.turndown(html);
 		console.log(turndownService.turndown("<h1> Heading </h1>"));
 		emit("update:contentMarkdown", contentMarkdown.value);
+	}
+}
+
+// Set the editor styling
+function styleEditor() {
+	if (!editor.value) return;
+
+	const root = document.querySelector('.ql-container');
+
+	// Add classes to specific child elements if needed
+	const container = root.querySelector(".ql-container");
+	const contentArea = root.querySelector(".ql-editor");
+
+	if (container) {
+		container.classList.add("rounded-lg", "border", "border-neutral-700");
+	}
+
+	if (contentArea) {
+		contentArea.classList.add(
+			"prose",
+			"text-white",
+			"min-h-[200px]",
+			"markdown-body"
+		);
 	}
 }
 
