@@ -42,12 +42,6 @@ const submit = async () => {
                         id="description"
 						/>
                     </ClientOnly>
-                        <UTextarea
-						id="description"
-						v-model="form.description"
-						:rows="3"
-						class="w-full"
-					/>
 				</div>
 				<UButton type="submit" :loading="loading" class="font-bold">
 					Create <UIcon name="i-lucide-arrow-right" class="ml-2" />
