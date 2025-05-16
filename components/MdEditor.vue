@@ -1,15 +1,21 @@
 <template>
-	<QuillEditor
-		ref="editor"
-		v-model:content="content"
-		contentType="delta"
-		toolbar="full"
-		:readOnly="readOnly"
-		@ready="handleReady"
-		@selection-change="handleSelectionChange"
-		@text-change="handleTextChange"
-	/>
-	<!-- :modules="editorModules" -->
+	<ClientOnly>
+		<QuillEditor
+			:class="
+				'w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed)  disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) ' +
+				(props.class ? props.class : '')
+			"
+			ref="editor"
+			v-model:content="content"
+			contentType="delta"
+			toolbar="full"
+			:readOnly="readOnly"
+			@ready="handleReady"
+			@selection-change="handleSelectionChange"
+			@text-change="handleTextChange"
+		/>
+		<!-- :modules="editorModules" -->
+	</ClientOnly>
 </template>
 
 <script setup>
@@ -26,6 +32,7 @@ const props = defineProps({
 	readOnly: Boolean,
 	modelValue: Object,
 	contentMarkdown: String,
+	class: String,
 });
 
 const emit = defineEmits([
@@ -74,23 +81,36 @@ function updateMarkdown() {
 function styleEditor() {
 	if (!editor.value) return;
 
-	const root = document.querySelector('.ql-container');
+	const toolbar = document.querySelector(".ql-toolbar");
+	const container = document.querySelector(".ql-container");
+	const contentArea = container.querySelector(".ql-editor");
 
 	// Add classes to specific child elements if needed
-	const container = root.querySelector(".ql-container");
-	const contentArea = root.querySelector(".ql-editor");
+	const onFocus = "!outline-none !ring-2 !ring-inset !ring-(--ui-primary)";
 
-	if (container) {
-		container.classList.add("rounded-lg", "border", "border-neutral-700");
-	}
+	contentArea.addEventListener("focusin", () => {
+		onFocus.split(" ").forEach((c) => container.classList.add(c));
+	});
+
+	contentArea.addEventListener("focusout", () => {
+		onFocus.split(" ").forEach((c) => container.classList.remove(c));
+	});
 
 	if (contentArea) {
 		contentArea.classList.add(
 			"prose",
-			"text-white",
+			// "text-white",
 			"min-h-[200px]",
 			"markdown-body"
 		);
+	}
+
+	if (toolbar) {
+		"bg-neutral-700 transition-colors px-2.5 py-1.5 text-sm gap-1.5 ring ring-inset ring-(--ui-border-accented) rounded-[calc(var(--ui-radius)*1.5)]"
+			.split(" ")
+			.forEach((c) => toolbar.classList.add(c));
+	} else {
+		console.log("no toolbar");
 	}
 }
 

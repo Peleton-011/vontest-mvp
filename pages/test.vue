@@ -36,6 +36,19 @@ function getContentLength() {
 
 <template>
 	<div>
+
+        <ClientOnly>
+            <MdEditor
+            v-if="content"
+            ref="quillRef"
+            v-model="content"
+            v-model:contentMarkdown="contentMarkdown"
+            :readOnly="false"
+            @selection-change="handleSelectionChange"
+            @text-change="handleTextChange"
+			/>
+        </ClientOnly>
+        <hr>
 		<ClientOnly>
             <MdEditor
             v-if="content"

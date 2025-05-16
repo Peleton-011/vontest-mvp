@@ -10,7 +10,7 @@ const submit = async () => {
 </script>
 
 <template>
-	<UModal title="Start a New Vontest" v-model:open="open" :overlay="true">
+	<UModal title="Start a New Vontest" v-model:open="open" :overlay="true" id="modal">
 		<UButton
 			label="New Vontest"
 			color="primary"
@@ -35,8 +35,14 @@ const submit = async () => {
 					<label for="description" class="block text-sm mb-1"
 						>Context (optional)</label
 					>
-                    <MdEditor v-model="form.description" id="description" />
-					<UTextarea
+					<ClientOnly>
+                        <!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
+                        <MdEditor
+                        v-model:contentMarkdown="form.description"
+                        id="description"
+						/>
+                    </ClientOnly>
+                        <UTextarea
 						id="description"
 						v-model="form.description"
 						:rows="3"

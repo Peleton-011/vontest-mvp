@@ -1,11 +1,62 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
-@import 'github-markdown-css/github-markdown-dark.css';
+@import "github-markdown-css/github-markdown-dark.css";
 
 .markdown-body {
-  box-sizing: border-box;
-  min-width: 100%;
-  color-scheme: dark;
-  background: none;
+	box-sizing: border-box;
+	min-width: 100%;
+	color-scheme: dark;
+	background: none;
 }
 
+.ql-picker,
+.ql-formats,
+.ql-picker-label,
+.ql-picker-item > * {
+	&:hover,
+	&.ql-active,
+	& > .ql-active,
+	.ql-picker.ql-expanded > * {
+		@apply !text-(--ui-bg-muted) !bg-neutral-500 rounded !border-none;
+	}
+	@apply !text-(--ui-text-toned) rounded;
+}
+
+.ql-picker-item.ql-selected {
+    @apply !bg-neutral-400 !text-(--ui-bg-muted);
+}
+
+.ql-picker.ql-expanded {
+	@apply !border-none;
+}
+.ql-picker-options {
+	@apply !border-[var(--ui-border-muted)] !border-0;
+}
+
+.ql-stroke {
+	stroke: currentColor !important;
+}
+
+.ql-fill {
+	fill: currentColor !important;
+}
+
+.ql-toolbar.ql-snow {
+	border: none !important;
+	box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+		var(--tw-ring-offset-shadow),
+		var(--tw-ring-inset) 0 1px 0 calc(1px + var(--tw-ring-offset-width))
+			var(--tw-ring-color, currentcolor),
+		var(--tw-shadow);
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	& button:hover {
+		@apply !bg-neutral-400 rounded;
+	}
+}
+
+.ql-container.ql-snow {
+	border: none !important;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
