@@ -20,7 +20,7 @@ export const useVontests = () => {
 
 	const createVontest = async () => {
 		const newVontest: VontestInsert = { ...form };
-		const { error } = await supabase
+		const { error, data } = await supabase
 			.from("vontests")
 			.insert(newVontest)
 			.select();
@@ -29,6 +29,7 @@ export const useVontests = () => {
 			form.title = "";
 			form.description = "";
 			await refresh();
+			return data[0];
 		} else {
 			alert(error.message);
 		}

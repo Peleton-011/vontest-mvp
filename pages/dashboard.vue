@@ -51,7 +51,12 @@ const totalPages = computed(() =>
 						/>
 					</div>
 					<!-- Add Vontest -->
-					<FormVontest :fetch-vontests="refresh" :loading="loading" />
+					<UButton
+						label="New Vontest"
+						color="primary"
+						variant="subtle"
+						to="/vontests/new"
+					/>
 				</div>
 			</div>
 
