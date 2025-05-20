@@ -37,7 +37,7 @@ onMounted(async () => {
 			<template #header>
 				<h1 class="text-2xl font-bold">{{ vontest.title }}</h1>
 			</template>
-			<p class="text-gray-400">{{ vontest.description }}</p>
+			<p class="text-gray-400 markdown-body ql-editor" v-html="vontest.description"></p>
 			<template #footer>
 				<div class="flex justify-between items-center gap-2">
 					<small class="text-gray-500"
@@ -67,7 +67,7 @@ onMounted(async () => {
 				<template #header>
 					<div class="text-lg font-bold">{{ proposal.title }}</div>
 				</template>
-				<p class="text-gray-400">{{ proposal.description }}</p>
+				<p class="text-gray-400 markdown-body ql-editor" v-html="proposal.description"></p>
 
 				<template #footer>
 					<div class="flex justify-between items-center gap-2">

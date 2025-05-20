@@ -38,18 +38,26 @@ const props = defineProps({
 const emit = defineEmits([
 	"update:modelValue",
 	"update:contentMarkdown",
+	"update:contentHTML",
 	"selection-change",
 	"text-change",
 ]);
 
 const content = ref(props.modelValue);
 const contentMarkdown = ref("");
+const contentHTML = ref("");
 
 watch(
 	() => props.modelValue,
 	(val) => (content.value = val)
 );
-watch(content, (val) => emit("update:modelValue", val));
+watch(content, (val) => {
+	emit("update:modelValue", val);
+
+	const html = editor?.value?.getHTML();
+
+	emit("update:contentHTML", html);
+});
 
 const editor = ref(null);
 const quillInstance = ref(null);
@@ -72,7 +80,6 @@ function updateMarkdown() {
 			headingStyle: "atx",
 		});
 		contentMarkdown.value = turndownService.turndown(html);
-		console.log(turndownService.turndown("<h1> Heading </h1>"));
 		emit("update:contentMarkdown", contentMarkdown.value);
 	}
 }
@@ -147,5 +154,6 @@ defineExpose({
 	getHTML: () => editor.value?.getHTML?.(),
 	getMarkdown: () => contentMarkdown.value,
 	getText: () => quillInstance.value?.getText?.(),
+	getQuill: () => quillInstance.value?.getQuill?.(),
 });
 </script>

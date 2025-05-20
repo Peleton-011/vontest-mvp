@@ -71,8 +71,7 @@ const totalPages = computed(() =>
 					<template #header>
 						<div class="text-lg font-bold">{{ vontest.title }}</div>
 					</template>
-					<p class="text-sm text-gray-400 border-neutral-700">
-						{{ vontest.description }}
+					<p class="prose dark:prose-inverted markdown-body ql-editor text-sm text-gray-400 border-neutral-700" v-html="vontest.description">
 					</p>
 					<template #footer>
 						<div class="flex justify-between items-center gap-2">

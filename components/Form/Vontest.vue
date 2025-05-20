@@ -41,7 +41,7 @@ const submit = async () => {
 				<ClientOnly>
 					<!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
 					<MdEditor
-						v-model:contentMarkdown="form.description"
+						v-model:contentHTML="form.description"
 						id="description"
 					/>
 				</ClientOnly>
