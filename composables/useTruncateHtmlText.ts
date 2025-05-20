@@ -1,4 +1,4 @@
-import truncate from "truncate-html"
+import truncate from "truncate-html";
 
 function getDomLineHeight($dom: HTMLElement): number {
 	const style = window.getComputedStyle($dom);
@@ -20,20 +20,19 @@ function getDomLineHeight($dom: HTMLElement): number {
 function truncateHtmlContent(
 	$container: HTMLElement,
 	$textDom: HTMLElement,
+	originalHtml: string,
 	maxLine: number,
 	ellipsis: string
 ) {
-	const maxHeight = maxLine * getDomLineHeight($container);
-	const originalHtml = $textDom.innerHTML;
-
+	const lineHeight = getDomLineHeight($container);
+	const maxHeight = maxLine * lineHeight + 2; // add small tolerance
 	let left = 0;
 	let right = originalHtml.length;
 	let result = originalHtml;
 
-	while (left < right) {
+	while (left <= right) {
 		const middle = Math.floor((left + right) / 2);
 		const truncated = truncate(originalHtml, middle, { byWords: true });
-
 		$textDom.innerHTML = truncated + ellipsis;
 
 		const height = $container.getBoundingClientRect().height;
@@ -46,7 +45,7 @@ function truncateHtmlContent(
 		}
 	}
 
-	$textDom.innerHTML = result ;
+	$textDom.innerHTML = result + ellipsis;
 }
 
 export default function useTruncateHtmlText(
@@ -59,27 +58,41 @@ export default function useTruncateHtmlText(
 	const originalHtml = $textElem.innerHTML;
 	let isTruncated = true;
 
+	// Check if content already fits
+	const lineHeight = getDomLineHeight($textContainerElem);
+	const maxHeight = maxLines * lineHeight + 2; // tolerance
+	$textElem.innerHTML = originalHtml;
+	const actualHeight = $textContainerElem.getBoundingClientRect().height;
+
+	if (actualHeight <= maxHeight) {
+		// Exit early: no truncation or toggle needed
+		return;
+	}
+
+	// Initial truncate
 	truncateHtmlContent(
 		$textContainerElem,
 		$textElem,
-		maxLines,
-		moreText
+		originalHtml,
+		maxLines - 1,
+		""
 	);
 
 	const $toggle = document.createElement("span");
 	$toggle.textContent = moreText;
 	$toggle.style.cursor = "pointer";
 	$toggle.style.color = "#05df72";
-    $toggle.style.width = "100%";
-    $toggle.style.display = "flex";
-    $toggle.style.justifyContent = "center";
-    $toggle.style.marginLeft = "0.5em";
+	$toggle.style.width = "100%";
+	$toggle.style.display = "flex";
+	$toggle.style.justifyContent = "center";
+	$toggle.style.marginTop = "0.5em";
 
 	$textContainerElem.appendChild($toggle);
 
 	$toggle.addEventListener("click", (e) => {
-        e.stopPropagation();
-        e.preventDefault();
+		e.preventDefault();
+		e.stopPropagation();
+
 		if (isTruncated) {
 			$textElem.innerHTML = originalHtml;
 			$toggle.textContent = lessText;
@@ -87,11 +100,13 @@ export default function useTruncateHtmlText(
 			truncateHtmlContent(
 				$textContainerElem,
 				$textElem,
+				originalHtml,
 				maxLines,
-				moreText
+				""
 			);
 			$toggle.textContent = moreText;
 		}
+
 		isTruncated = !isTruncated;
 	});
 }
