@@ -3,35 +3,58 @@ const props = defineProps<{
 	vontestId: string;
 }>();
 
-const open = ref(false);
 const { form, submitProposal, loading, error } = useProposals(props.vontestId);
 
 const submit = async () => {
-	await submitProposal();
-	if (!error) open.value = false;
+	const newProposal = await submitProposal();
+
+	if (newProposal) {
+		navigateTo(`/vontests/${props.vontestId}`);
+	}
 };
 </script>
 
 <template>
-	<div>
-		<UButton label="New Proposal" variant="subtle" @click="open = true" block/>
-		<UModal title="Submit a Proposal" v-model:open="open">
-			<template #body>
-				<form @submit.prevent="submit" class="space-y-4">
-					<div>
-						<label for="title" class="block text-sm mb-1">Title</label>
-						<UInput id="title" v-model="form.title" required class="w-full" />
-					</div>
-					<div>
-						<label for="desc" class="block text-sm mb-1">Description</label>
-						<UTextarea id="desc" v-model="form.description" :rows="3" class="w-full" />
-					</div>
-					<UButton type="submit" :loading="loading" class="font-bold">
-						Submit
-						<UIcon name="i-lucide-send" class="ml-2" />
-					</UButton>
-				</form>
-			</template>
-		</UModal>
+	<div class="w-full flex flex-col items-center">
+		<form
+			@submit.prevent="submit"
+			class="space-y-4 md:max-w-3/4 lg:max-w-1/2"
+		>
+			<h1 class="text-2xl font-bold my-4 w-full text-center">
+				Submit a new Proposal
+			</h1>
+
+			<div>
+				<label for="title" class="block mb-1 text-lg font-semibold">
+					Title
+				</label>
+
+				<UInput
+					id="title"
+					v-model="form.title"
+					placeholder="I think that this is the best way to..."
+					required
+					class="w-full"
+				/>
+			</div>
+			<div>
+				<label
+					for="description"
+					class="block mb-1 text-lg font-semibold"
+				>
+					Description
+				</label>
+				<ClientOnly>
+					<!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
+					<MdEditor
+						v-model:contentHTML="form.description"
+						id="description"
+					/>
+				</ClientOnly>
+			</div>
+			<UButton type="submit" :loading="loading" class="font-bold" to="">
+				Create <UIcon name="i-lucide-arrow-right" class="ml-2" />
+			</UButton>
+		</form>
 	</div>
 </template>

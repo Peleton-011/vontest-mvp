@@ -1,13 +1,12 @@
 <script setup lang="ts">
-
 const { form, createVontest, loading } = useVontests();
 
 const submit = async () => {
 	const newVontest = await createVontest();
 
-    if (newVontest) {
-        navigateTo(`/vontests/${newVontest?.id}`);
-    }
+	if (newVontest) {
+		navigateTo(`/vontests/${newVontest?.id}`);
+	}
 };
 </script>
 
@@ -17,15 +16,13 @@ const submit = async () => {
 			@submit.prevent="submit"
 			class="space-y-4 md:max-w-3/4 lg:max-w-1/2"
 		>
+			<h1 class="text-2xl font-bold my-4 w-full text-center">Submit a new Vontest</h1>
 
-        <h1 class="text-2xl font-bold mb-4">Submit a new Vontest</h1>
-        <hr>
 			<div>
-                
-                <label for="title" class="block mb-1 text-lg font-semibold">
-                        Question
-                    </label>
-                
+				<label for="title" class="block mb-1 text-lg font-semibold">
+					Question
+				</label>
+
 				<UInput
 					id="title"
 					v-model="form.title"
@@ -35,7 +32,10 @@ const submit = async () => {
 				/>
 			</div>
 			<div>
-				<label for="description" class="block mb-1 text-lg font-semibold">
+				<label
+					for="description"
+					class="block mb-1 text-lg font-semibold"
+				>
 					Context (optional)
 				</label>
 				<ClientOnly>
