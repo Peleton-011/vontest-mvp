@@ -17,6 +17,23 @@ function getDomLineHeight($dom: HTMLElement): number {
 	return parseFloat(lineHeight);
 }
 
+function countHtmlWords(htmlString: string) {
+	const el = document.createElement("span");
+	el.innerHTML = htmlString;
+
+	// Clone the node to avoid modifying original input
+	const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+	let text = "";
+
+	while (walker.nextNode()) {
+		text += walker.currentNode.textContent + " ";
+	}
+
+	const words = text.trim().split(/\s+/).filter(Boolean);
+
+	return words.length;
+}
+
 function truncateHtmlContent(
 	$container: HTMLElement,
 	$textDom: HTMLElement,
@@ -27,7 +44,8 @@ function truncateHtmlContent(
 	const lineHeight = getDomLineHeight($container);
 	const maxHeight = maxLine * lineHeight + 2; // add small tolerance
 	let left = 0;
-	let right = originalHtml.length;
+	let right = countHtmlWords(originalHtml);
+
 	let result = originalHtml;
 
 	while (left <= right) {
