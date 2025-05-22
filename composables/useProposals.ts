@@ -106,12 +106,23 @@ export const useProposals = (vontestId: string) => {
 		form.description = proposal.description ?? "";
 	};
 
+    const fetchProposal = async (proposalId: string) => {
+        const { data } = await supabase
+            .from("proposals")
+            .select("*")
+            .eq("id", proposalId)
+            .single();
+    
+        if (data) return data;
+    };
+
 	return {
 		proposals,
 		form,
 		loading,
 		error,
 		fetchProposals,
+        fetchProposal,
 		submitProposal,
 		updateProposal,
 		deleteProposal,

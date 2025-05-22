@@ -83,6 +83,16 @@ export const useVontests = () => {
 		form.description = vontest.description ?? "";
 	};
 
+    const fetchVontest = async (vontestId: string) => {
+        const { data } = await supabase
+            .from("vontests")
+            .select("*")
+            .eq("id", vontestId)
+            .single();
+    
+        if (data) return data;
+    };
+
 	return {
 		vontests: data,
 		loading: pending,
@@ -92,6 +102,7 @@ export const useVontests = () => {
 		createVontest,
 		updateVontest,
 		deleteVontest,
+        fetchVontest,
 		editVontest,
 		resetForm,
 	};
