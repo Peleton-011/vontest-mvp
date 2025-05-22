@@ -1,7 +1,39 @@
 <script setup lang="ts">
-const { form, createVontest, loading } = useVontests();
+import type { Database } from "~/types/supabase";
+
+type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
+
+const props = defineProps<{
+	vontestId?: string;
+}>();
+
+const vontest = ref<Vontest | null>(null);
+
+const {
+	form,
+	createVontest,
+	editVontest,
+	updateVontest,
+	fetchVontest,
+	loading,
+} = useVontests();
+
+onMounted(async () => {
+	if (!props.vontestId) return;
+	vontest.value = (await fetchVontest(props.vontestId)) || null;
+
+	vontest.value && editVontest(vontest.value);
+});
 
 const submit = async () => {
+	if (props.vontestId) {
+		//Handle submit of an update
+		await updateVontest();
+		navigateTo(`/vontests/${props.vontestId}`);
+		return;
+	}
+
+	//Handle submit of a new vontest
 	const newVontest = await createVontest();
 
 	if (newVontest) {
@@ -16,7 +48,9 @@ const submit = async () => {
 			@submit.prevent="submit"
 			class="space-y-4 md:max-w-3/4 lg:max-w-1/2"
 		>
-			<h1 class="text-2xl font-bold my-4 w-full text-center">Submit a new Vontest</h1>
+			<h1 class="text-2xl font-bold my-4 w-full text-center">
+				Submit a new Vontest
+			</h1>
 
 			<div>
 				<label for="title" class="block mb-1 text-lg font-semibold">
