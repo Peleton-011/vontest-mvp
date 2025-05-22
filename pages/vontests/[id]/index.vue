@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
 import type { Database } from "~/types/supabase";
 
 type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
@@ -13,18 +14,10 @@ const vontest = ref<Vontest | null>(null);
 const { proposals, form, loading, fetchProposals, submitProposal } =
 	useProposals(vontestId);
 
-const fetchVontest = async () => {
-	const { data } = await supabase
-		.from("vontests")
-		.select("*")
-		.eq("id", vontestId)
-		.single();
-
-	if (data) vontest.value = data;
-};
+const { fetchVontest, deleteVontest } = useVontests();
 
 onMounted(async () => {
-	await fetchVontest();
+	vontest.value = (await fetchVontest(vontestId)) || null;
 	await fetchProposals();
 });
 </script>
@@ -36,6 +29,10 @@ onMounted(async () => {
 		<UCard v-if="vontest">
 			<template #header>
 				<h1 class="text-2xl font-bold">{{ vontest.title }}</h1>
+				<OptionsDropdown
+					@edit="navigateTo(`/vontests/${vontestId}/edit`)"
+					@delete="deleteVontest(vontestId)"
+				/>
 			</template>
 			<p
 				class="text-gray-400 markdown-body ql-editor"
