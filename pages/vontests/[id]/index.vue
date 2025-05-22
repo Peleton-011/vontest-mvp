@@ -37,7 +37,10 @@ onMounted(async () => {
 			<template #header>
 				<h1 class="text-2xl font-bold">{{ vontest.title }}</h1>
 			</template>
-			<p class="text-gray-400">{{ vontest.description }}</p>
+			<p
+				class="text-gray-400 markdown-body ql-editor"
+				v-html="vontest.description"
+			></p>
 			<template #footer>
 				<div class="flex justify-between items-center gap-2">
 					<small class="text-gray-500"
@@ -47,7 +50,7 @@ onMounted(async () => {
 						}}</small
 					>
 					<div class="w-1/3">
-						<FormProposal
+						<FormSimpleProposal
 							:vontest-id="vontestId"
 							@submit="submitProposal"
 						/>
@@ -57,47 +60,54 @@ onMounted(async () => {
 		</UCard>
 
 		<!-- Proposal List -->
-		<div v-if="proposals.length">
-			<h2 class="text-2xl font-semibold my-4">Proposals</h2>
-			<UCard
-				v-for="proposal in proposals"
-				:key="proposal.id"
-				class="group bg-neutral-800 mb-4 hover:bg-neutral-700 [&>*]:group-hover:border-neutral-700 [&>*]:transition transition"
-			>
-				<template #header>
-					<div class="text-lg font-bold">{{ proposal.title }}</div>
-				</template>
-				<p class="text-gray-400">{{ proposal.description }}</p>
+		<div>
+			<div v-if="proposals.length">
+				<h2 class="text-2xl font-semibold my-4">Proposals</h2>
+				<UCard
+					v-for="proposal in proposals"
+					:key="proposal.id"
+					class="group bg-neutral-800 mb-4 hover:bg-neutral-700 [&>*]:group-hover:border-neutral-700 [&>*]:transition transition"
+				>
+					<template #header>
+						<div class="text-lg font-bold">
+							{{ proposal.title }}
+						</div>
+					</template>
+					<p
+						class="text-gray-400 markdown-body ql-editor"
+						v-html="proposal.description"
+					></p>
 
-				<template #footer>
-					<div class="flex justify-between items-center gap-2">
-						<small class="text-gray-500"
-							>Submitted on
-							{{
-								new Date(
-									proposal.created_at ?? ""
-								).toLocaleString()
-							}}</small
-						>
-
-						<NuxtLink
-							:to="`/vontests/${vontest?.id}/vote`"
-							class="w-1/3"
-						>
-							<UButton
-								block
-								variant="outline"
-								icon="i-lucide-vote"
+					<template #footer>
+						<div class="flex justify-between items-center gap-2">
+							<small class="text-gray-500"
+								>Submitted on
+								{{
+									new Date(
+										proposal.created_at ?? ""
+									).toLocaleString()
+								}}</small
 							>
-								Vote
-							</UButton>
-						</NuxtLink>
-					</div>
-				</template>
-			</UCard>
-		</div>
-		<div v-else class="text-gray-500 text-center">
-			No proposals yet. Be the first to suggest something.
+
+							<NuxtLink
+								:to="`/vontests/${vontest?.id}/vote`"
+								class="w-1/3"
+							>
+								<UButton
+									block
+									variant="outline"
+									icon="i-lucide-vote"
+								>
+									Vote
+								</UButton>
+							</NuxtLink>
+						</div>
+					</template>
+				</UCard>
+			</div>
+			<div v-else class="text-gray-500 text-center p-4">
+				No proposals yet. Be the first to suggest something.
+			</div>
 		</div>
 	</section>
 </template>

@@ -1,10 +1,8 @@
 <script setup lang="ts">
+import StaticCard from "~/components/ui/StaticCard.vue";
 import type { Database } from "~/types/supabase";
 
 type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
-
-const supabase = useSupabaseClient<Database>();
-const user = useSupabaseUser();
 
 const { vontests, refresh, loading, error } = useVontests();
 
@@ -51,65 +49,48 @@ const totalPages = computed(() =>
 						/>
 					</div>
 					<!-- Add Vontest -->
-					<FormVontest :fetch-vontests="refresh" :loading="loading" />
+					<UButton
+						label="New Vontest"
+						color="primary"
+						variant="subtle"
+						to="/vontests/new"
+					/>
 				</div>
 			</div>
 
 			<!-- Vontest Cards -->
-			<NuxtLink
+
+			<StaticCard
 				v-for="vontest in paginatedVontests"
 				:key="vontest.id"
 				:to="`/vontests/${vontest.id}`"
-				class="block"
+				:title="vontest.title || ''"
+				:description="vontest.description || ''"
+				:created="vontest.created_at || ''"
 			>
-				<UCard>
-					<template #header>
-						<div class="text-lg font-bold">{{ vontest.title }}</div>
-					</template>
-					<p class="text-sm text-gray-400 border-neutral-700">
-						{{ vontest.description }}
-					</p>
-					<template #footer>
-						<div class="flex justify-between items-center gap-2">
-							<small class="text-gray-500 border-neutral-700"
-								>Created
-								{{
-									new Date(
-										vontest.created_at ?? ""
-									).toLocaleString()
-								}}</small
-							>
-
-							<div class="flex gap-2">
-								<NuxtLink
-									:to="`/vontests/${vontest.id}/vote`"
-									class="w-1/2"
-								>
-									<UButton
-										block
-										variant="outline"
-										icon="i-lucide-vote"
-									>
-										Vote
-									</UButton>
-								</NuxtLink>
-								<NuxtLink
-									:to="`/vontests/${vontest?.id}/results`"
-									class="w-1/2"
-								>
-									<UButton
-										block
-										variant="outline"
-										icon="i-lucide-chart-bar"
-									>
-										Results
-									</UButton>
-								</NuxtLink>
-							</div>
-						</div>
-					</template>
-				</UCard>
-			</NuxtLink>
+				<template v-slot:actions>
+					<NuxtLink
+						:to="`/vontests/${vontest.id}/vote`"
+						class="w-1/2"
+					>
+						<UButton block variant="outline" icon="i-lucide-vote">
+							Vote
+						</UButton>
+					</NuxtLink>
+					<NuxtLink
+						:to="`/vontests/${vontest?.id}/results`"
+						class="w-1/2"
+					>
+						<UButton
+							block
+							variant="outline"
+							icon="i-lucide-chart-bar"
+						>
+							Results
+						</UButton>
+					</NuxtLink>
+				</template>
+			</StaticCard>
 
 			<!-- Pagination Controls -->
 			<div

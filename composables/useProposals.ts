@@ -37,14 +37,17 @@ export const useProposals = (vontestId: string) => {
 			description: form.description,
 		};
 
-		const { error: insertError } = await supabase
+		const { error: insertError, data } = await supabase
 			.from("proposals")
-			.insert(newProposal);
+			.insert(newProposal)
+			.select();
 
 		if (!insertError) {
 			form.title = "";
 			form.description = "";
 			await fetchProposals();
+			loading.value = false;
+			return data[0];
 		} else {
 			error.value = insertError;
 		}
