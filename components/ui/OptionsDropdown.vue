@@ -2,20 +2,20 @@
 import type { DropdownMenuItem } from "@nuxt/ui";
 
 const props = defineProps<{
-	delete: (e: Event) => void;
-	edit: (e: Event) => void;
+	onDelete: (e: Event) => void;
+	onEdit: (e: Event) => void;
 }>();
 
 const items = ref<DropdownMenuItem[]>([
 	{
 		label: "Edit",
 		icon: "i-lucide-edit",
-		onSelect: (e) => props.edit(e),
+		onSelect: (e) => props.onEdit(e),
 	},
 	{
 		label: "Delete",
 		icon: "i-lucide-trash",
-		onSelect: (e) => props.delete(e),
+		onSelect: (e) => props.onDelete(e),
 	},
 ]);
 </script>
