@@ -30,12 +30,15 @@ onMounted(async () => {
 
 		<UCard v-if="vontest">
 			<template #header>
-				<h1 class="text-2xl font-bold">{{ vontest.title }}</h1>
-				<OptionsDropdown
+                <div class="flex items-center justify-between">
+
+                    <h1 class="text-2xl font-bold">{{ vontest.title }}</h1>
+                    <OptionsDropdown
 					v-if="vontest.created_by === user?.id"
 					@edit="navigateTo(`/vontests/${vontestId}/edit`)"
 					@delete="navigateTo(`/vontests/${vontestId}/delete`)"
-				/>
+                    />
+                </div>
 			</template>
 			<p
 				class="text-gray-400 markdown-body ql-editor"

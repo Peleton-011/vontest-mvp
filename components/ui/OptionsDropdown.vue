@@ -24,19 +24,18 @@ const items = ref<DropdownMenuItem[]>([
 	<UDropdownMenu
 		:items="items"
 		:content="{
-			align: 'start',
+			align: 'end',
 			side: 'bottom',
 			sideOffset: 8,
 		}"
 		:ui="{
-			content: 'w-48',
+			content: 'w-12',
 		}"
 	>
 		<UButton
-			label="Open"
 			icon="i-lucide-menu"
 			color="neutral"
-			variant="outline"
+			variant="ghost"
 		/>
 	</UDropdownMenu>
 </template>
