@@ -6,30 +6,16 @@ type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
 
 const { vontests, refresh, loading, error } = useVontests();
 
-const searchQuery = ref("");
-const currentPage = ref(1);
 const pageSize = 6;
 
-const filteredVontests = computed(() => {
-	return vontests.value.filter((v) => {
-		return (
-			v.title?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-			v.description
-				?.toLowerCase()
-				.includes(searchQuery.value.toLowerCase())
-		);
-	});
-});
-
-const paginatedVontests = computed(() => {
-	const start = (currentPage.value - 1) * pageSize;
-	const end = start + pageSize;
-	return filteredVontests.value.slice(start, end);
-});
-
-const totalPages = computed(() =>
-	Math.ceil(filteredVontests.value.length / pageSize)
-);
+const {
+	searchQuery,
+	currentPage,
+	totalPages,
+	paginatedItems: paginatedVontests,
+	goToNextPage,
+	goToPrevPage,
+} = usePaginationSearch<Vontest>(vontests, pageSize);
 </script>
 
 <template>
@@ -101,7 +87,8 @@ const totalPages = computed(() =>
 					size="sm"
 					icon="i-lucide-chevron-left"
 					:disabled="currentPage === 1"
-					@click="currentPage--"
+                    :variant="currentPage === 1 ? 'soft' : 'solid'"
+					@click="goToPrevPage"
 				/>
 				<span class="text-gray-400"
 					>Page {{ currentPage }} of {{ totalPages }}</span
@@ -110,7 +97,8 @@ const totalPages = computed(() =>
 					size="sm"
 					icon="i-lucide-chevron-right"
 					:disabled="currentPage === totalPages"
-					@click="currentPage++"
+                    :variant="currentPage === totalPages ? 'soft' : 'solid'"
+					@click="goToNextPage"
 				/>
 			</div>
 		</div>
