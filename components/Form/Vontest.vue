@@ -1,13 +1,7 @@
 <script setup lang="ts">
-import type { Database } from "~/types/supabase";
-
-type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
-
 const props = defineProps<{
 	vontestId?: string;
 }>();
-
-const vontest = ref<Vontest | null>(null);
 
 const {
 	form,
@@ -18,11 +12,12 @@ const {
 	loading,
 } = useVontests();
 
+// Fetch vontest if it's an update
 onMounted(async () => {
 	if (!props.vontestId) return;
-	vontest.value = (await fetchVontest(props.vontestId)) || null;
+	const vontest = (await fetchVontest(props.vontestId)) || null;
 
-	vontest.value && editVontest(vontest.value);
+	vontest && editVontest(vontest);
 });
 
 const submit = async () => {
@@ -74,10 +69,7 @@ const submit = async () => {
 				</label>
 				<ClientOnly>
 					<!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
-					<MdEditor
-						v-model="form.description"
-						id="description"
-					/>
+					<MdEditor v-model="form.description" id="description" />
 				</ClientOnly>
 			</div>
 			<UButton type="submit" :loading="loading" class="font-bold" to="">
