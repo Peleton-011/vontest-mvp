@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
+import StaticCard from "~/components/ui/StaticCard.vue";
 import type { Database } from "~/types/supabase";
 
 type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
+type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 
 const route = useRoute();
 const supabase = useSupabaseClient<Database>();
@@ -11,7 +13,7 @@ const user = useSupabaseUser();
 
 const vontestId = route.params.id as string;
 
-const { proposals, submitProposal } = useProposals(vontestId);
+const { proposals, submitProposal, fetchProposals } = useProposals(vontestId);
 
 const { fetchVontest } = useVontests();
 
@@ -26,7 +28,19 @@ const {
 	paginatedItems: paginatedProposals,
 	goToNextPage,
 	goToPrevPage,
-} = usePaginationSearch<Vontest>(proposals, pageSize);
+} = usePaginationSearch<Proposal>(proposals, pageSize);
+
+onMounted(() => {
+	fetchProposals();
+});
+
+watch(proposals, () => {
+	console.log(proposals.value);
+});
+watch(paginatedProposals, () => {
+	console.log(paginatedProposals.value);
+	console.log(paginatedProposals.value.length);
+});
 </script>
 
 <template>
@@ -86,7 +100,7 @@ const {
 						label="New Proposal"
 						color="primary"
 						variant="subtle"
-						to="/proposals/new"
+						:to="'/proposals/' + vontestId + '/new'"
 					/>
 				</div>
 			</div>
@@ -96,21 +110,11 @@ const {
 			<StaticCard
 				v-for="proposal in paginatedProposals"
 				:key="proposal.id"
-				:to="`/proposals/${proposal.id}`"
+				:to="`/proposals/${vontestId}/${proposal.id}`"
 				:title="proposal.title || ''"
 				:description="proposal.description || ''"
 				:created="proposal.created_at || ''"
 			>
-				<template v-slot:actions>
-					<NuxtLink
-						:to="`/vontests/${vontest?.id}/vote`"
-						class="w-1/3"
-					>
-						<UButton block variant="outline" icon="i-lucide-vote">
-							Vote
-						</UButton>
-					</NuxtLink>
-				</template>
 			</StaticCard>
 
 			<!-- Pagination Controls -->
@@ -141,5 +145,4 @@ const {
 			No proposals yet. Be the first to suggest something.
 		</div>
 	</section>
-
 </template>
