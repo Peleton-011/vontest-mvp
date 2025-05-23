@@ -70,6 +70,8 @@ const submitVotes = async () => {
 	if (error) alert(error.message);
 	else alert("Votes submitted!");
 
+    navigateTo('/vontests/' + vontestId + '/results');
+
 	loading.value = false;
 };
 
