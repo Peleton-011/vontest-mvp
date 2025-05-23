@@ -7,14 +7,16 @@ type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
 const route = useRoute();
 const supabase = useSupabaseClient<Database>();
 
+const user = useSupabaseUser();
+
 const vontestId = route.params.id as string;
 
 const vontest = ref<Vontest | null>(null);
 
-const { proposals, form, loading, fetchProposals, submitProposal } =
+const { proposals, fetchProposals, submitProposal } =
 	useProposals(vontestId);
 
-const { fetchVontest, deleteVontest } = useVontests();
+const { fetchVontest } = useVontests();
 
 onMounted(async () => {
 	vontest.value = (await fetchVontest(vontestId)) || null;
@@ -30,8 +32,9 @@ onMounted(async () => {
 			<template #header>
 				<h1 class="text-2xl font-bold">{{ vontest.title }}</h1>
 				<OptionsDropdown
+					v-if="vontest.created_by === user?.id"
 					@edit="navigateTo(`/vontests/${vontestId}/edit`)"
-					@delete="deleteVontest(vontestId)"
+					@delete="navigateTo(`/vontests/${vontestId}/delete`)"
 				/>
 			</template>
 			<p
