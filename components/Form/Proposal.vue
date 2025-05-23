@@ -1,11 +1,35 @@
 <script setup lang="ts">
 const props = defineProps<{
 	vontestId: string;
+	proposalId?: string;
 }>();
 
-const { form, submitProposal, loading, error } = useProposals(props.vontestId);
+const {
+	form,
+	submitProposal,
+	editProposal,
+	updateProposal,
+	fetchProposal,
+	loading,
+	error,
+} = useProposals(props.vontestId);
+
+// Fetch proposal if it's an update
+onMounted(async () => {
+	if (props.proposalId) {
+		const proposal = await fetchProposal(props.proposalId);
+		proposal && editProposal(proposal);
+	}
+});
 
 const submit = async () => {
+	if (props.proposalId) {
+		//Handle submit of an update
+		await updateProposal();
+		navigateTo(`/vontests/${props.vontestId}`);
+		return;
+	}
+
 	const newProposal = await submitProposal();
 
 	if (newProposal) {
@@ -46,10 +70,7 @@ const submit = async () => {
 				</label>
 				<ClientOnly>
 					<!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
-					<MdEditor
-						v-model:contentHTML="form.description"
-						id="description"
-					/>
+					<MdEditor v-model="form.description" id="description" />
 				</ClientOnly>
 			</div>
 			<UButton type="submit" :loading="loading" class="font-bold" to="">

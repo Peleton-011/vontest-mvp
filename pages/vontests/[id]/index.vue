@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
 import type { Database } from "~/types/supabase";
 
 type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
@@ -6,25 +7,19 @@ type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
 const route = useRoute();
 const supabase = useSupabaseClient<Database>();
 
+const user = useSupabaseUser();
+
 const vontestId = route.params.id as string;
 
 const vontest = ref<Vontest | null>(null);
 
-const { proposals, form, loading, fetchProposals, submitProposal } =
+const { proposals, fetchProposals, submitProposal } =
 	useProposals(vontestId);
 
-const fetchVontest = async () => {
-	const { data } = await supabase
-		.from("vontests")
-		.select("*")
-		.eq("id", vontestId)
-		.single();
-
-	if (data) vontest.value = data;
-};
+const { fetchVontest } = useVontests();
 
 onMounted(async () => {
-	await fetchVontest();
+	vontest.value = (await fetchVontest(vontestId)) || null;
 	await fetchProposals();
 });
 </script>
@@ -35,7 +30,15 @@ onMounted(async () => {
 
 		<UCard v-if="vontest">
 			<template #header>
-				<h1 class="text-2xl font-bold">{{ vontest.title }}</h1>
+                <div class="flex items-center justify-between">
+
+                    <h1 class="text-2xl font-bold">{{ vontest.title }}</h1>
+                    <OptionsDropdown
+					v-if="vontest.created_by === user?.id"
+					@edit="navigateTo(`/vontests/${vontestId}/edit`)"
+					@delete="navigateTo(`/vontests/${vontestId}/delete`)"
+                    />
+                </div>
 			</template>
 			<p
 				class="text-gray-400 markdown-body ql-editor"

@@ -7,7 +7,7 @@
 			"
 			ref="editor"
 			v-model:content="content"
-			contentType="delta"
+			contentType="html"
 			toolbar="full"
 			:readOnly="readOnly"
 			@ready="handleReady"
@@ -30,7 +30,7 @@ import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
 const props = defineProps({
 	readOnly: Boolean,
-	modelValue: Object,
+	modelValue: String,
 	contentMarkdown: String,
 	class: String,
 });
@@ -38,14 +38,12 @@ const props = defineProps({
 const emit = defineEmits([
 	"update:modelValue",
 	"update:contentMarkdown",
-	"update:contentHTML",
 	"selection-change",
 	"text-change",
 ]);
 
 const content = ref(props.modelValue);
 const contentMarkdown = ref("");
-const contentHTML = ref("");
 
 watch(
 	() => props.modelValue,
