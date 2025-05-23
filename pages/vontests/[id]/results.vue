@@ -9,7 +9,7 @@ const supabase = useSupabaseClient<Database>();
 type ProposalSummary = {
 	id: string;
 	title: string | null;
-    description: string | null;
+	description: string | null;
 	score?: number;
 };
 
@@ -110,20 +110,35 @@ onMounted(fetchResults);
 				</UButton>
 
 				<template #content>
-                    <div class="-mt-4 ml-4">
-				<div ref="container">
-					<span
-						ref="text"
-						class="prose dark:prose-inverted markdown-body ql-editor pt-0 text-sm text-gray-400 border-neutral-700"
-						v-html="proposal.description"
-					>
-					</span>
-				</div>
-			</div>
+					<div class="-mt-4 ml-4">
+						<div ref="container">
+							<span
+								ref="text"
+								class="prose dark:prose-inverted markdown-body ql-editor pt-0 text-sm text-gray-400 border-neutral-700"
+								v-html="proposal.description"
+							>
+							</span>
+						</div>
+					</div>
 				</template>
 			</UCollapsible>
 		</div>
 
 		<div v-else class="text-gray-400">No votes have been cast yet.</div>
+	</section>
+
+	<section class="max-w-3xl mx-auto p-6 text-white">
+		<div class="flex justify-end items-center gap-2">
+			<div class="w-1/3">
+				<UButton
+					block
+					label="Back"
+					color="neutral"
+					variant="outline"
+                    icon="i-lucide-chevron-left"
+					@click="navigateTo(`/vontests/${vontestId}`)"
+				/>
+			</div>
+		</div>
 	</section>
 </template>
