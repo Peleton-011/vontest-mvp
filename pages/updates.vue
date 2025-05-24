@@ -1,17 +1,21 @@
 <script setup lang="ts">
-const { data: doc } = await useAsyncData("protected-docs", () =>
-	queryCollection("updates").first()
+const { data: docs } = await useAsyncData("protected-docs", () =>
+	queryCollection("updates").order("title", "DESC").all()
+
+
 );
 </script>
 
 <template>
 	<section class="max-w-3xl mx-auto p-6 text-white">
-
-		<UCard class="bg-neutral-800 mt-6">
-
+		<UCard v-if="docs" class="bg-neutral-800 mt-6" v-for="doc in docs">
 			<div class="markdown-body max-w-none">
-				<ContentRenderer :value="doc" v-if="doc" />
-				<div v-else class="text-gray-400">Loading content...</div>
+				<ContentRenderer :value="doc" />
+			</div>
+		</UCard>
+		<UCard v-else class="bg-neutral-800 mt-6">
+			<div class="markdown-body max-w-none text-gray-400">
+				Loading content...
 			</div>
 		</UCard>
 	</section>
