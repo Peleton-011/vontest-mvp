@@ -10,7 +10,7 @@ const submit = async () => {
 	const newProposal = await submitProposal();
 
 	if (newProposal) {
-		navigateTo(`/vontests/${newProposal?.id}`);
+		navigateTo(`/proposals/${props.vontestId}/${newProposal?.id}`);
 	}
 };
 </script>
@@ -49,7 +49,7 @@ const submit = async () => {
 						/>
 					</div>
 					<div class="flex w-full justify-between">
-						<NuxtLink :to="'/proposals/new/' + vontestId">
+						<NuxtLink :to="'/proposals/' + props.vontestId + '/new/'">
 							<UButton
 								variant="subtle"
 								class="font-bold"
