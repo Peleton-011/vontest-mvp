@@ -1,6 +1,6 @@
 <script setup lang="ts">
-const { data: doc } = await useAsyncData("protected-docs", () =>
-	queryCollection("docs").first()
+const { data: docs } = await useAsyncData("protected-docs", () =>
+	queryCollection("docs").order("title", "DESC").all()
 );
 
 definePageMeta({
@@ -20,14 +20,14 @@ definePageMeta({
 			</p>
 		</UCard>
 
-		<UCard class="bg-neutral-800 mt-6">
-			<template #header>
-				<div class="text-lg font-semibold">Markdown Content</div>
-			</template>
-
+		<UCard v-for="doc in docs" :key="doc.id" class="bg-neutral-800 mt-6">
 			<div class="markdown-body max-w-none">
-				<ContentRenderer :value="doc" v-if="doc" />
-				<div v-else class="text-gray-400">Loading content...</div>
+				<ContentRenderer :value="doc" />
+			</div>
+		</UCard>
+		<UCard v-if="!docs" class="bg-neutral-800 mt-6">
+			<div class="markdown-body max-w-none text-gray-400">
+				Loading content...
 			</div>
 		</UCard>
 	</section>
