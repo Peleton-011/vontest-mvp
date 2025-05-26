@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { data: docs } = await useAsyncData("protected-docs", () =>
-	queryCollection("docs").order("title", "DESC").all()
+	queryCollection("docs").order("date", "DESC").all()
 );
 
 definePageMeta({
