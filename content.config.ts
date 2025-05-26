@@ -16,9 +16,10 @@ export default defineContentConfig({
 						})
 					)
 					.optional(),
+				date: z.string(),
 			}),
 		}),
-        updates: defineCollection({
+		updates: defineCollection({
 			type: "page",
 			source: "updates/*.md",
 			schema: z.object({
@@ -32,6 +33,7 @@ export default defineContentConfig({
 						})
 					)
 					.optional(),
+				date: z.string(),
 			}),
 		}),
 	},
