@@ -138,7 +138,7 @@ CREATE TRIGGER trg_prevent_cycle
 
 ```sql
 CREATE OR REPLACE FUNCTION create_comment_with_links(
-  in_thread_id    bigint,
+  in_thread_id    uuid,
   in_user_id      uuid,
   in_comment_text text,
   in_parent_ids   uuid[]

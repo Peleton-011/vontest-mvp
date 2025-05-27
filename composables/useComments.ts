@@ -9,12 +9,11 @@ export const useComments = () => {
 		const { data, error } = await supabase.functions.invoke(
 			"create-comment-with-links",
 			{
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
+				body: {
 					thread_id: threadId,
 					comment: text,
 					parent_ids: parentIds,
-				}),
+				},
 			}
 		);
 
@@ -34,10 +33,7 @@ export const useComments = () => {
 				`
             comment,
             created_at,
-            users (
-              username,
-              avatar_url
-            )
+            users (user_metadata)
           `
 			)
 			.eq("thread_id", threadId)
