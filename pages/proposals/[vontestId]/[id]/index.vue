@@ -90,11 +90,11 @@ const navigateTo = (path: string) => router.push(path);
 				>
 					<div class="flex items-center mb-1">
 						<img
-							v-if="c.users.avatar_url"
-							:src="c.users.avatar_url"
+							v-if="c.profiles.avatar_url"
+							:src="c.profiles.avatar_url"
 							class="w-6 h-6 rounded-full mr-2"
 						/>
-						<span class="font-medium">{{ c.users.username }}</span>
+						<span class="font-medium">{{ c.profiles.username }}</span>
 						<small class="text-gray-500 ml-2">
 							• {{ new Date(c.created_at!).toLocaleString() }}
 						</small>

@@ -33,7 +33,7 @@ export const useComments = () => {
 				`
             comment,
             created_at,
-            users (user_metadata)
+            profiles (username, avatar_url)
           `
 			)
 			.eq("thread_id", threadId)
