@@ -55,9 +55,49 @@ const navigateTo = (path: string) => router.push(path);
 
 <template>
 	<section class="max-w-4xl mx-auto px-4 py-8 text-white space-y-6">
-		<!-- Proposal card as before -->
 		<UCard v-if="proposal">
-			<!-- ... existing header, body, footer ... -->
+			<template #header>
+				<div class="flex items-center justify-between">
+					<h1 class="text-2xl font-bold">{{ proposal.title }}</h1>
+					<OptionsDropdown
+						v-if="proposal.created_by === user?.id"
+						@edit="navigateTo(`/proposals/${id}/edit`)"
+						@delete="navigateTo(`/proposals/${id}/delete`)"
+					/>
+				</div>
+			</template>
+			<p
+				class="text-gray-400 markdown-body ql-editor"
+				v-html="proposal.description"
+			></p>
+			<template #footer>
+				<div class="flex justify-between items-center gap-2">
+					<small class="text-gray-500"
+						>Created on
+						{{
+							new Date(proposal.created_at ?? "").toLocaleString()
+						}}</small
+					>
+					<div class="w-1/3 flex gap-2">
+						<UButton
+							label="Respond"
+							variant="subtle"
+							:disabled="true"
+							block
+							icon="i-lucide-message-circle"
+						/>
+						<UButton
+							label="Vote"
+							variant="subtle"
+							@click="
+								navigateTo('/vontests/' + vontestId + '/vote')
+							"
+							block
+							icon="i-lucide-vote"
+						/>
+					</div>
+				</div>
+			</template>
 		</UCard>
 
 		<!-- Comments section -->
@@ -94,7 +134,9 @@ const navigateTo = (path: string) => router.push(path);
 							:src="c.profiles.avatar_url"
 							class="w-6 h-6 rounded-full mr-2"
 						/>
-						<span class="font-medium">{{ c.profiles.username }}</span>
+						<span class="font-medium">{{
+							c.profiles.username
+						}}</span>
 						<small class="text-gray-500 ml-2">
 							• {{ new Date(c.created_at!).toLocaleString() }}
 						</small>
