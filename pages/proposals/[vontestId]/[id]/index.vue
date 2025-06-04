@@ -49,6 +49,20 @@ const postComment = async () => {
 	}
 };
 
+// handler to post a reply
+const postReply = async (commentId: string) => {
+    if (!newCommentText.value.trim()) return;
+    console.log(commentId)
+    try {
+        await addComment(proposalId, newCommentText.value, [commentId]);
+        // simple: re-fetch the whole list
+        comments.value = await fetchComments(proposalId);
+        newCommentText.value = "";
+    } catch (e: any) {
+        console.error("Failed to post reply:", e.message);
+    }
+};
+
 // navigation helper
 const navigateTo = (path: string) => router.push(path);
 </script>
@@ -61,8 +75,8 @@ const navigateTo = (path: string) => router.push(path);
 					<h1 class="text-2xl font-bold">{{ proposal.title }}</h1>
 					<OptionsDropdown
 						v-if="proposal.created_by === user?.id"
-						@edit="navigateTo(`/proposals/${id}/edit`)"
-						@delete="navigateTo(`/proposals/${id}/delete`)"
+						@edit="navigateTo(`/proposals/${proposalId}/edit`)"
+						@delete="navigateTo(`/proposals/${proposalId}/delete`)"
 					/>
 				</div>
 			</template>
@@ -123,26 +137,51 @@ const navigateTo = (path: string) => router.push(path);
 
 			<!-- Comments list -->
 			<div class="space-y-4">
-				<div
-					v-for="c in comments"
-					:key="c.comment_id"
-					class="p-4 bg-gray-900 rounded"
-				>
-					<div class="flex items-center mb-1">
-						<img
-							v-if="c.profiles.avatar_url"
-							:src="c.profiles.avatar_url"
-							class="w-6 h-6 rounded-full mr-2"
-						/>
-						<span class="font-medium">{{
-							c.profiles.username
-						}}</span>
-						<small class="text-gray-500 ml-2">
-							• {{ new Date(c.created_at!).toLocaleString() }}
-						</small>
-					</div>
+				<UCard v-for="c in comments" :key="c.id">
+					<template #header>
+						<div class="flex items-center mb-1">
+							<img
+								v-if="c.profiles.avatar_url"
+								:src="c.profiles.avatar_url"
+								class="w-6 h-6 rounded-full mr-2"
+							/>
+							<span class="font-medium">{{
+								c.profiles.username
+							}}</span>
+							<small class="text-gray-500 ml-2">
+								• {{ new Date(c.created_at!).toLocaleString() }}
+							</small>
+						</div>
+					</template>
 					<p class="text-gray-300">{{ c.comment }}</p>
-				</div>
+					<template #footer>
+						<UCollapsible>
+							<UButton
+								label="Reply"
+								variant="subtle"
+								size="xs"
+								icon="i-lucide-message-circle"
+							/>
+							<template #content>
+								<div class="mb-4">
+									<textarea
+										v-model="newCommentText"
+										class="w-full p-2 rounded bg-gray-800"
+										rows="3"
+										placeholder="Write your reply..."
+									/>
+									<div class="text-right mt-2">
+										<UButton
+											label="Post Comment"
+											:disabled="!newCommentText.trim()"
+											@click="() => {postReply(c.id!); console.log(c)}"
+										/>
+									</div>
+								</div>
+							</template>
+						</UCollapsible>
+					</template>
+				</UCard>
 			</div>
 		</div>
 	</section>

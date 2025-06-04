@@ -31,6 +31,7 @@ export const useComments = () => {
 			.from("comments")
 			.select(
 				`
+            id,
             comment,
             created_at,
             profiles (username, avatar_url)
