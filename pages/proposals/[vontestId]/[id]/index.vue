@@ -19,12 +19,12 @@ const proposal = ref<Proposal | null>(null)
 
 
 onMounted(async () => {
-  try {
-    const fetched = await fetchProposal(proposalId);
-    proposal.value = fetched || null;
-  } catch (e) {
-    console.error("Error fetching proposal:", e);
-  }
+    try {
+        const fetched = await fetchProposal(proposalId);
+        proposal.value = fetched || null;
+    } catch (e) {
+        console.error("Error fetching proposal:", e);
+    }
 });
 
 // Comments state (DAG‐aware tree)
@@ -32,7 +32,7 @@ const { fetchComments, addComment } = useComments();
 const commentsTree = ref<CommentNode[]>([]);
 const nodeMap = ref<Map<string, CommentNode>>(new Map());
 const newCommentText = ref("");
-const replyTexts = ref<Record<string, string>>({});
+const newCommentParents = ref<string[]>([])
 
 // Helper: build a flat map id → CommentNode from the nested tree
 const buildNodeMap = (roots: CommentNode[]) => {
@@ -51,13 +51,6 @@ const loadComments = async () => {
     commentsTree.value = roots;
     buildNodeMap(roots);
 
-    // Ensure replyTexts has an entry for every comment ID (empty string if none)
-    const allIds = Array.from(nodeMap.value.keys());
-    allIds.forEach((id) => {
-      if (!(id in replyTexts.value)) {
-        replyTexts.value[id] = "";
-      }
-    });
   } catch (e) {
     console.error("Error loading comments:", e);
   }
@@ -65,12 +58,13 @@ const loadComments = async () => {
 
 onMounted(loadComments);
 
-// Handler: post a new top-level comment
+// Handler: post a new comment
 const postComment = async () => {
 	if (!newCommentText.value.trim()) return;
 	try {
-		await addComment(proposalId, newCommentText.value);
+		await addComment(proposalId, newCommentText.value, newCommentParents.value);
 		newCommentText.value = "";
+        newCommentParents.value = [];
 		await loadComments();
 	} catch (e: unknown) {
 		if (e instanceof Error) {
@@ -81,28 +75,10 @@ const postComment = async () => {
 	}
 };
 
-// Handler: post a reply to a given comment ID
-const postReply = async (commentId: string) => {
-	const text = replyTexts.value[commentId];
-	if (!text?.trim()) return;
-	try {
-		await addComment(proposalId, text, [commentId]);
-		replyTexts.value[commentId] = "";
-		await loadComments();
-	} catch (e: unknown) {
-		if (e instanceof Error) {
-			console.error("Failed to post reply:", e.message);
-		} else {
-			console.error("An unknown error occurred:", e);
-		}
-	}
-};
-
 // Navigation helper
 const navigateTo = (path: string) => router.push(path);
 
 watch(commentsTree, () => {console.log("Comments updated:", commentsTree.value); console.log(buildNodeMap(commentsTree.value))});
-watch(replyTexts, () => console.log("Reply texts updated:", replyTexts.value));
 </script>
 
 <template>
@@ -182,9 +158,11 @@ watch(replyTexts, () => console.log("Reply texts updated:", replyTexts.value));
 					:node="node"
 					:depth="0"
 					:node-map="nodeMap"
-					:reply-texts="replyTexts"
-                    @update:reply-text="({id, value}) => (replyTexts.value[id] = value)"
-                    @post-reply="postReply"
+					:new-comment-text="newCommentText"
+                    :new-comment-parents="newCommentParents"
+                    @update:comment-text="newCommentText = $event"
+                    @update:comment-parents="newCommentParents = $event"
+                    @post-comment="postComment"
 				/>
 			</div>
 		</div>

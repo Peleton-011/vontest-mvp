@@ -6,25 +6,23 @@ const props = defineProps<{
 	node: CommentNode;
 	depth?: number;
 	nodeMap: Map<string, CommentNode>;
-	replyTexts: Record<string, string>;
+	newCommentParents: string[];
+	newCommentText: string;
 }>();
 
-// We will emit two events:
-// 1) update:reply-text  (payload: { id: string; value: string })
-// 2) post-reply        (payload: commentId: string)
 const emit = defineEmits<{
-	(e: "update:reply-text", payload: { id: string; value: string }): void;
-	(e: "post-reply", id: string): void;
+	(e: "update:comment-text", value: string): void;
+	(e: "update:comment-parents", parents: string[]): void;
+	(e: "post-comment"): void;
 }>();
 
-// Computed getter/setter for this node’s replyText
-const localReply = computed<string>({
+// Computed getter/setter for this node’s comment text
+const localCommentText = computed<string>({
 	get: () => {
-		// If no entry exists yet, fallback to empty string
-		return props.replyTexts[props.node.id] || "";
+		return props.newCommentText || "";
 	},
 	set: (val: string) => {
-		emit("update:reply-text", { id: props.node.id, value: val });
+		emit("update:comment-text", val);
 	},
 });
 
@@ -33,9 +31,28 @@ const toggleBackRefs = () => {
 	showBackRefs.value = !showBackRefs.value;
 };
 
-// When the user clicks “Post Comment” under this node:
-const onClickPostReply = () => {
-	emit("post-reply", props.node.id);
+const handleReplyButtonClick = () => {
+	if (
+		!props.newCommentParents.length ||
+		!props.newCommentParents.includes(props.node.id)
+	) {
+		const newCommentParents = [...props.newCommentParents];
+		newCommentParents.push(props.node.id);
+		emit("update:comment-parents", newCommentParents);
+	} else {
+		const newCommentParents = props.newCommentParents.filter(
+			(id) => id !== props.node.id
+		);
+		emit("update:comment-parents", newCommentParents);
+	}
+};
+
+const renderReplyButtonLabel = () => {
+	if (!props.newCommentParents.length) return "Reply";
+	if (!props.newCommentParents.includes(props.node.id))
+		return "Also Reply To";
+	if (props.newCommentParents[0] === props.node.id) return "Cancel";
+	return "Stop Replying To";
 };
 </script>
 
@@ -92,31 +109,13 @@ const onClickPostReply = () => {
 
 					<!-- Reply button / collapsible -->
 					<div>
-						<UCollapsible>
-							<UButton
-								label="Reply"
-								variant="subtle"
-								size="xs"
-								icon="i-lucide-message-circle"
-							/>
-							<template #content>
-								<div class="mb-4">
-									<textarea
-										v-model="localReply"
-										class="w-full p-2 rounded bg-gray-800"
-										rows="3"
-										placeholder="Write your reply..."
-									/>
-									<div class="text-right mt-2">
-										<UButton
-											label="Post Comment"
-											:disabled="!localReply?.trim()"
-											@click="onClickPostReply()"
-										/>
-									</div>
-								</div>
-							</template>
-						</UCollapsible>
+						<UButton
+							:label="renderReplyButtonLabel()"
+							variant="subtle"
+							size="xs"
+							icon="i-lucide-message-circle"
+							@click="handleReplyButtonClick"
+						/>
 					</div>
 
 					<!-- Back‐references (“Referenced by X other comments”) -->
@@ -146,22 +145,42 @@ const onClickPostReply = () => {
 					</div>
 				</div>
 			</template>
+		</UCard>
 
-			<!-- Recursive rendering of primary‐nested children -->
-			<div v-if="node.children.length" class="space-y-4 mt-4">
-				<CommentItem
-					v-for="child in node.children"
-					:key="child.id"
-					:node="child"
-					:depth="(depth || 0) + 1"
-					:node-map="nodeMap"
-					:reply-texts="replyTexts"
-					@update:reply-text="
-						(payload) => emit('update:reply-text', payload)
-					"
-					@post-reply="(payload) => emit('post-reply', payload)"
+		<div v-if="newCommentParents[0] === node.id" class="mb-4">
+			<textarea
+				v-model="localCommentText"
+				class="w-full p-2 rounded bg-gray-800"
+				rows="3"
+				placeholder="Write your reply..."
+			/>
+			<div class="text-right mt-2">
+				<UButton
+					label="Post Comment"
+					:disabled="!localCommentText?.trim()"
+					@click="emit('post-comment')"
 				/>
 			</div>
-		</UCard>
+		</div>
+
+		<!-- Recursive rendering of primary‐nested children -->
+		<div v-if="node.children.length" class="space-y-4 mt-4">
+			<CommentItem
+				v-for="child in node.children"
+				:key="child.id"
+				:node="child"
+				:depth="(depth || 0) + 1"
+				:node-map="nodeMap"
+				:new-comment-text="localCommentText"
+				:new-comment-parents="newCommentParents"
+				@post-comment="emit('post-comment')"
+				@update:comment-text="
+					(payload) => emit('update:comment-text', payload)
+				"
+				@update:comment-parents="
+					(payload) => emit('update:comment-parents', payload)
+				"
+			/>
+		</div>
 	</div>
 </template>
