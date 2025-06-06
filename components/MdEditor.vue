@@ -1,15 +1,15 @@
 <template>
 	<ClientOnly>
 		<QuillEditor
+			ref="editor"
+			v-model:content="content"
 			:class="
 				'w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed)  disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) ' +
 				(props.class ? props.class : '')
 			"
-			ref="editor"
-			v-model:content="content"
-			contentType="html"
+			content-type="html"
 			toolbar="full"
-			:readOnly="readOnly"
+			:read-only="readOnly"
 			@ready="handleReady"
 			@selection-change="handleSelectionChange"
 			@text-change="handleTextChange"
@@ -19,31 +19,39 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, watch } from "vue";
 import { QuillEditor } from "@vueup/vue-quill";
 // import BlotFormatter from "quill-blot-formatter";
 // import ImageUploader from "quill-image-uploader";
 import TurndownService from "turndown";
-import axios from "axios";
-
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
 const props = defineProps({
 	readOnly: Boolean,
-	modelValue: String,
-	contentMarkdown: String,
-	class: String,
+	modelValue: {
+		type: String,
+		default: "",
+	},
+	contentMarkdown: {
+		type: String,
+		default: "",
+	},
+	class: {
+		type: String,
+		default: "",
+	},
 });
 
 const emit = defineEmits([
 	"update:modelValue",
 	"update:contentMarkdown",
+	"update:contentHTML",
 	"selection-change",
 	"text-change",
 ]);
 
 const content = ref(props.modelValue);
-const contentMarkdown = ref("");
+const contentMarkdown = ref(props.contentMarkdown);
 
 watch(
 	() => props.modelValue,
