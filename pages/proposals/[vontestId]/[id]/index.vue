@@ -3,7 +3,7 @@ import { useRoute, useRouter } from "vue-router";
 import type { Database } from "~/types/supabase";
 import CommentItem from "~/components/ui/CommentItem.vue";
 import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 
 type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 
@@ -15,24 +15,21 @@ const proposalId = route.params.id as string;
 const vontestId = route.params.vontestId as string;
 
 const { fetchProposal } = useProposals(vontestId);
-const proposal = ref<Proposal | null>(null)
-
+const proposal = ref<Proposal | null>(null);
 
 onMounted(async () => {
-    try {
-        const fetched = await fetchProposal(proposalId);
-        proposal.value = fetched || null;
-    } catch (e) {
-        console.error("Error fetching proposal:", e);
-    }
+	try {
+		const fetched = await fetchProposal(proposalId);
+		proposal.value = fetched || null;
+	} catch (e) {
+		console.error("Error fetching proposal:", e);
+	}
 });
 
 // Comments state (DAG‐aware tree)
-const { fetchComments, addComment } = useComments();
+const { fetchComments, submitComment, comments, form, resetForm } = useComments(proposalId);
 const commentsTree = ref<CommentNode[]>([]);
 const nodeMap = ref<Map<string, CommentNode>>(new Map());
-const newCommentText = ref("");
-const newCommentParents = ref<string[]>([])
 
 // Helper: build a flat map id → CommentNode from the nested tree
 const buildNodeMap = (roots: CommentNode[]) => {
@@ -46,25 +43,25 @@ const buildNodeMap = (roots: CommentNode[]) => {
 
 // Load comments on mount (and whenever needed)
 const loadComments = async () => {
-  try {
-    const roots = await fetchComments(proposalId);
-    commentsTree.value = roots;
-    buildNodeMap(roots);
+	try {
+		await fetchComments();
 
-  } catch (e) {
-    console.error("Error loading comments:", e);
-  }
+		commentsTree.value = comments.value;
+		buildNodeMap(comments.value);
+	} catch (e) {
+		console.error("Error loading comments:", e);
+	}
 };
 
 onMounted(loadComments);
 
 // Handler: post a new comment
 const postComment = async () => {
-	if (!newCommentText.value.trim()) return;
+	if (!form.comment.trim()) return;
 	try {
-		await addComment(proposalId, newCommentText.value, newCommentParents.value);
-		newCommentText.value = "";
-        newCommentParents.value = [];
+		await submitComment(
+		);
+        resetForm();
 		await loadComments();
 	} catch (e: unknown) {
 		if (e instanceof Error) {
@@ -78,11 +75,17 @@ const postComment = async () => {
 // Navigation helper
 const navigateTo = (path: string) => router.push(path);
 
-watch(commentsTree, () => {console.log("Comments updated:", commentsTree.value); console.log(buildNodeMap(commentsTree.value))});
+watch(commentsTree, () => {
+	console.log("Comments updated:", commentsTree.value);
+	console.log(buildNodeMap(commentsTree.value));
+});
 </script>
 
 <template>
-	<section v-if="proposal" class="max-w-4xl mx-auto px-4 py-8 text-white space-y-6">
+	<section
+		v-if="proposal"
+		class="max-w-4xl mx-auto px-4 py-8 text-white space-y-6"
+	>
 		<UCard v-if="proposal">
 			<template #header>
 				<div class="flex items-center justify-between">
@@ -96,7 +99,7 @@ watch(commentsTree, () => {console.log("Comments updated:", commentsTree.value);
 			</template>
 			<p
 				v-if="proposal.description"
-                class="text-gray-400 markdown-body ql-editor"
+				class="text-gray-400 markdown-body ql-editor"
 				:v-html="DOMPurify.sanitize(proposal.description)"
 			/>
 			<template #footer>
@@ -136,7 +139,7 @@ watch(commentsTree, () => {console.log("Comments updated:", commentsTree.value);
 			<!-- New top-level comment box -->
 			<div class="mb-4">
 				<textarea
-					v-model="newCommentText"
+					v-model="form.comment"
 					class="w-full p-2 rounded bg-gray-800"
 					rows="3"
 					placeholder="Write your reply..."
@@ -144,7 +147,7 @@ watch(commentsTree, () => {console.log("Comments updated:", commentsTree.value);
 				<div class="text-right mt-2">
 					<UButton
 						label="Post Comment"
-						:disabled="!newCommentText.trim()"
+						:disabled="!form.comment?.trim()"
 						@click="postComment"
 					/>
 				</div>
@@ -158,11 +161,11 @@ watch(commentsTree, () => {console.log("Comments updated:", commentsTree.value);
 					:node="node"
 					:depth="0"
 					:node-map="nodeMap"
-					:new-comment-text="newCommentText"
-                    :new-comment-parents="newCommentParents"
-                    @update:comment-text="newCommentText = $event"
-                    @update:comment-parents="newCommentParents = $event"
-                    @post-comment="postComment"
+					:new-comment-text="form.comment"
+					:new-comment-parents="form.parentIds"
+					@update:comment-text="form.comment = $event"
+					@update:comment-parents="form.parentIds = $event"
+					@post-comment="postComment"
 				/>
 			</div>
 		</div>

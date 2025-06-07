@@ -1,4 +1,4 @@
-import type { PostgrestError  } from "@supabase/supabase-js";
+import type { PostgrestError } from "@supabase/supabase-js";
 
 interface RawComment {
 	id: string;
@@ -39,15 +39,31 @@ export interface CommentNode {
 	backChildrenIds: string[];
 }
 
-export const useComments = () => {
+export const useComments = (threadId: string) => {
 	const supabase = useSupabaseClient();
+
+	const comments = ref<CommentNode[]>([]);
+	const loading = ref(false);
+	const error = ref<Error | null>(null);
+
+    const form = reactive({
+        id: null as string | null,
+        comment: "",
+        parentIds: [] as string[],
+    });
+
+    const resetForm = () => {
+        form.id = null;
+        form.comment = "";
+        form.parentIds = [];
+    };
 
 	/**
 	 * Fetch all comments and links for a given thread, then build a DAG‐aware tree.
 	 * Each comment will appear only once (under its “primary parent”), with secondary
 	 * parents listed separately, and back‐references (backChildren) counted.
 	 */
-	const fetchComments = async (threadId: string): Promise<CommentNode[]> => {
+	const fetchComments = async () => {
 		// 1) Fetch raw comments for the thread
 		const { data: rawComments, error: commentsError } = (await supabase
 			.from("comments")
@@ -201,33 +217,29 @@ export const useComments = () => {
 		};
 		sortSubtree(roots);
 
-		// Return the nested tree of CommentNodes
-		return roots;
+		comments.value = roots;
 	};
 
 	/**
 	 * Add a new comment under the given thread, with optional multiple parent replies.
 	 * Returns the new comment ID.
 	 */
-	const addComment = async (
-		threadId: string,
-		text: string,
-		parentIds: string[] = []
+	const submitComment = async (
 	): Promise<string> => {
+        loading.value = true;
 		// Invoke the Supabase Edge Function which calls RLS‐protected RPC
-        const {
-            data,
-            error,
-          } = await supabase.functions.invoke(
-            "create-comment-with-links",
-            {
-              body: {
-                thread_id: threadId,
-                comment: text,
-                parent_ids: parentIds,
-              },
-            }
-          );
+		const { data, error } = await supabase.functions.invoke(
+			"create-comment-with-links",
+			{
+				body: {
+					thread_id: threadId,
+					comment: form.comment,
+					parent_ids: form.parentIds,
+				},
+			}
+		);
+
+        loading.value = false;
 
 		if (error) {
 			console.error("Edge function error:", error);
@@ -238,7 +250,12 @@ export const useComments = () => {
 	};
 
 	return {
+        comments,
+        form,
+        loading,
+        error,
 		fetchComments,
-		addComment,
+		submitComment,
+        resetForm,
 	};
 };
