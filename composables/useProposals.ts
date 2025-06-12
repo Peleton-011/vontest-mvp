@@ -37,6 +37,16 @@ export const useProposals = (vontestId: string) => {
 		}
 	};
 
+    const fetchProposal = async (proposalId: string) => {
+        const { data } = await supabase
+            .from("proposals")
+            .select("*")
+            .eq("id", proposalId)
+            .single();
+    
+        if (data) return data;
+    };
+
 	const submitProposal = async () => {
 		loading.value = true;
 
@@ -105,16 +115,6 @@ export const useProposals = (vontestId: string) => {
 		form.title = proposal.title ?? "";
 		form.description = proposal.description ?? "";
 	};
-
-    const fetchProposal = async (proposalId: string) => {
-        const { data } = await supabase
-            .from("proposals")
-            .select("*")
-            .eq("id", proposalId)
-            .single();
-    
-        if (data) return data;
-    };
 
 	return {
 		proposals,
