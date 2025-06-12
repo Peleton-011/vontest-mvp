@@ -1,4 +1,9 @@
 import type { PostgrestError } from "@supabase/supabase-js";
+import type { Database } from "~/types/supabase";
+
+type Comment = Database["public"]["Tables"]["comments"]["Row"];
+type CommentInsert = Database["public"]["Tables"]["comments"]["Insert"];
+type CommentUpdate = Partial<CommentInsert>;
 
 interface RawComment {
 	id: string;
@@ -40,23 +45,23 @@ export interface CommentNode {
 }
 
 export const useComments = (threadId: string) => {
-	const supabase = useSupabaseClient();
+	const supabase = useSupabaseClient<Database>();
 
 	const comments = ref<CommentNode[]>([]);
 	const loading = ref(false);
 	const error = ref<Error | null>(null);
 
-    const form = reactive({
-        id: null as string | null,
-        comment: "",
-        parentIds: [] as string[],
-    });
+	const form = reactive({
+		id: null as string | null,
+		comment: "",
+		parentIds: [] as string[],
+	});
 
-    const resetForm = () => {
-        form.id = null;
-        form.comment = "";
-        form.parentIds = [];
-    };
+	const resetForm = () => {
+		form.id = null;
+		form.comment = "";
+		form.parentIds = [];
+	};
 
 	/**
 	 * Fetch all comments and links for a given thread, then build a DAG‐aware tree.
@@ -220,13 +225,16 @@ export const useComments = (threadId: string) => {
 		comments.value = roots;
 	};
 
+	const fetchComment = async (commentId: string) => {
+		return comments.value.filter((comment) => comment.id === commentId);
+	};
+
 	/**
 	 * Add a new comment under the given thread, with optional multiple parent replies.
 	 * Returns the new comment ID.
 	 */
-	const submitComment = async (
-	): Promise<string> => {
-        loading.value = true;
+	const submitComment = async (): Promise<string> => {
+		loading.value = true;
 		// Invoke the Supabase Edge Function which calls RLS‐protected RPC
 		const { data, error } = await supabase.functions.invoke(
 			"create-comment-with-links",
@@ -239,7 +247,7 @@ export const useComments = (threadId: string) => {
 			}
 		);
 
-        loading.value = false;
+		loading.value = false;
 
 		if (error) {
 			console.error("Edge function error:", error);
@@ -249,13 +257,61 @@ export const useComments = (threadId: string) => {
 		return data.comment_id;
 	};
 
+	const updateComment = async () => {
+		if (!form.id) return;
+
+		loading.value = true;
+
+		const commentData: CommentUpdate = {
+			comment: form.comment,
+		};
+
+		const { error: updateError } = await supabase
+			.from("comments")
+			.update(commentData)
+			.eq("id", form.id);
+
+		loading.value = false;
+
+		if (!updateError) {
+			resetForm();
+			await fetchComments();
+		} else {
+			error.value = updateError;
+		}
+	};
+
+	const deleteComment = async (id: string) => {
+		const { error: deleteError } = await supabase
+			.from("comments")
+			.delete()
+			.eq("id", id);
+
+		if (!deleteError) {
+			await fetchComments();
+		} else {
+			error.value = deleteError;
+		}
+	};
+
+    const editComment = (comment: Comment) => {
+        form.id = comment.id;
+        form.comment = comment.comment;
+    }
+
 	return {
-        comments,
-        form,
-        loading,
-        error,
+		comments,
+		form,
+		loading,
+		error,
 		fetchComments,
+		fetchComment,
 		submitComment,
-        resetForm,
+		updateComment,
+		deleteComment,
+		editComment,
+		// submitCommentLink,
+		// deleteCommentLink,
+		resetForm,
 	};
 };
