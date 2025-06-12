@@ -5,6 +5,9 @@ type Comment = Database["public"]["Tables"]["comments"]["Row"];
 type CommentInsert = Database["public"]["Tables"]["comments"]["Insert"];
 type CommentUpdate = Partial<CommentInsert>;
 
+type CommentLinkInsert =
+	Database["public"]["Tables"]["comment_links"]["Insert"];
+
 interface RawComment {
 	id: string;
 	comment: string;
@@ -294,10 +297,45 @@ export const useComments = (threadId: string) => {
 		}
 	};
 
-    const editComment = (comment: Comment) => {
-        form.id = comment.id;
-        form.comment = comment.comment;
-    }
+	const editComment = (comment: Comment) => {
+		form.id = comment.id;
+		form.comment = comment.comment;
+	};
+
+	const submitCommentLink = async (parentId: string, childId: string) => {
+		const newLink: CommentLinkInsert = {
+			thread_id: threadId,
+			parent_id: parentId,
+			child_id: childId,
+		};
+
+		const { data, error: insertError } = await supabase
+			.from("comment_links")
+			.insert(newLink)
+			.select();
+
+		if (!insertError) {
+			await fetchComments();
+			return data?.[0];
+		} else {
+			error.value = insertError;
+		}
+	};
+
+	const deleteCommentLink = async (parentId: string, childId: string) => {
+		const { error: deleteError } = await supabase
+			.from("comment_links")
+			.delete()
+			.eq("parent_id", parentId)
+			.eq("child_id", childId)
+			.eq("thread_id", threadId);
+
+		if (!deleteError) {
+			await fetchComments();
+		} else {
+			error.value = deleteError;
+		}
+	};
 
 	return {
 		comments,
@@ -310,8 +348,8 @@ export const useComments = (threadId: string) => {
 		updateComment,
 		deleteComment,
 		editComment,
-		// submitCommentLink,
-		// deleteCommentLink,
+		submitCommentLink,
+		deleteCommentLink,
 		resetForm,
 	};
 };
