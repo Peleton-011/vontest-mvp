@@ -27,7 +27,14 @@ onMounted(async () => {
 });
 
 // Comments state (DAG‐aware tree)
-const { fetchComments, submitComment, deleteComment, comments, form, resetForm } = useComments(proposalId);
+const {
+	fetchComments,
+	submitComment,
+	deleteComment,
+	comments,
+	form,
+	resetForm,
+} = useComments(proposalId);
 const commentsTree = ref<CommentNode[]>([]);
 const nodeMap = ref<Map<string, CommentNode>>(new Map());
 
@@ -59,9 +66,8 @@ onMounted(loadComments);
 const postComment = async () => {
 	if (!form.comment.trim()) return;
 	try {
-		await submitComment(
-		);
-        resetForm();
+		await submitComment();
+		resetForm();
 		await loadComments();
 	} catch (e: unknown) {
 		if (e instanceof Error) {
@@ -72,6 +78,13 @@ const postComment = async () => {
 	}
 };
 
+// Handler: delete a comment
+const handleDeleteComment = async (commentId: string) => {
+	await deleteComment(commentId);
+	await loadComments();
+	// console.log("Deleted comment:", commentId);
+};
+
 // Navigation helper
 const navigateTo = (path: string) => router.push(path);
 
@@ -79,6 +92,7 @@ watch(commentsTree, () => {
 	console.log("Comments updated:", commentsTree.value);
 	console.log(buildNodeMap(commentsTree.value));
 });
+
 </script>
 
 <template>
@@ -166,7 +180,7 @@ watch(commentsTree, () => {
 					@update:comment-text="form.comment = $event"
 					@update:comment-parents="form.parentIds = $event"
 					@post-comment="postComment"
-                    @delete-comment="deleteComment($event)"
+					@delete-comment="handleDeleteComment"
 				/>
 			</div>
 		</div>
