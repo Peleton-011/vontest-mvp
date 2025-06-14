@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { CommentNode } from "~/composables/useComments";
+import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
 
 const props = defineProps<{
 	node: CommentNode;
@@ -11,10 +12,12 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-	(e: "update:comment-text", value: string): void;
+	(e: "update:comment-text" | "delete-comment", payload: string): void;
 	(e: "update:comment-parents", parents: string[]): void;
 	(e: "post-comment"): void;
 }>();
+
+const user = useSupabaseUser();
 
 // Computed getter/setter for this node’s comment text
 const localCommentText = computed<string>({
@@ -64,16 +67,25 @@ const renderReplyButtonLabel = () => {
 	>
 		<UCard>
 			<template #header>
-				<div class="flex items-center mb-1">
-					<img
-						v-if="node.author.avatarUrl"
-						:src="node.author.avatarUrl"
-						class="w-6 h-6 rounded-full mr-2"
+				<div class="flex items-center justify-between">
+					<div class="flex items-center mb-1">
+						<img
+							v-if="node.author.avatarUrl"
+							:src="node.author.avatarUrl"
+							class="w-6 h-6 rounded-full mr-2"
+						>
+						<span class="font-medium">{{
+							node.author.username
+						}}</span>
+						<small class="text-gray-500 ml-2">
+							• {{ node.createdAt.toLocaleString() }}
+						</small>
+					</div>
+					<OptionsDropdown
+						v-if="node.author.id === user?.id"
+						@edit="console.log('edit')"
+						@delete="emit('delete-comment', node.id)"
 					/>
-					<span class="font-medium">{{ node.author.username }}</span>
-					<small class="text-gray-500 ml-2">
-						• {{ node.createdAt.toLocaleString() }}
-					</small>
 				</div>
 			</template>
 

@@ -27,7 +27,7 @@ onMounted(async () => {
 });
 
 // Comments state (DAG‐aware tree)
-const { fetchComments, submitComment, comments, form, resetForm } = useComments(proposalId);
+const { fetchComments, submitComment, deleteComment, comments, form, resetForm } = useComments(proposalId);
 const commentsTree = ref<CommentNode[]>([]);
 const nodeMap = ref<Map<string, CommentNode>>(new Map());
 
@@ -166,6 +166,7 @@ watch(commentsTree, () => {
 					@update:comment-text="form.comment = $event"
 					@update:comment-parents="form.parentIds = $event"
 					@post-comment="postComment"
+                    @delete-comment="deleteComment($event)"
 				/>
 			</div>
 		</div>
