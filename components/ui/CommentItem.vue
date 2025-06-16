@@ -12,12 +12,17 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-	(e: "update:comment-text" | "delete-comment", payload: string): void;
+	(
+		e: "update:comment-text" | "delete-comment" | "edit-comment",
+		payload: string
+	): void;
 	(e: "update:comment-parents", parents: string[]): void;
-	(e: "post-comment"): void;
+	(e: "post-comment" | "post-update"): void;
 }>();
 
 const user = useSupabaseUser();
+
+const isEditing = ref(false);
 
 // Computed getter/setter for this node’s comment text
 const localCommentText = computed<string>({
@@ -73,7 +78,7 @@ const renderReplyButtonLabel = () => {
 							v-if="node.author.avatarUrl"
 							:src="node.author.avatarUrl"
 							class="w-6 h-6 rounded-full mr-2"
-						>
+						/>
 						<span class="font-medium">{{
 							node.author.username
 						}}</span>
@@ -83,13 +88,42 @@ const renderReplyButtonLabel = () => {
 					</div>
 					<OptionsDropdown
 						v-if="node.author.id === user?.id"
-						@edit="console.log('edit')"
+						@edit="
+							emit('edit-comment', node.id);
+							isEditing = true;
+						"
 						@delete="emit('delete-comment', node.id)"
 					/>
 				</div>
 			</template>
 
-			<p class="text-gray-300">{{ node.comment }}</p>
+			<p v-if="!isEditing" class="text-gray-300">{{ node.comment }}</p>
+			<div v-else class="mb-4">
+				<textarea
+					v-model="localCommentText"
+					class="w-full p-2 rounded bg-gray-800"
+					rows="3"
+					placeholder="Write your reply..."
+				/>
+				<div class="text-right mt-2">
+					<UButton
+						label="Update Comment"
+						:disabled="!localCommentText?.trim()"
+						@click="
+							emit('post-update');
+							isEditing = false;
+						"
+					/>
+					<UButton
+						label="Cancel"
+						variant="subtle"
+						@click="
+							isEditing = false;
+							emit('update:comment-text', '');
+						"
+					/>
+				</div>
+			</div>
 
 			<template #footer>
 				<div class="flex flex-col gap-2">
@@ -159,7 +193,7 @@ const renderReplyButtonLabel = () => {
 			</template>
 		</UCard>
 
-		<div v-if="newCommentParents[0] === node.id" class="mb-4">
+		<div v-if="newCommentParents[0] === node.id && !isEditing" class="mb-4">
 			<textarea
 				v-model="localCommentText"
 				class="w-full p-2 rounded bg-gray-800"

@@ -31,6 +31,8 @@ const {
 	fetchComments,
 	submitComment,
 	deleteComment,
+	editComment,
+	updateComment,
 	comments,
 	form,
 	resetForm,
@@ -85,6 +87,33 @@ const handleDeleteComment = async (commentId: string) => {
 	// console.log("Deleted comment:", commentId);
 };
 
+// Handler: edit a comment
+const handleEditComment = (commentId: string) => {
+	const node = nodeMap.value.get(commentId);
+	if (!node) return;
+	const {
+		id,
+		comment,
+		createdAt,
+		author: { id: userId },
+	} = node;
+	editComment({
+		id,
+		comment,
+		created_at: createdAt.toISOString(),
+		user_id: userId,
+		thread_id: proposalId,
+	});
+	// console.log("Editing comment:", commentId);
+};
+
+// Handler: update a comment
+const handleUpdateComment = async () => {
+	await updateComment();
+	await loadComments();
+	// console.log("Updating comment:", commentId);
+};
+
 // Navigation helper
 const navigateTo = (path: string) => router.push(path);
 
@@ -92,7 +121,6 @@ watch(commentsTree, () => {
 	console.log("Comments updated:", commentsTree.value);
 	console.log(buildNodeMap(commentsTree.value));
 });
-
 </script>
 
 <template>
@@ -181,6 +209,8 @@ watch(commentsTree, () => {
 					@update:comment-parents="form.parentIds = $event"
 					@post-comment="postComment"
 					@delete-comment="handleDeleteComment"
+					@edit-comment="handleEditComment"
+					@post-update="handleUpdateComment"
 				/>
 			</div>
 		</div>
