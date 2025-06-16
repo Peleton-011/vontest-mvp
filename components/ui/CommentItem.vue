@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { CommentNode } from "~/composables/useComments";
+import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
 
 const props = defineProps<{
 	node: CommentNode;
@@ -8,13 +9,21 @@ const props = defineProps<{
 	nodeMap: Map<string, CommentNode>;
 	newCommentParents: string[];
 	newCommentText: string;
+	editingComment?: string;
 }>();
 
 const emit = defineEmits<{
-	(e: "update:comment-text", value: string): void;
+	(
+		e: "update:comment-text" | "delete-comment" | "edit-comment",
+		payload: string
+	): void;
 	(e: "update:comment-parents", parents: string[]): void;
-	(e: "post-comment"): void;
+	(e: "post-comment" | "post-update" | "cancel-update"): void;
 }>();
+
+const user = useSupabaseUser();
+
+const isEditing = computed(() => props.editingComment === props.node.id);
 
 // Computed getter/setter for this node’s comment text
 const localCommentText = computed<string>({
@@ -64,20 +73,52 @@ const renderReplyButtonLabel = () => {
 	>
 		<UCard>
 			<template #header>
-				<div class="flex items-center mb-1">
-					<img
-						v-if="node.author.avatarUrl"
-						:src="node.author.avatarUrl"
-						class="w-6 h-6 rounded-full mr-2"
+				<div class="flex items-center justify-between">
+					<div class="flex items-center mb-1">
+						<img
+							v-if="node.author.avatarUrl"
+							:src="node.author.avatarUrl"
+							class="w-6 h-6 rounded-full mr-2"
+						/>
+						<span class="font-medium">{{
+							node.author.username
+						}}</span>
+						<small class="text-gray-500 ml-2">
+							• {{ node.createdAt.toLocaleString() }}
+						</small>
+					</div>
+					<OptionsDropdown
+						v-if="node.author.id === user?.id"
+						@edit="
+							emit('edit-comment', node.id);
+							console.log(node);
+						"
+						@delete="emit('delete-comment', node.id)"
 					/>
-					<span class="font-medium">{{ node.author.username }}</span>
-					<small class="text-gray-500 ml-2">
-						• {{ node.createdAt.toLocaleString() }}
-					</small>
 				</div>
 			</template>
 
-			<p class="text-gray-300">{{ node.comment }}</p>
+			<p v-if="!isEditing" class="text-gray-300">{{ node.comment }}</p>
+			<div v-else class="mb-4">
+				<textarea
+					v-model="localCommentText"
+					class="w-full p-2 rounded bg-gray-800"
+					rows="3"
+					placeholder="Write your reply..."
+				/>
+				<div class="text-right mt-2">
+					<UButton
+						label="Update Comment"
+						:disabled="!localCommentText?.trim()"
+						@click="emit('post-update')"
+					/>
+					<UButton
+						label="Cancel"
+						variant="subtle"
+						@click="emit('cancel-update')"
+					/>
+				</div>
+			</div>
 
 			<template #footer>
 				<div class="flex flex-col gap-2">
@@ -147,7 +188,7 @@ const renderReplyButtonLabel = () => {
 			</template>
 		</UCard>
 
-		<div v-if="newCommentParents[0] === node.id" class="mb-4">
+		<div v-if="newCommentParents[0] === node.id && !isEditing" class="mb-4">
 			<textarea
 				v-model="localCommentText"
 				class="w-full p-2 rounded bg-gray-800"
@@ -173,13 +214,18 @@ const renderReplyButtonLabel = () => {
 				:node-map="nodeMap"
 				:new-comment-text="localCommentText"
 				:new-comment-parents="newCommentParents"
-				@post-comment="emit('post-comment')"
+				:editing-comment="editingComment"
 				@update:comment-text="
 					(payload) => emit('update:comment-text', payload)
 				"
 				@update:comment-parents="
 					(payload) => emit('update:comment-parents', payload)
 				"
+				@post-comment="emit('post-comment')"
+				@delete-comment="emit('delete-comment', $event)"
+				@edit-comment="emit('edit-comment', $event)"
+				@post-update="emit('post-update')"
+				@cancel-update="emit('cancel-update')"
 			/>
 		</div>
 	</div>

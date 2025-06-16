@@ -27,7 +27,19 @@ onMounted(async () => {
 });
 
 // Comments state (DAG‐aware tree)
-const { fetchComments, submitComment, comments, form, resetForm } = useComments(proposalId);
+const {
+	fetchComments,
+	submitComment,
+	deleteComment,
+	editComment,
+	updateComment,
+	comments,
+	form,
+	resetForm,
+} = useComments(proposalId);
+
+const editingComment = ref<string>("");
+
 const commentsTree = ref<CommentNode[]>([]);
 const nodeMap = ref<Map<string, CommentNode>>(new Map());
 
@@ -59,9 +71,8 @@ onMounted(loadComments);
 const postComment = async () => {
 	if (!form.comment.trim()) return;
 	try {
-		await submitComment(
-		);
-        resetForm();
+		await submitComment();
+		resetForm();
 		await loadComments();
 	} catch (e: unknown) {
 		if (e instanceof Error) {
@@ -70,6 +81,43 @@ const postComment = async () => {
 			console.error("An unknown error occurred:", e);
 		}
 	}
+};
+
+// Handler: delete a comment
+const handleDeleteComment = async (commentId: string) => {
+	await deleteComment(commentId);
+	await loadComments();
+	// console.log("Deleted comment:", commentId);
+};
+
+// Handler: edit a comment
+const handleEditComment = (commentId: string) => {
+	console.log("Editing comment:", commentId);
+	const node = nodeMap.value.get(commentId);
+	console.log(node);
+	if (!node) return;
+	editingComment.value = commentId;
+	const {
+		id,
+		comment,
+		createdAt,
+		author: { id: userId },
+	} = node;
+	editComment({
+		id,
+		comment,
+		created_at: createdAt.toISOString(),
+		user_id: userId,
+		thread_id: proposalId,
+	});
+};
+
+// Handler: update a comment
+const handleUpdateComment = async () => {
+	await updateComment();
+	await loadComments();
+	editingComment.value = "";
+	// console.log("Updating comment:", commentId);
 };
 
 // Navigation helper
@@ -163,9 +211,17 @@ watch(commentsTree, () => {
 					:node-map="nodeMap"
 					:new-comment-text="form.comment"
 					:new-comment-parents="form.parentIds"
+					:editing-comment="editingComment"
 					@update:comment-text="form.comment = $event"
 					@update:comment-parents="form.parentIds = $event"
 					@post-comment="postComment"
+					@delete-comment="handleDeleteComment"
+					@edit-comment="handleEditComment"
+					@post-update="handleUpdateComment"
+					@cancel-update="
+						editingComment = '';
+						resetForm();
+					"
 				/>
 			</div>
 		</div>
