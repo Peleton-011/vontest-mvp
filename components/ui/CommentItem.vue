@@ -91,6 +91,7 @@ const renderReplyButtonLabel = () => {
 						@edit="
 							emit('edit-comment', node.id);
 							isEditing = true;
+                            console.log(node)
 						"
 						@delete="emit('delete-comment', node.id)"
 					/>
@@ -219,13 +220,16 @@ const renderReplyButtonLabel = () => {
 				:node-map="nodeMap"
 				:new-comment-text="localCommentText"
 				:new-comment-parents="newCommentParents"
-				@post-comment="emit('post-comment')"
 				@update:comment-text="
 					(payload) => emit('update:comment-text', payload)
 				"
 				@update:comment-parents="
 					(payload) => emit('update:comment-parents', payload)
 				"
+				@post-comment="emit('post-comment')"
+                @delete-comment="emit('delete-comment', $event)"
+                @edit-comment="emit('edit-comment', $event)"
+                @post-update="emit('post-update')"
 			/>
 		</div>
 	</div>

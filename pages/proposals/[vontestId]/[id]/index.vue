@@ -89,7 +89,9 @@ const handleDeleteComment = async (commentId: string) => {
 
 // Handler: edit a comment
 const handleEditComment = (commentId: string) => {
-	const node = nodeMap.value.get(commentId);
+    console.log("Editing comment:", commentId);
+    const node = nodeMap.value.get(commentId);
+    console.log(node)
 	if (!node) return;
 	const {
 		id,
@@ -104,7 +106,6 @@ const handleEditComment = (commentId: string) => {
 		user_id: userId,
 		thread_id: proposalId,
 	});
-	// console.log("Editing comment:", commentId);
 };
 
 // Handler: update a comment
