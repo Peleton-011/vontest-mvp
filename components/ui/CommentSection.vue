@@ -17,6 +17,7 @@ const {
 } = useComments(props.threadId);
 
 const editingComment = ref<string>("");
+const isTopLevelCommentOpen = ref(false);
 
 const commentsTree = ref<CommentNode[]>([]);
 const nodeMap = ref<Map<string, CommentNode>>(new Map());
@@ -105,24 +106,47 @@ watch(commentsTree, () => {
 </script>
 <template>
 	<div>
-		<h3 class="text-xl font-semibold mb-2">Discussion</h3>
+		<div class="mb-4 flex justify-between">
+			<h3 class="text-xl font-semibold mb-2">Discussion</h3>
+			<UButton
+				label="Join the Discussion"
+				variant="subtle"
+				trailing-icon="i-lucide-chevron-down"
+				@click="isTopLevelCommentOpen = !isTopLevelCommentOpen"
+			/>
+		</div>
 
 		<!-- New top-level comment box -->
-		<div class="mb-4">
-			<textarea
-				v-model="form.comment"
-				class="w-full p-2 rounded bg-gray-800"
-				rows="3"
-				placeholder="Write your reply..."
-			/>
-			<div class="text-right mt-2">
-				<UButton
-					label="Post Comment"
-					:disabled="!form.comment?.trim()"
-					@click="postComment"
-				/>
-			</div>
-		</div>
+		<UCollapsible v-model:open="isTopLevelCommentOpen" class="mb-4">
+			<template #content>
+				<div class="mb-4">
+					<textarea
+						v-model="form.comment"
+						class="w-full p-2 rounded bg-gray-800"
+						rows="3"
+						placeholder="Write your reply..."
+					/>
+					<div class="text-right mt-2">
+						<UButton
+							label="Post Comment"
+							:disabled="!form.comment?.trim()"
+							@click="
+								postComment();
+								isTopLevelCommentOpen = false;
+							"
+						/>
+						<UButton
+							label="Cancel"
+							variant="subtle"
+							@click="
+								resetForm();
+								isTopLevelCommentOpen = false;
+							"
+						/>
+					</div>
+				</div>
+			</template>
+		</UCollapsible>
 
 		<!-- Recursive Comments Tree -->
 		<div class="space-y-4">
