@@ -37,6 +37,9 @@ const {
 	form,
 	resetForm,
 } = useComments(proposalId);
+
+const editingComment = ref<string>("");
+
 const commentsTree = ref<CommentNode[]>([]);
 const nodeMap = ref<Map<string, CommentNode>>(new Map());
 
@@ -89,10 +92,11 @@ const handleDeleteComment = async (commentId: string) => {
 
 // Handler: edit a comment
 const handleEditComment = (commentId: string) => {
-    console.log("Editing comment:", commentId);
-    const node = nodeMap.value.get(commentId);
-    console.log(node)
+	console.log("Editing comment:", commentId);
+	const node = nodeMap.value.get(commentId);
+	console.log(node);
 	if (!node) return;
+	editingComment.value = commentId;
 	const {
 		id,
 		comment,
@@ -112,6 +116,7 @@ const handleEditComment = (commentId: string) => {
 const handleUpdateComment = async () => {
 	await updateComment();
 	await loadComments();
+	editingComment.value = "";
 	// console.log("Updating comment:", commentId);
 };
 
@@ -206,12 +211,17 @@ watch(commentsTree, () => {
 					:node-map="nodeMap"
 					:new-comment-text="form.comment"
 					:new-comment-parents="form.parentIds"
+					:editing-comment="editingComment"
 					@update:comment-text="form.comment = $event"
 					@update:comment-parents="form.parentIds = $event"
 					@post-comment="postComment"
 					@delete-comment="handleDeleteComment"
 					@edit-comment="handleEditComment"
 					@post-update="handleUpdateComment"
+					@cancel-update="
+						editingComment = '';
+						resetForm();
+					"
 				/>
 			</div>
 		</div>

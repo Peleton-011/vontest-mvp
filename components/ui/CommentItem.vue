@@ -9,6 +9,7 @@ const props = defineProps<{
 	nodeMap: Map<string, CommentNode>;
 	newCommentParents: string[];
 	newCommentText: string;
+	editingComment?: string;
 }>();
 
 const emit = defineEmits<{
@@ -17,12 +18,12 @@ const emit = defineEmits<{
 		payload: string
 	): void;
 	(e: "update:comment-parents", parents: string[]): void;
-	(e: "post-comment" | "post-update"): void;
+	(e: "post-comment" | "post-update" | "cancel-update"): void;
 }>();
 
 const user = useSupabaseUser();
 
-const isEditing = ref(false);
+const isEditing = computed(() => props.editingComment === props.node.id);
 
 // Computed getter/setter for this node’s comment text
 const localCommentText = computed<string>({
@@ -90,8 +91,7 @@ const renderReplyButtonLabel = () => {
 						v-if="node.author.id === user?.id"
 						@edit="
 							emit('edit-comment', node.id);
-							isEditing = true;
-                            console.log(node)
+							console.log(node);
 						"
 						@delete="emit('delete-comment', node.id)"
 					/>
@@ -110,18 +110,12 @@ const renderReplyButtonLabel = () => {
 					<UButton
 						label="Update Comment"
 						:disabled="!localCommentText?.trim()"
-						@click="
-							emit('post-update');
-							isEditing = false;
-						"
+						@click="emit('post-update')"
 					/>
 					<UButton
 						label="Cancel"
 						variant="subtle"
-						@click="
-							isEditing = false;
-							emit('update:comment-text', '');
-						"
+						@click="emit('cancel-update')"
 					/>
 				</div>
 			</div>
@@ -220,6 +214,7 @@ const renderReplyButtonLabel = () => {
 				:node-map="nodeMap"
 				:new-comment-text="localCommentText"
 				:new-comment-parents="newCommentParents"
+				:editing-comment="editingComment"
 				@update:comment-text="
 					(payload) => emit('update:comment-text', payload)
 				"
@@ -227,9 +222,10 @@ const renderReplyButtonLabel = () => {
 					(payload) => emit('update:comment-parents', payload)
 				"
 				@post-comment="emit('post-comment')"
-                @delete-comment="emit('delete-comment', $event)"
-                @edit-comment="emit('edit-comment', $event)"
-                @post-update="emit('post-update')"
+				@delete-comment="emit('delete-comment', $event)"
+				@edit-comment="emit('edit-comment', $event)"
+				@post-update="emit('post-update')"
+				@cancel-update="emit('cancel-update')"
 			/>
 		</div>
 	</div>
