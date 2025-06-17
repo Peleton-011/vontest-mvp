@@ -12,6 +12,8 @@ const {
 	editComment,
 	updateComment,
 	comments,
+    submitCommentLink,
+    deleteCommentLink,
 	form,
 	resetForm,
 } = useComments(props.threadId);
@@ -71,29 +73,40 @@ const handleDeleteComment = async (commentId: string) => {
 
 // Handler: edit a comment
 const handleEditComment = (commentId: string) => {
-	console.log("Editing comment:", commentId);
+	// console.log("Editing comment:", commentId);
 	const node = nodeMap.value.get(commentId);
-	console.log(node);
+	// console.log(node);
 	if (!node) return;
 	editingComment.value = commentId;
-	const {
-		id,
-		comment,
-		createdAt,
-		author: { id: userId },
-	} = node;
+	const { id, comment, parentIds } = node;
 	editComment({
 		id,
 		comment,
-		created_at: createdAt.toISOString(),
-		user_id: userId,
-		thread_id: props.threadId,
+		parentIds,
 	});
 };
 
 // Handler: update a comment
 const handleUpdateComment = async () => {
+	if (!form.id) return;
+	const node = nodeMap.value.get(form.id);
+    if (!node) return;
+
+    const oldParentIds = new Set(node.parentIds);
+    const newParentIds = new Set(form.parentIds);
+
+    const replyInserts = form.parentIds.filter((id) => !oldParentIds.has(id));
+    const replyDeletes = node.parentIds.filter((id) => !newParentIds.has(id));
+
+    await Promise.all(
+        replyInserts.map((id) => submitCommentLink(id, node.id))
+    );
+    await Promise.all(
+        replyDeletes.map((id) => deleteCommentLink(id, node.id))
+    );
+
 	await updateComment();
+
 	await loadComments();
 	editingComment.value = "";
 	// console.log("Updating comment:", commentId);

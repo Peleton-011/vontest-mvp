@@ -1,7 +1,6 @@
 import type { PostgrestError } from "@supabase/supabase-js";
 import type { Database } from "~/types/supabase";
 
-type Comment = Database["public"]["Tables"]["comments"]["Row"];
 type CommentInsert = Database["public"]["Tables"]["comments"]["Insert"];
 type CommentUpdate = Partial<CommentInsert>;
 
@@ -297,9 +296,14 @@ export const useComments = (threadId: string) => {
 		}
 	};
 
-	const editComment = (comment: Comment) => {
+	const editComment = (comment: {
+		id: string;
+		comment: string;
+		parentIds: string[];
+	}) => {
 		form.id = comment.id;
 		form.comment = comment.comment;
+		form.parentIds = comment.parentIds;
 	};
 
 	const submitCommentLink = async (parentId: string, childId: string) => {

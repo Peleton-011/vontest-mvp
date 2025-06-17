@@ -149,7 +149,7 @@ const renderReplyButtonLabel = () => {
 					</div>
 
 					<!-- Reply button / collapsible -->
-					<div>
+					<div v-if="!isEditing">
 						<UButton
 							:label="renderReplyButtonLabel()"
 							variant="subtle"
