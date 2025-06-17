@@ -14,6 +14,7 @@ const proposalId = route.params.id as string;
 const vontestId = route.params.vontestId as string;
 
 const { fetchProposal } = useProposals(vontestId);
+const { fetchThread, thread /*, loading, error*/ } = useThread();
 const proposal = ref<Proposal | null>(null);
 
 onMounted(async () => {
@@ -23,11 +24,12 @@ onMounted(async () => {
 	} catch (e) {
 		console.error("Error fetching proposal:", e);
 	}
+
+	fetchThread(proposalId, "proposal");
 });
 
 // Navigation helper
 const navigateTo = (path: string) => router.push(path);
-
 </script>
 
 <template>
@@ -81,7 +83,6 @@ const navigateTo = (path: string) => router.push(path);
 			</template>
 		</UCard>
 
-        <UiCommentSection :thread-id="proposalId" />
-		
+		<UiCommentSection v-if="thread" :thread-id="thread?.id" />
 	</section>
 </template>
