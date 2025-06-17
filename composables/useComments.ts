@@ -14,7 +14,7 @@ interface RawComment {
 	user_id: string;
 	profiles: {
 		username: string;
-		avatar_url: string | null;
+		avatar_url: string;
 	};
 }
 
@@ -30,7 +30,7 @@ export interface CommentNode {
 	author: {
 		id: string;
 		username: string;
-		avatarUrl: string | null;
+		avatarUrl: string;
 	};
 	// All direct parent IDs
 	parentIds: string[];
