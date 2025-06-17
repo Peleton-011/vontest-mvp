@@ -71,7 +71,7 @@ const renderReplyButtonLabel = () => {
 		:style="{ marginLeft: (depth || 0) + 'rem' }"
 		class="space-y-2"
 	>
-		<UCard>
+		<UCard :class="props.newCommentParents.includes(props.node.id) ? '!bg-neutral-700' : ''">
 			<template #header>
 				<div class="flex items-center justify-between">
 					<div class="flex items-center mb-1">
