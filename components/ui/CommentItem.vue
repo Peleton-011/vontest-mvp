@@ -83,12 +83,12 @@ const renderReplyButtonLabel = () => {
 					<div class="flex items-center justify-between">
 						<div class="flex items-center mb-1">
 							<UModal>
-								<button @click="">
+								<button >
 									<img
 										v-if="node.author.avatarUrl"
 										:src="node.author.avatarUrl"
 										class="w-6 h-6 rounded-full mr-2 hover:scale-125 transition-transform cursor-pointer"
-									/>
+									>
 								</button>
 								<template #content>
 									<div class="flex flex-col">
@@ -96,7 +96,7 @@ const renderReplyButtonLabel = () => {
 											v-if="node.author.avatarUrl"
 											:src="node.author.avatarUrl"
 											class="m-8 rounded-full hover:scale-110 transition-transform"
-										/>
+										>
 										<h3 class="text-center text-3xl mb-4 font-bold">
 											{{ node.author.username }}
 										</h3>
