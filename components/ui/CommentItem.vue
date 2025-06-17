@@ -188,7 +188,7 @@ const renderReplyButtonLabel = () => {
 			</template>
 		</UCard>
 
-		<div v-if="newCommentParents[0] === node.id && !isEditing" class="mb-4">
+		<div v-if="newCommentParents[0] === node.id && !isEditing && !editingComment" class="mb-4">
 			<textarea
 				v-model="localCommentText"
 				class="w-full p-2 rounded bg-gray-800"
