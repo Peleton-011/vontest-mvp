@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import type { CommentNode } from "~/composables/useComments";
 import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
 
@@ -34,11 +33,6 @@ const localCommentText = computed<string>({
 		emit("update:comment-text", val);
 	},
 });
-
-const showBackRefs = ref(false);
-const toggleBackRefs = () => {
-	showBackRefs.value = !showBackRefs.value;
-};
 
 const handleReplyButtonClick = () => {
 	if (
@@ -82,30 +76,10 @@ const renderReplyButtonLabel = () => {
 				<template #header>
 					<div class="flex items-center justify-between">
 						<div class="flex items-center mb-1">
-							<UModal>
-								<button >
-									<img
-										v-if="node.author.avatarUrl"
-										:src="node.author.avatarUrl"
-										class="w-6 h-6 rounded-full mr-2 hover:scale-125 transition-transform cursor-pointer"
-									>
-								</button>
-								<template #content>
-									<div class="flex flex-col">
-										<img
-											v-if="node.author.avatarUrl"
-											:src="node.author.avatarUrl"
-											class="m-8 rounded-full hover:scale-110 transition-transform"
-										>
-										<h3 class="text-center text-3xl mb-4 font-bold">
-											{{ node.author.username }}
-										</h3>
-									</div>
-								</template>
-							</UModal>
-							<span class="font-medium">{{
-								node.author.username
-							}}</span>
+							<UiUserTag
+								v-if="node.author"
+								:author="node.author"
+							/>
 							<small class="text-gray-500 ml-2">
 								• {{ node.createdAt.toLocaleString() }}
 							</small>
@@ -147,35 +121,19 @@ const renderReplyButtonLabel = () => {
 
 				<template #footer>
 					<div class="flex flex-col gap-2">
-						<!-- Secondary parents (“Also replies to”) -->
-						<div v-if="node.secondaryParentIds.length">
-							<small class="text-sm text-gray-400">
-								Also replies to:
-								<span
-									v-for="(
-										pid, idx
-									) in node.secondaryParentIds"
-									:key="pid"
-								>
-									<a
-										:href="'#' + pid"
-										class="underline hover:text-gray-200"
-									>
-										{{
-											nodeMap.get(pid)?.author.username ||
-											pid
-										}}
-									</a>
-									<span
-										v-if="
-											idx <
-											node.secondaryParentIds.length - 1
-										"
-										>,
-									</span>
-								</span>
-							</small>
-						</div>
+						<!-- Secondary parents/ Forward refs (“Also replies to”) -->
+
+						<UiCommentRefs
+							:refs="
+								node.secondaryParentIds.map((id) => {
+									return {
+										id,
+										author: nodeMap.get(id)?.author!,
+									};
+								})
+							"
+							direction="forward"
+						/>
 
 						<!-- Reply button / collapsible -->
 						<div v-if="!isEditing">
@@ -188,40 +146,16 @@ const renderReplyButtonLabel = () => {
 							/>
 						</div>
 
-						<!-- Back‐references (“Referenced by X other comments”) -->
-						<div v-if="node.backChildrenCount">
-							<small class="text-sm text-gray-400">
-								<button
-									class="underline"
-									@click="toggleBackRefs"
-								>
-									Referenced by
-									{{ node.backChildrenCount }} other comment
-									<span v-if="node.backChildrenCount > 1"
-										>s</span
-									>
-								</button>
-							</small>
-							<ul
-								v-if="showBackRefs"
-								class="list-disc list-inside text-gray-400"
-							>
-								<li
-									v-for="bid in node.backChildrenIds"
-									:key="bid"
-								>
-									<a
-										:href="'#' + bid"
-										class="underline hover:text-gray-200"
-									>
-										{{
-											nodeMap.get(bid)?.author.username ||
-											bid
-										}}
-									</a>
-								</li>
-							</ul>
-						</div>
+						<!-- Secondary children/ Backward refs (“Also referenced by”) -->
+						<UiCommentRefs
+							:refs="node.backChildrenIds.map((id) => {
+									return {
+										id,
+										author: nodeMap.get(id)?.author!,
+									};
+								})"
+							direction="backward"
+						/>
 					</div>
 				</template>
 			</UCard>
