@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import type { CommentNode } from "~/composables/useComments";
 import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
 
@@ -34,16 +33,6 @@ const localCommentText = computed<string>({
 		emit("update:comment-text", val);
 	},
 });
-
-const showBackRefs = ref(false);
-const toggleBackRefs = () => {
-	showBackRefs.value = !showBackRefs.value;
-};
-
-const showForwardRefs = ref(false);
-const toggleForwardRefs = () => {
-	showForwardRefs.value = !showForwardRefs.value;
-};
 
 const handleReplyButtonClick = () => {
 	if (
@@ -132,73 +121,19 @@ const renderReplyButtonLabel = () => {
 
 				<template #footer>
 					<div class="flex flex-col gap-2">
-						<!-- Secondary parents (“Also replies to”) -->
-						<div v-if="node.secondaryParentIds.length">
-							<small class="flex text-sm text-gray-400 gap-2">
-								Also replies to:
-								<div
-									v-if="node.secondaryParentIds.length < 3"
-									class="inline-block"
-								>
-									<span
-										v-for="(
-											pid, idx
-										) in node.secondaryParentIds"
-										:key="pid"
-									>
-										<a
-											:href="'#' + pid"
-											class="underline hover:text-gray-200 flex items-center"
-										>
-											<UiUserTag
-												:author="nodeMap.get(pid)?.author!"
-											/>
-										</a>
-										<span
-											v-if="
-												idx <
-												node.secondaryParentIds.length -
-													1
-											"
-											>,
-										</span>
-									</span>
-								</div>
-								<div v-else>
-									<small class="text-sm text-gray-400">
-										<button
-											class="underline cursor-pointer"
-											@click="toggleForwardRefs"
-										>
-											Also responding to
-											{{
-												node.secondaryParentIds.length
-											}}
-											other comments
-										</button>
-									</small>
-									<ul
-										v-if="showForwardRefs"
-										class="list-disc list-inside text-gray-400"
-									>
-										<li
-											v-for="pid in node.secondaryParentIds"
-											:key="pid"
-                                            class="my-1"
-										>
-											<a
-												:href="'#' + pid"
-												class="underline hover:text-gray-200 inline-block align-middle my-1"
-											>
-												<UiUserTag
-													:author="nodeMap.get(pid)?.author!"
-												/>
-											</a>
-										</li>
-									</ul>
-								</div>
-							</small>
-						</div>
+						<!-- Secondary parents/ Forward refs (“Also replies to”) -->
+
+						<UiCommentRefs
+							:refs="
+								node.secondaryParentIds.map((id) => {
+									return {
+										id,
+										author: nodeMap.get(id)?.author!,
+									};
+								})
+							"
+							direction="forward"
+						/>
 
 						<!-- Reply button / collapsible -->
 						<div v-if="!isEditing">
@@ -211,40 +146,16 @@ const renderReplyButtonLabel = () => {
 							/>
 						</div>
 
-						<!-- Back‐references (“Referenced by X other comments”) -->
-						<div v-if="node.backChildrenCount">
-							<small class="text-sm text-gray-400">
-								<button
-									class="underline"
-									@click="toggleBackRefs"
-								>
-									Referenced by
-									{{ node.backChildrenCount }} other comment
-									<span v-if="node.backChildrenCount > 1"
-										>s</span
-									>
-								</button>
-							</small>
-							<ul
-								v-if="showBackRefs"
-								class="list-disc list-inside text-gray-400"
-							>
-								<li
-									v-for="bid in node.backChildrenIds"
-									:key="bid"
-								>
-									<a
-										:href="'#' + bid"
-										class="underline hover:text-gray-200"
-									>
-										{{
-											nodeMap.get(bid)?.author.username ||
-											bid
-										}}
-									</a>
-								</li>
-							</ul>
-						</div>
+						<!-- Secondary children/ Backward refs (“Also referenced by”) -->
+						<UiCommentRefs
+							:refs="node.backChildrenIds.map((id) => {
+									return {
+										id,
+										author: nodeMap.get(id)?.author!,
+									};
+								})"
+							direction="backward"
+						/>
 					</div>
 				</template>
 			</UCard>
