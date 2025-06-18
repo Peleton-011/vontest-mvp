@@ -24,6 +24,11 @@ const user = useSupabaseUser();
 
 const isEditing = computed(() => props.editingComment === props.node.id);
 
+const showReplies = ref(props.depth === undefined || props.depth < 2);
+const toggleReplies = () => {
+	showReplies.value = !showReplies.value;
+};
+
 // Computed getter/setter for this node’s comment text
 const localCommentText = computed<string>({
 	get: () => {
@@ -148,6 +153,20 @@ const renderReplyButtonLabel = () => {
 							/>
 						</div>
 
+						<!-- Toggle seeing responses -->
+						<div class="ml-4 mt-2">
+							<button
+								v-if="node.children.length"
+								class="text-sm text-gray-400 hover:text-primary-400"
+								@click="toggleReplies"
+							>
+								{{ showReplies ? "Hide" : "Show" }}
+								{{ node.children.length }} repl{{
+									node.children.length === 1 ? "y" : "ies"
+								}}
+							</button>
+						</div>
+
 						<!-- Secondary children/ Backward refs (“Also referenced by”) -->
 						<UiCommentRefs
 							:refs="node.backChildrenIds.map((id) => {
@@ -188,29 +207,45 @@ const renderReplyButtonLabel = () => {
 			</div>
 
 			<!-- Recursive rendering of primary‐nested children -->
-			<div v-if="node.children.length" class="space-y-4 mt-4">
-				<CommentItem
-					v-for="child in node.children"
-					:key="child.id"
-					:node="child"
-					:depth="(depth || 0) + 1"
-					:node-map="nodeMap"
-					:new-comment-text="localCommentText"
-					:new-comment-parents="newCommentParents"
-					:editing-comment="editingComment"
-					@update:comment-text="
-						(payload) => emit('update:comment-text', payload)
-					"
-					@update:comment-parents="
-						(payload) => emit('update:comment-parents', payload)
-					"
-					@post-comment="emit('post-comment')"
-					@delete-comment="emit('delete-comment', $event)"
-					@edit-comment="emit('edit-comment', $event)"
-					@post-update="emit('post-update')"
-					@cancel-update="emit('cancel-update')"
-				/>
-			</div>
+			<Transition name="fade">
+				<div
+					v-if="node.children.length && showReplies"
+					class="space-y-4 mt-4"
+				>
+					<CommentItem
+						v-for="child in node.children"
+						:key="child.id"
+						:node="child"
+						:depth="(depth || 0) + 1"
+						:node-map="nodeMap"
+						:new-comment-text="localCommentText"
+						:new-comment-parents="newCommentParents"
+						:editing-comment="editingComment"
+						@update:comment-text="
+							(payload) => emit('update:comment-text', payload)
+						"
+						@update:comment-parents="
+							(payload) => emit('update:comment-parents', payload)
+						"
+						@post-comment="emit('post-comment')"
+						@delete-comment="emit('delete-comment', $event)"
+						@edit-comment="emit('edit-comment', $event)"
+						@post-update="emit('post-update')"
+						@cancel-update="emit('cancel-update')"
+					/>
+				</div>
+			</Transition>
 		</div>
 	</div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+</style>
