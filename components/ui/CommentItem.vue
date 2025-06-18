@@ -126,9 +126,11 @@ const renderReplyButtonLabel = () => {
 						<UiCommentRefs
 							:refs="
 								node.secondaryParentIds.map((id) => {
+                                    const node = nodeMap.get(id)!;
 									return {
 										id,
-										author: nodeMap.get(id)?.author!,
+										author: node.author!,
+                                        comment: {text: node.comment, createdAt: node.createdAt}
 									};
 								})
 							"
@@ -149,9 +151,11 @@ const renderReplyButtonLabel = () => {
 						<!-- Secondary children/ Backward refs (“Also referenced by”) -->
 						<UiCommentRefs
 							:refs="node.backChildrenIds.map((id) => {
+                                const node = nodeMap.get(id)!;
 									return {
 										id,
-										author: nodeMap.get(id)?.author!,
+										author: node.author!,
+                                        comment: {text: node.comment, createdAt: node.createdAt}
 									};
 								})"
 							direction="backward"
