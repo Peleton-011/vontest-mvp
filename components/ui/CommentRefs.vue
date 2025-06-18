@@ -2,6 +2,7 @@
 export type Ref = {
 	id: string;
 	author: { username: string; avatarUrl: string };
+	comment: { text: string; createdAt: Date };
 };
 
 const { refs, direction } = defineProps<{
