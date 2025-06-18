@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="flex items-center">
 		<UModal>
 			<button>
 				<img

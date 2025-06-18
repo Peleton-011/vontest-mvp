@@ -40,6 +40,11 @@ const toggleBackRefs = () => {
 	showBackRefs.value = !showBackRefs.value;
 };
 
+const showForwardRefs = ref(false);
+const toggleForwardRefs = () => {
+	showForwardRefs.value = !showForwardRefs.value;
+};
+
 const handleReplyButtonClick = () => {
 	if (
 		!props.newCommentParents.length ||
@@ -129,31 +134,69 @@ const renderReplyButtonLabel = () => {
 					<div class="flex flex-col gap-2">
 						<!-- Secondary parents (“Also replies to”) -->
 						<div v-if="node.secondaryParentIds.length">
-							<small class="text-sm text-gray-400">
+							<small class="flex text-sm text-gray-400 gap-2">
 								Also replies to:
-								<span
-									v-for="(
-										pid, idx
-									) in node.secondaryParentIds"
-									:key="pid"
+								<div
+									v-if="node.secondaryParentIds.length < 3"
+									class="inline-block"
 								>
-									<a
-										:href="'#' + pid"
-										class="underline hover:text-gray-200"
-									>
-										{{
-											nodeMap.get(pid)?.author.username ||
-											pid
-										}}
-									</a>
 									<span
-										v-if="
-											idx <
-											node.secondaryParentIds.length - 1
-										"
-										>,
+										v-for="(
+											pid, idx
+										) in node.secondaryParentIds"
+										:key="pid"
+									>
+										<a
+											:href="'#' + pid"
+											class="underline hover:text-gray-200 flex items-center"
+										>
+											<UiUserTag
+												:author="nodeMap.get(pid)?.author!"
+											/>
+										</a>
+										<span
+											v-if="
+												idx <
+												node.secondaryParentIds.length -
+													1
+											"
+											>,
+										</span>
 									</span>
-								</span>
+								</div>
+								<div v-else>
+									<small class="text-sm text-gray-400">
+										<button
+											class="underline cursor-pointer"
+											@click="toggleForwardRefs"
+										>
+											Also responding to
+											{{
+												node.secondaryParentIds.length
+											}}
+											other comments
+										</button>
+									</small>
+									<ul
+										v-if="showForwardRefs"
+										class="list-disc list-inside text-gray-400"
+									>
+										<li
+											v-for="pid in node.secondaryParentIds"
+											:key="pid"
+                                            class="my-1"
+										>
+											<a
+												:href="'#' + pid"
+												class="underline hover:text-gray-200 inline-block align-middle my-1"
+											>
+												<UiUserTag
+													:author="nodeMap.get(pid)?.author!"
+												/>
+											</a>
+										</li>
+									</ul>
+								</div>
 							</small>
 						</div>
 
