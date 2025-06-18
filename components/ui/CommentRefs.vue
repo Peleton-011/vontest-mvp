@@ -1,36 +1,32 @@
 <script lang="ts" setup>
-type Ref = {
+export type Ref = {
 	id: string;
 	author: { username: string; avatarUrl: string };
+	comment: { text: string; createdAt: Date };
 };
 
-const { refs } = defineProps<{
+const { refs, direction } = defineProps<{
 	refs: Ref[];
 	direction: "forward" | "backward";
 }>();
 
-const showForwardRefs = ref(false);
-const toggleForwardRefs = () => {
-	showForwardRefs.value = !showForwardRefs.value;
+const showRefs = ref(false);
+const toggleShowRefs = () => {
+	showRefs.value = !showRefs.value;
 };
 </script>
 
 <template>
 	<div v-if="refs.length">
 		<small class="flex text-sm text-gray-400 gap-2">
-			<div v-if="refs.length < 3" class="flex gap-2">
+			<div v-if="refs.length < 3" class="flex gap-2 items-center">
 				{{
 					direction === "forward"
 						? "Also replies to:"
 						: "Also referenced by:"
 				}}
 				<span v-for="(ref, idx) in refs" :key="ref.id" class="flex">
-					<a
-						:href="'#' + ref.id"
-						class="underline hover:text-gray-200 flex items-center"
-					>
-						<UiUserTag :author="ref.author" />
-					</a>
+					<UiCommentRef :reference="ref" />
 					<span v-if="idx < refs.length - 1">, </span>
 				</span>
 			</div>
@@ -38,7 +34,7 @@ const toggleForwardRefs = () => {
 				<small class="text-sm text-gray-400">
 					<button
 						class="underline cursor-pointer"
-						@click="toggleForwardRefs"
+						@click="toggleShowRefs"
 					>
 						{{
 							direction === "forward"
@@ -49,17 +45,9 @@ const toggleForwardRefs = () => {
 						other comments
 					</button>
 				</small>
-				<ul
-					v-if="showForwardRefs"
-					class="list-disc list-inside text-gray-400"
-				>
+				<ul v-if="showRefs" class="list-disc list-inside text-gray-400">
 					<li v-for="ref in refs" :key="ref.id" class="my-1">
-						<a
-							:href="'#' + ref.id"
-							class="underline hover:text-gray-200 inline-block align-middle my-1"
-						>
-							<UiUserTag :author="ref.author" />
-						</a>
+						<UiCommentRef :reference="ref" />
 					</li>
 				</ul>
 			</div>
