@@ -1,3 +1,9 @@
+<script lang="ts" setup>
+const { author } = defineProps<{
+	author: { username: string; avatarUrl: string };
+}>();
+</script>
+
 <template>
 	<div class="flex items-center">
 		<UModal>
@@ -24,9 +30,3 @@
 		<span class="font-medium">{{ author.username }}</span>
 	</div>
 </template>
-
-<script lang="ts" setup>
-const { author } = defineProps<{
-	author: { username: string; avatarUrl: string };
-}>();
-</script>
