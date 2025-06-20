@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import MdEditor from "~/components/MdEditor.vue";
+import VontestForm from "~/components/VontestForm.vue";
 
 const quillRef = ref();
 const content = ref();
@@ -53,93 +54,108 @@ function getContentLength() {
 
 <template>
 	<div>
-		<p ref="test">
-			<span ref="testChild"
-				>Very long text should be truncate use js. Very long text should
-				be truncate.Very long text should be truncate.Very long text
-				should be truncate.Very long text should be truncate.Very long
-				text should be truncate.Very long text should be truncate.Very
-				long text should be truncate use js. Very long text should be
-				truncate.Very long text should be truncate.Very long text should
-				be truncate.Very long text should be truncate.Very long text
-				should be truncate.Very long text should be truncate.Very long
-				text should be truncate use js. Very long text should be
-				truncate.Very long text should be truncate.Very long text should
-				be truncate.Very long text should be truncate.Very long text
-				should be truncate.Very long text should be truncate.Very long
-				text should be truncate use js. Very long text should be
-				truncate.Very long text should be truncate.Very long text should
-				be truncate.Very long text should be truncate.Very long text
-				should be truncate.Very long text should be truncate.Very long
-				text should be truncate use js. Very long text should be
-				truncate.Very long text should be truncate.Very long text should
-				be truncate.Very long text should be truncate.Very long text
-				should be truncate.Very long text should be truncate.Very long
-				text should be truncate use js. Very long text should be
-				truncate.Very long text should be truncate.Very long text should
-				be truncate.Very long text should be truncate.Very long text
-				should be truncate.Very long text should be truncate.Very long
-				text should be truncate use js. Very long text should be
-				truncate.Very long text should be truncate.Very long text should
-				be truncate.Very long text should be truncate.Very long text
-				should be truncate.Very long text should be truncate.Very long
-				text should be truncate use js. Very long text should be
-				truncate.Very long text should be truncate.Very long text should
-				be truncate.Very long text should be truncate.Very long text
-				should be truncate.Very long text should be truncate.</span
-			>
-		</p>
-
-		<ClientOnly>
-			<MdEditor
-				v-if="content"
-				ref="quillRef"
-				v-model="content"
-				v-model:contentMarkdown="contentMarkdown"
-				:readOnly="false"
-				@selection-change="handleSelectionChange"
-				@text-change="handleTextChange"
-			/>
-		</ClientOnly>
-		<hr />
-		<ClientOnly>
-			<MdEditor
-				v-if="content"
-				ref="quillRef"
-				v-model="content"
-				v-model:contentMarkdown="contentMarkdown"
-				:readOnly="false"
-				@selection-change="handleSelectionChange"
-				@text-change="handleTextChange"
-			/>
-		</ClientOnly>
-
-		<div class="controls">
-			<button class="controls-right" @click="getContentLength">
-				Get Content Length
-			</button>
-		</div>
-
-		<div class="state">
-			<div class="state-title">Current Range:</div>
-			<div>{{ range ? JSON.stringify(range) : "Empty" }}</div>
-		</div>
-
-		<div class="state">
-			<div class="state-title">Last Change:</div>
+		<VontestForm />
+		<div v-if="false">
 			<div>
-				{{ lastChange ? JSON.stringify(lastChange.ops) : "Empty" }}
+				<p ref="test">
+					<span ref="testChild"
+						>Very long text should be truncate use js. Very long
+						text should be truncate.Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate.Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate use js. Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate.Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate.Very long text should be
+						truncate use js. Very long text should be truncate.Very
+						long text should be truncate.Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate.Very long text should be
+						truncate.Very long text should be truncate use js. Very
+						long text should be truncate.Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate.Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate use js. Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate.Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate.Very long text should be
+						truncate use js. Very long text should be truncate.Very
+						long text should be truncate.Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate.Very long text should be
+						truncate.Very long text should be truncate use js. Very
+						long text should be truncate.Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate.Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate use js. Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate.Very long text should be
+						truncate.Very long text should be truncate.Very long
+						text should be truncate.</span
+					>
+				</p>
+
+				<ClientOnly>
+					<MdEditor
+						v-if="content"
+						ref="quillRef"
+						v-model="content"
+						v-model:contentMarkdown="contentMarkdown"
+						:readOnly="false"
+						@selection-change="handleSelectionChange"
+						@text-change="handleTextChange"
+					/>
+				</ClientOnly>
+				<hr />
+				<ClientOnly>
+					<MdEditor
+						v-if="content"
+						ref="quillRef"
+						v-model="content"
+						v-model:contentMarkdown="contentMarkdown"
+						:readOnly="false"
+						@selection-change="handleSelectionChange"
+						@text-change="handleTextChange"
+					/>
+				</ClientOnly>
+
+				<div class="controls">
+					<button class="controls-right" @click="getContentLength">
+						Get Content Length
+					</button>
+				</div>
+
+				<div class="state">
+					<div class="state-title">Current Range:</div>
+					<div>{{ range ? JSON.stringify(range) : "Empty" }}</div>
+				</div>
+
+				<div class="state">
+					<div class="state-title">Last Change:</div>
+					<div>
+						{{
+							lastChange
+								? JSON.stringify(lastChange.ops)
+								: "Empty"
+						}}
+					</div>
+				</div>
+
+				<div class="state">
+					<div class="state-title">Markdown Output:</div>
+					<pre>{{ contentMarkdown }}</pre>
+				</div>
+
+				<div class="state">
+					<div class="state-title">Content:</div>
+					<pre>{{ JSON.stringify(content, null, 2) }}</pre>
+				</div>
 			</div>
-		</div>
-
-		<div class="state">
-			<div class="state-title">Markdown Output:</div>
-			<pre>{{ contentMarkdown }}</pre>
-		</div>
-
-		<div class="state">
-			<div class="state-title">Content:</div>
-			<pre>{{ JSON.stringify(content, null, 2) }}</pre>
 		</div>
 	</div>
 </template>
