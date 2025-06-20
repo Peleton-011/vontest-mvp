@@ -28,19 +28,21 @@ const selectOption = (id: string) => {
 };
 
 const submitVote = async () => {
-	if (!selectedOptionId.value || voteSubmitted.value || !user.value) return;
+	if (!selectedOptionIds.value.length || voteSubmitted.value || !user.value) return;
 
-	const { error } = await useSupabaseClient<Database>().from("votes").insert({
-		user_id: user.value.id,
-		proposal_id: selectedOptionId.value,
-		vontest_id: props.vontestId,
-		points: 1, // optional depending on your schema
-	});
-
-	if (error) {
-		console.error("Error submitting vote:", error);
-		return;
-	}
+    Promise.all(
+        selectedOptionIds.value.map(async (optionId) => {
+            await useSupabaseClient<Database>().from("votes").insert({
+                user_id: user.value!.id,
+                proposal_id: optionId,
+                vontest_id: props.vontestId,
+                points: 1, // optional depending on your schema
+            });
+        })
+    ).catch((error) => {
+        console.error("Error submitting vote:", error);
+        return;
+    })
 
 	voteSubmitted.value = true;
 };
@@ -55,7 +57,7 @@ const submitVote = async () => {
 			<UButton
 				v-for="option in props.proposals"
 				:key="option.id"
-				:color="selectedOptionId === option.id ? 'primary' : 'neutral'"
+				:color="selectedOptionIds.includes(option.id) ? 'primary' : 'neutral'"
 				variant="solid"
 				class="w-full text-left p-4"
 				@click="selectOption(option.id)"
@@ -72,7 +74,7 @@ const submitVote = async () => {
 		<!-- Submit button -->
 		<div class="pt-4">
 			<UButton
-				:disabled="!selectedOptionId || voteSubmitted"
+				:disabled="!selectedOptionIds.length || voteSubmitted"
 				color="primary"
 				@click="submitVote"
 			>
