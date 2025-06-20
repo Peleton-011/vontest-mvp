@@ -5,27 +5,27 @@ import type { RadioGroupItem, RadioGroupValue, StepperItem } from "@nuxt/ui";
 const stepperItems = ref<StepperItem[]>([
 	{
 		title: "Basic Info",
-        // description: " Describe your Vontest",
-        icon: "i-lucide-info",
-        slot: "info" as const
+		// description: " Describe your Vontest",
+		icon: "i-lucide-info",
+		slot: "info" as const,
 	},
 	{
 		title: "Proposal Settings",
-        // description: " Configure the proposals",
-        icon: "i-lucide-settings",
-        slot: "proposal" as const
+		// description: " Configure the proposals",
+		icon: "i-lucide-settings",
+		slot: "proposal" as const,
 	},
 	{
 		title: "Voting Method",
-        // description: " Select your voting method",
-        icon: "i-lucide-vote",
-        slot: "voting" as const
+		// description: " Select your voting method",
+		icon: "i-lucide-vote",
+		slot: "voting" as const,
 	},
 	{
 		title: "Review & Publish",
-        // description: " Review and publish your Vontest",
-        icon: "i-lucide-check",
-        slot: "review" as const
+		// description: " Review and publish your Vontest",
+		icon: "i-lucide-check",
+		slot: "review" as const,
 	},
 ]);
 
@@ -111,148 +111,189 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 	<div class="flex flex-col items-center">
 		<!-- Bind the form state via :state to UForm -->
 		<UForm :state="formState" class="w-1/3" @submit.prevent="publish">
-			<UStepper v-model="activeStep" :items="stepperItems" />
-			<!-- Stepper -->
+			<UStepper v-model="activeStep" :items="stepperItems">
+				<!-- Stepper -->
 
-			<!-- Step 1: Basic Info -->
-			<div v-if="activeStep === 0" class="space-y-4">
-				<UFormField name="title" label="Title">
-					<UInput v-model="title" required />
-				</UFormField>
-				<UFormField name="description" label="Description">
-					<UTextarea v-model="description" />
-				</UFormField>
-				<div class="flex justify-end">
-					<UButton :disabled="!title" @click="nextStep">Next</UButton>
-				</div>
-			</div>
-
-			<!-- Step 2: Proposal Settings -->
-			<div v-else-if="activeStep === 1" class="space-y-4">
-				<UFormField
-					name="proposalPermission"
-					label="Who may add proposals?"
-				>
-					<URadioGroup
-						v-model="proposalPermission"
-						:items="permissionOptions"
-						variant="card"
-					/>
-				</UFormField>
-
-				<div v-if="proposalPermission === 'creator'" class="space-y-2">
-					<div
-						v-for="(opt, i) in options"
-						:key="i"
-						class="flex items-center gap-2"
-					>
-						<UFormField :name="`options.${i}.label`" label="Option">
-							<UInput v-model="options[i].label" required />
+				<!-- Step 1: Basic Info -->
+				<template #info>
+					<div class="space-y-4">
+						<UFormField name="title" label="Title">
+							<UInput v-model="title" required />
 						</UFormField>
-						<UButton
-							icon="i-lucide-x"
-							variant="ghost"
-							@click="removeOption(i)"
-						/>
+						<UFormField name="description" label="Description">
+							<UTextarea v-model="description" />
+						</UFormField>
+						<div class="flex justify-end">
+							<UButton :disabled="!title" @click="nextStep"
+								>Next</UButton
+							>
+						</div>
 					</div>
-					<UButton variant="subtle" @click="addOption"
-						>+ Add another option</UButton
-					>
-				</div>
+				</template>
 
-				<div class="flex justify-between">
-					<UButton variant="outline" @click="prevStep">Back</UButton>
-					<UButton
-						:disabled="
-							proposalPermission === 'creator' &&
-							options.length < 2
-						"
-						@click="nextStep"
-					>
-						Next
-					</UButton>
-				</div>
-			</div>
-
-			<!-- Step 3: Voting Method -->
-			<div v-else-if="activeStep === 2" class="space-y-4">
-				<UFormField name="votingMethod" label="Voting Method">
-					<USelect
-						v-model="votingMethod"
-						:items="[
-							{ label: 'Single choice', value: 'single' },
-							{ label: 'Multiple choice', value: 'multiple' },
-							{ label: 'Ranked choice', value: 'ranked' },
-							{ label: 'Score voting', value: 'score' },
-						]"
-					/>
-				</UFormField>
-
-				<UButton variant="outline" @click="toggleAdvanced">
-					{{ showAdvanced ? "Hide" : "Custom" }} Settings
-				</UButton>
-				<UCollapsible v-model:open="showAdvanced">
-					<template #content>
-						<UFormField name="anonymity" label="Anonymity">
+				<!-- Step 2: Proposal Settings -->
+				<template #proposal>
+					<div class="space-y-4">
+						<UFormField
+							name="proposalPermission"
+							label="Who may add proposals?"
+						>
 							<URadioGroup
-								v-model="advancedSettings.anonymity"
-								:items="anonymityOptions"
+								v-model="proposalPermission"
+								:items="permissionOptions"
+								variant="card"
 							/>
 						</UFormField>
-						<UFormField
-							name="allowUpdate"
-							label="Allow updates until close"
+
+						<div
+							v-if="proposalPermission === 'creator'"
+							class="space-y-2"
 						>
-							<UCheckbox v-model="advancedSettings.allowUpdate" />
-						</UFormField>
-						<!-- Add more custom controls as needed -->
-					</template>
-				</UCollapsible>
+							<div
+								v-for="(opt, i) in options"
+								:key="i"
+								class="flex items-center gap-2"
+							>
+								<UFormField
+									:name="`options.${i}.label`"
+									label="Option"
+								>
+									<UInput
+										v-model="options[i].label"
+										required
+									/>
+								</UFormField>
+								<UButton
+									icon="i-lucide-x"
+									variant="ghost"
+									@click="removeOption(i)"
+								/>
+							</div>
+							<UButton variant="subtle" @click="addOption"
+								>+ Add another option</UButton
+							>
+						</div>
 
-				<div class="flex justify-between">
-					<UButton variant="outline" @click="prevStep">Back</UButton>
-					<UButton @click="nextStep">Next</UButton>
-				</div>
-			</div>
-
-			<!-- Step 4: Review & Publish -->
-			<div v-else class="space-y-4">
-				<UCard variant="subtle" class="p-4">
-					<h3 class="text-lg font-semibold">Review your Vontest</h3>
-					<p><strong>Title:</strong> {{ title }}</p>
-					<p>
-						<strong>Description:</strong> {{ description || "—" }}
-					</p>
-					<p>
-						<strong>Proposals by:</strong>
-						{{
-							proposalPermission === "creator"
-								? "Only you"
-								: "Participants"
-						}}
-					</p>
-					<div v-if="proposalPermission === 'creator'">
-						<strong>Options:</strong>
-						<ul class="list-disc ml-6">
-							<li v-for="(opt, i) in options" :key="i">
-								{{ opt.label }}
-							</li>
-						</ul>
+						<div class="flex justify-between">
+							<UButton variant="outline" @click="prevStep"
+								>Back</UButton
+							>
+							<UButton
+								:disabled="
+									proposalPermission === 'creator' &&
+									options.length < 2
+								"
+								@click="nextStep"
+							>
+								Next
+							</UButton>
+						</div>
 					</div>
-					<p><strong>Voting Method:</strong> {{ votingMethod }}</p>
-					<p>
-						<strong>Anonymity:</strong>
-						{{ advancedSettings.anonymity }}<br />
-						<strong>Allow updates:</strong>
-						{{ advancedSettings.allowUpdate ? "Yes" : "No" }}
-					</p>
-				</UCard>
+				</template>
 
-				<div class="flex justify-between">
-					<UButton variant="outline" @click="prevStep">Back</UButton>
-					<UButton type="submit" color="primary">Publish</UButton>
-				</div>
-			</div>
+				<!-- Step 3: Voting Method -->
+				<template #voting>
+					<div class="space-y-4">
+						<UFormField name="votingMethod" label="Voting Method">
+							<USelect
+								v-model="votingMethod"
+								:items="[
+									{ label: 'Single choice', value: 'single' },
+									{
+										label: 'Multiple choice',
+										value: 'multiple',
+									},
+									{ label: 'Ranked choice', value: 'ranked' },
+									{ label: 'Score voting', value: 'score' },
+								]"
+							/>
+						</UFormField>
+
+						<UButton variant="outline" @click="toggleAdvanced">
+							{{ showAdvanced ? "Hide" : "Custom" }} Settings
+						</UButton>
+						<UCollapsible v-model:open="showAdvanced">
+							<template #content>
+								<UFormField name="anonymity" label="Anonymity">
+									<URadioGroup
+										v-model="advancedSettings.anonymity"
+										:items="anonymityOptions"
+									/>
+								</UFormField>
+								<UFormField
+									name="allowUpdate"
+									label="Allow updates until close"
+								>
+									<UCheckbox
+										v-model="advancedSettings.allowUpdate"
+									/>
+								</UFormField>
+								<!-- Add more custom controls as needed -->
+							</template>
+						</UCollapsible>
+
+						<div class="flex justify-between">
+							<UButton variant="outline" @click="prevStep"
+								>Back</UButton
+							>
+							<UButton @click="nextStep">Next</UButton>
+						</div>
+					</div>
+				</template>
+
+				<!-- Step 4: Review & Publish -->
+				<template #review>
+					<div class="space-y-4">
+						<UCard variant="subtle" class="p-4">
+							<h3 class="text-lg font-semibold">
+								Review your Vontest
+							</h3>
+							<p><strong>Title:</strong> {{ title }}</p>
+							<p>
+								<strong>Description:</strong>
+								{{ description || "—" }}
+							</p>
+							<p>
+								<strong>Proposals by:</strong>
+								{{
+									proposalPermission === "creator"
+										? "Only you"
+										: "Participants"
+								}}
+							</p>
+							<div v-if="proposalPermission === 'creator'">
+								<strong>Options:</strong>
+								<ul class="list-disc ml-6">
+									<li v-for="(opt, i) in options" :key="i">
+										{{ opt.label }}
+									</li>
+								</ul>
+							</div>
+							<p>
+								<strong>Voting Method:</strong>
+								{{ votingMethod }}
+							</p>
+							<p>
+								<strong>Anonymity:</strong>
+								{{ advancedSettings.anonymity }}<br />
+								<strong>Allow updates:</strong>
+								{{
+									advancedSettings.allowUpdate ? "Yes" : "No"
+								}}
+							</p>
+						</UCard>
+
+						<div class="flex justify-between">
+							<UButton variant="outline" @click="prevStep"
+								>Back</UButton
+							>
+							<UButton type="submit" color="primary"
+								>Publish</UButton
+							>
+						</div>
+					</div>
+				</template>
+			</UStepper>
 		</UForm>
 	</div>
 </template>
