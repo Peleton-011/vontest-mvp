@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import type { RadioGroupItem, RadioGroupValue, StepperItem } from "@nuxt/ui";
 
+const stepper = useTemplateRef("stepper");
 const stepperItems = ref<StepperItem[]>([
 	{
 		title: "Basic Info",
@@ -55,7 +56,6 @@ const anonymityOptions = ref<RadioGroupItem[]>([
 	},
 ]);
 
-const activeStep = ref(0);
 const title = ref("");
 const description = ref("");
 const proposalPermission = ref<RadioGroupValue>("participants");
@@ -77,12 +77,6 @@ const formState = ref({
 	advancedSettings: { anonymity: "public", allowUpdate: false },
 });
 
-const nextStep = () => {
-	if (activeStep.value < 3) activeStep.value++;
-};
-const prevStep = () => {
-	if (activeStep.value > 0) activeStep.value--;
-};
 const addOption = () => {
 	options.value.push({ label: "" });
 };
@@ -111,7 +105,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 	<div class="flex flex-col items-center">
 		<!-- Bind the form state via :state to UForm -->
 		<UForm :state="formState" class="w-1/3" @submit.prevent="publish">
-			<UStepper v-model="activeStep" :items="stepperItems">
+			<UStepper ref="stepper" :items="stepperItems">
 				<!-- Stepper -->
 
 				<!-- Step 1: Basic Info -->
@@ -123,11 +117,6 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 						<UFormField name="description" label="Description">
 							<UTextarea v-model="description" />
 						</UFormField>
-						<div class="flex justify-end">
-							<UButton :disabled="!title" @click="nextStep"
-								>Next</UButton
-							>
-						</div>
 					</div>
 				</template>
 
@@ -173,21 +162,6 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 								>+ Add another option</UButton
 							>
 						</div>
-
-						<div class="flex justify-between">
-							<UButton variant="outline" @click="prevStep"
-								>Back</UButton
-							>
-							<UButton
-								:disabled="
-									proposalPermission === 'creator' &&
-									options.length < 2
-								"
-								@click="nextStep"
-							>
-								Next
-							</UButton>
-						</div>
 					</div>
 				</template>
 
@@ -231,13 +205,6 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 								<!-- Add more custom controls as needed -->
 							</template>
 						</UCollapsible>
-
-						<div class="flex justify-between">
-							<UButton variant="outline" @click="prevStep"
-								>Back</UButton
-							>
-							<UButton @click="nextStep">Next</UButton>
-						</div>
 					</div>
 				</template>
 
@@ -282,18 +249,26 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 								}}
 							</p>
 						</UCard>
-
-						<div class="flex justify-between">
-							<UButton variant="outline" @click="prevStep"
-								>Back</UButton
-							>
-							<UButton type="submit" color="primary"
-								>Publish</UButton
-							>
-						</div>
 					</div>
 				</template>
 			</UStepper>
+			<!-- Stepper control buttons -->
+
+			<div class="flex justify-between">
+				<UButton
+					v-if="stepper?.hasPrev"
+					variant="outline"
+					leading-icon="i-lucide-arrow-left"
+					@click="stepper?.prev()"
+					>Back</UButton
+				>
+				<UButton 
+                    v-if="stepper?.hasNext"
+                    leading-icon="i-lucide-arrow-right"
+                    @click="stepper?.hasNext? stepper?.next() : publish()"
+                >{{ stepper?.hasNext ? "Next" : "Publish" }}</UButton>
+
+			</div>
 		</UForm>
 	</div>
 </template>
