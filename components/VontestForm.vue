@@ -256,18 +256,23 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 
 			<div class="flex justify-between">
 				<UButton
-					v-if="stepper?.hasPrev"
 					variant="outline"
-					leading-icon="i-lucide-arrow-left"
+					:leading-icon="
+						stepper?.hasPrev ? 'i-lucide-arrow-left' : ''
+					"
+					:trailing-icon="stepper?.hasPrev ? '' : 'i-lucide-x'"
 					@click="stepper?.prev()"
-					>Back</UButton
+					>{{ stepper?.hasPrev ? "Back" : "Cancel" }}</UButton
 				>
-				<UButton 
-                    v-if="stepper?.hasNext"
-                    leading-icon="i-lucide-arrow-right"
-                    @click="stepper?.hasNext? stepper?.next() : publish()"
-                >{{ stepper?.hasNext ? "Next" : "Publish" }}</UButton>
-
+				<UButton
+					:trailing-icon="
+						stepper?.hasNext
+							? 'i-lucide-arrow-right'
+							: 'i-lucide-upload'
+					"
+					@click="stepper?.hasNext ? stepper?.next() : publish()"
+					>{{ stepper?.hasNext ? "Next" : "Publish" }}</UButton
+				>
 			</div>
 		</UForm>
 	</div>
