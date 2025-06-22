@@ -120,7 +120,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 <template>
 	<div class="flex flex-col items-center">
 		<!-- Bind the form state via :state to UForm -->
-		<UForm :state="formState" class="w-1/3" @submit.prevent="publish">
+		<UForm :state="formState" class="w-1/2" @submit.prevent="publish">
 			<UStepper
 				ref="stepper"
 				v-model="step"
@@ -133,10 +133,16 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 				<template #info>
 					<div class="space-y-4">
 						<UFormField name="title" label="Title">
-							<UInput v-model="title" required />
+							<UInput v-model="title" required class="w-full" />
 						</UFormField>
 						<UFormField name="description" label="Description">
-							<UTextarea v-model="description" />
+							<ClientOnly>
+								<!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
+								<MdEditor
+									id="description"
+									v-model="description"
+								/>
+							</ClientOnly>
 						</UFormField>
 					</div>
 				</template>
