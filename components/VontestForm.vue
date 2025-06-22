@@ -2,6 +2,8 @@
 import { ref } from "vue";
 import type { RadioGroupItem, RadioGroupValue, StepperItem } from "@nuxt/ui";
 
+const step = ref(0);
+
 const stepper = useTemplateRef("stepper");
 const stepperItems = ref<StepperItem[]>([
 	{
@@ -99,13 +101,32 @@ const publish = () => {
 	});
 };
 
+const handleStepperClick = (index: number | string | undefined) => {
+	if (typeof index !== "number") {
+		alert("Error with Stepper, clicked: " + index);
+		return;
+	}
+	if (step.value < index) {
+		step.value = index;
+	} else if (index - step.value > 1) {
+		return;
+	} else {
+		step.value = index;
+	}
+};
+
 const optionLabels = computed(() => options.value.map((o) => o.label));
 </script>
 <template>
 	<div class="flex flex-col items-center">
 		<!-- Bind the form state via :state to UForm -->
 		<UForm :state="formState" class="w-1/3" @submit.prevent="publish">
-			<UStepper ref="stepper" :items="stepperItems">
+			<UStepper
+				ref="stepper"
+				v-model="step"
+				:items="stepperItems"
+				@update:model-value="handleStepperClick"
+			>
 				<!-- Stepper -->
 
 				<!-- Step 1: Basic Info -->
