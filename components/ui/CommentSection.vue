@@ -109,6 +109,12 @@ const handleEditComment = (commentId: string) => {
 	});
 };
 
+// Handler: cancel a comment update
+const handleCancelUpdate = () => {
+	editingComment.value = "";
+	resetForm();
+};
+
 // Handler: update a comment
 const handleUpdateComment = async () => {
 	if (!form.id) return;
@@ -141,9 +147,9 @@ const handleToggleReplies = (commentId: string) => {
 };
 
 const handleUpdateShowReplies = (payload: { id: string; show: boolean }) => {
-    const node = nodeMap.value.get(payload.id);
-    if (!node) return;
-    node.showReplies = payload.show;
+	const node = nodeMap.value.get(payload.id);
+	if (!node) return;
+	node.showReplies = payload.show;
 };
 
 watch(commentsTree, () => {
@@ -212,12 +218,9 @@ watch(commentsTree, () => {
 				@delete-comment="handleDeleteComment"
 				@edit-comment="handleEditComment"
 				@post-update="handleUpdateComment"
-				@cancel-update="
-					editingComment = '';
-					resetForm();
-				"
+				@cancel-update="handleCancelUpdate"
 				@toggle-replies="handleToggleReplies"
-                @update:show-replies="handleUpdateShowReplies"
+				@update:show-replies="handleUpdateShowReplies"
 			/>
 		</div>
 	</div>
