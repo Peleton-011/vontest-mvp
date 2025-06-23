@@ -23,6 +23,8 @@ const {
 	resetForm,
 } = useComments(props.threadId);
 
+const router = useRouter();
+
 const editingComment = ref<string>("");
 const isTopLevelCommentOpen = ref(false);
 
@@ -152,6 +154,20 @@ const handleUpdateShowReplies = (payload: { id: string; show: boolean }) => {
 	node.showReplies = payload.show;
 };
 
+const handleActivateReference = (commentId: string) => {
+    console.log("Activating reference:", commentId);
+    router.push({ hash: `#${commentId}` })
+    const node = nodeMap.value.get(commentId);
+    if (!node) return;
+    node.showReplies = true;
+    // Recursively show replies for all parents of this comment 
+    let parent = nodeMap.value.get(node.parentIds[0]);
+    while (parent) {
+        parent.showReplies = true;
+        parent = nodeMap.value.get(parent.parentIds[0]);
+    }
+};
+
 watch(commentsTree, () => {
 	console.log("Comments updated:", commentsTree.value);
 	console.log(buildNodeMap(commentsTree.value));
@@ -221,6 +237,7 @@ watch(commentsTree, () => {
 				@cancel-update="handleCancelUpdate"
 				@toggle-replies="handleToggleReplies"
 				@update:show-replies="handleUpdateShowReplies"
+                @activate-reference="handleActivateReference"
 			/>
 		</div>
 	</div>

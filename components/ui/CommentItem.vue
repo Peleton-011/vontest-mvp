@@ -17,7 +17,8 @@ const emit = defineEmits<{
 			| "update:comment-text"
 			| "delete-comment"
 			| "edit-comment"
-			| "toggle-replies",
+			| "toggle-replies"
+			| "activate-reference",
 		payload: string
 	): void;
 	(e: "update:comment-parents", parents: string[]): void;
@@ -149,6 +150,9 @@ onMounted(() => {
 								})
 							"
 							direction="forward"
+							@activate-reference="
+								emit('activate-reference', $event)
+							"
 						/>
 
 						<!-- Reply button / collapsible -->
@@ -190,6 +194,9 @@ onMounted(() => {
 									};
 								})"
 							direction="backward"
+							@activate-reference="
+								emit('activate-reference', $event)
+							"
 						/>
 					</div>
 					<div>ShowReplies: {{ node.showReplies }}</div>
@@ -249,6 +256,7 @@ onMounted(() => {
 						@update:show-replies="
 							emit('update:show-replies', $event)
 						"
+						@activate-reference="emit('activate-reference', $event)"
 					/>
 				</div>
 			</Transition>
