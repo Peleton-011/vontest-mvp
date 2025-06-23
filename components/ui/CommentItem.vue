@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { CommentNode } from "~/composables/useComments";
 import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
+import type { FullCommentNode } from "./CommentSection.vue";
 
 const props = defineProps<{
-	node: CommentNode;
+	node: FullCommentNode;
 	depth?: number;
-	nodeMap: Map<string, CommentNode>;
+	nodeMap: Map<string, FullCommentNode>;
 	newCommentParents: string[];
 	newCommentText: string;
 	editingComment?: string;
@@ -13,21 +13,21 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	(
-		e: "update:comment-text" | "delete-comment" | "edit-comment",
+		e:
+			| "update:comment-text"
+			| "delete-comment"
+			| "edit-comment"
+			| "toggle-replies",
 		payload: string
 	): void;
 	(e: "update:comment-parents", parents: string[]): void;
+	(e: "update:show-replies", payload: { id: string; show: boolean }): void;
 	(e: "post-comment" | "post-update" | "cancel-update"): void;
 }>();
 
 const user = useSupabaseUser();
 
 const isEditing = computed(() => props.editingComment === props.node.id);
-
-const showReplies = ref(props.depth === undefined || props.depth < 2);
-const toggleReplies = () => {
-	showReplies.value = !showReplies.value;
-};
 
 // Computed getter/setter for this node’s comment text
 const localCommentText = computed<string>({
@@ -62,6 +62,15 @@ const renderReplyButtonLabel = () => {
 	if (props.newCommentParents[0] === props.node.id) return "Cancel";
 	return "Stop Replying To";
 };
+
+onMounted(() => {
+	if (typeof props.node.showReplies === "undefined") {
+		emit("update:show-replies", {
+			id: props.node.id,
+			show: props.depth! < 3,
+		});
+	}
+});
 </script>
 
 <template>
@@ -158,9 +167,12 @@ const renderReplyButtonLabel = () => {
 							<button
 								v-if="node.children.length"
 								class="text-sm text-gray-400 hover:text-primary-400"
-								@click="toggleReplies"
+								@click="
+									emit('toggle-replies', node.id);
+									console.log(node.showReplies);
+								"
 							>
-								{{ showReplies ? "Hide" : "Show" }}
+								{{ node.showReplies ? "Hide" : "Show" }}
 								{{ node.children.length }} repl{{
 									node.children.length === 1 ? "y" : "ies"
 								}}
@@ -180,6 +192,7 @@ const renderReplyButtonLabel = () => {
 							direction="backward"
 						/>
 					</div>
+					<div>ShowReplies: {{ node.showReplies }}</div>
 				</template>
 			</UCard>
 
@@ -209,7 +222,7 @@ const renderReplyButtonLabel = () => {
 			<!-- Recursive rendering of primary‐nested children -->
 			<Transition name="fade">
 				<div
-					v-if="node.children.length && showReplies"
+					v-if="node.children.length && node.showReplies"
 					class="space-y-4 mt-4"
 				>
 					<CommentItem
@@ -232,6 +245,10 @@ const renderReplyButtonLabel = () => {
 						@edit-comment="emit('edit-comment', $event)"
 						@post-update="emit('post-update')"
 						@cancel-update="emit('cancel-update')"
+						@toggle-replies="emit('toggle-replies', $event)"
+						@update:show-replies="
+							emit('update:show-replies', $event)
+						"
 					/>
 				</div>
 			</Transition>
