@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import MdEditor from "~/components/MdEditor.vue";
-import VontestForm from "~/components/VontestForm.vue";
 
 const quillRef = ref();
 const content = ref();
@@ -42,7 +41,7 @@ function handleSelectionChange(r) {
 	range.value = r;
 }
 
-function handleTextChange(delta, oldDelta, source) {
+function handleTextChange(delta) {
 	lastChange.value = delta;
 }
 
@@ -54,7 +53,7 @@ function getContentLength() {
 
 <template>
 	<div>
-		<VontestForm />
+		<FormVontest />
 		<div v-if="false">
 			<div>
 				<p ref="test">
@@ -105,20 +104,20 @@ function getContentLength() {
 						v-if="content"
 						ref="quillRef"
 						v-model="content"
-						v-model:contentMarkdown="contentMarkdown"
-						:readOnly="false"
+						v-model:content-markdown="contentMarkdown"
+						:read-only="false"
 						@selection-change="handleSelectionChange"
 						@text-change="handleTextChange"
 					/>
 				</ClientOnly>
-				<hr />
+				<hr >
 				<ClientOnly>
 					<MdEditor
 						v-if="content"
 						ref="quillRef"
 						v-model="content"
-						v-model:contentMarkdown="contentMarkdown"
-						:readOnly="false"
+						v-model:content-markdown="contentMarkdown"
+						:read-only="false"
 						@selection-change="handleSelectionChange"
 						@text-change="handleTextChange"
 					/>
