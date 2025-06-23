@@ -2,6 +2,27 @@
 import { ref } from "vue";
 import type { RadioGroupItem, RadioGroupValue, StepperItem } from "@nuxt/ui";
 
+const props = defineProps<{
+	vontestId?: string;
+}>();
+
+const {
+	form,
+	createVontest,
+	editVontest,
+	updateVontest,
+	fetchVontest,
+	loading,
+} = useVontests();
+
+// Fetch vontest if it's an update
+onMounted(async () => {
+	if (!props.vontestId) return;
+	const vontest = (await fetchVontest(props.vontestId)) || null;
+
+	if (vontest) editVontest(vontest);
+});
+
 const step = ref(0);
 
 const stepper = useTemplateRef("stepper");
@@ -58,8 +79,7 @@ const anonymityOptions = ref<RadioGroupItem[]>([
 	},
 ]);
 
-const title = ref("");
-const description = ref("");
+
 const proposalPermission = ref<RadioGroupValue>("participants");
 const options = ref([{ label: "" }, { label: "" }]);
 const votingMethod = ref("single");
@@ -68,16 +88,6 @@ const advancedSettings = ref<{
 	anonymity: RadioGroupValue;
 	allowUpdate: boolean;
 }>({ anonymity: "public", allowUpdate: false });
-
-const formState = ref({
-	title: "",
-	description: "",
-	proposalPermission: "creator",
-	options: [{ label: "" }, { label: "" }],
-	votingMethod: "single",
-	showAdvanced: false,
-	advancedSettings: { anonymity: "public", allowUpdate: false },
-});
 
 const addOption = () => {
 	options.value.push({ label: "" });
@@ -89,16 +99,31 @@ const toggleAdvanced = () => {
 	showAdvanced.value = !showAdvanced.value;
 };
 
-const publish = () => {
+const publish = async () => {
+    console.log(form)
 	// Placeholder: handle form submission
 	console.log("Publishing vontest", {
-		title: title.value,
-		description: description.value,
+		title: form.title,
+		description: form.description,
 		proposalPermission: proposalPermission.value,
 		options: optionLabels.value,
 		votingMethod: votingMethod.value,
 		advancedSettings: advancedSettings.value,
 	});
+
+	if (props.vontestId) {
+		//Handle submit of an update
+		await updateVontest();
+		navigateTo(`/vontests/${props.vontestId}`);
+		return;
+	}
+
+	//Handle submit of a new vontest
+	const newVontest = await createVontest();
+
+	if (newVontest) {
+		navigateTo(`/vontests/${newVontest?.id}`);
+	}
 };
 
 const handleStepperClick = (index: number | string | undefined) => {
@@ -120,7 +145,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 <template>
 	<div class="flex flex-col items-center">
 		<!-- Bind the form state via :state to UForm -->
-		<UForm :state="formState" class="w-1/2" @submit.prevent="publish">
+		<UForm :state="form" class="w-1/2" @submit.prevent="publish">
 			<UStepper
 				ref="stepper"
 				v-model="step"
@@ -133,14 +158,20 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 				<template #info>
 					<div class="space-y-4">
 						<UFormField name="title" label="Title">
-							<UInput v-model="title" required class="w-full" />
+                            <UInput
+					id="title"
+					v-model="form.title"
+					placeholder="What’s the best way to reduce urban noise?"
+					required
+					class="w-full"
+				/>
 						</UFormField>
 						<UFormField name="description" label="Description">
 							<ClientOnly>
 								<!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
 								<MdEditor
 									id="description"
-									v-model="description"
+									v-model="form.description"
 								/>
 							</ClientOnly>
 						</UFormField>
@@ -242,10 +273,10 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 							<h3 class="text-lg font-semibold">
 								Review your Vontest
 							</h3>
-							<p><strong>Title:</strong> {{ title }}</p>
+							<p><strong>Title:</strong> {{ form.title }}</p>
 							<p>
 								<strong>Description:</strong>
-								{{ description || "—" }}
+								{{ form.description || "—" }}
 							</p>
 							<p>
 								<strong>Proposals by:</strong>
@@ -292,6 +323,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 					>{{ stepper?.hasPrev ? "Back" : "Cancel" }}</UButton
 				>
 				<UButton
+					:loading="loading"
 					:trailing-icon="
 						stepper?.hasNext
 							? 'i-lucide-arrow-right'
