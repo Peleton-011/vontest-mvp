@@ -66,6 +66,14 @@ const renderReplyButtonLabel = () => {
 
 onMounted(() => {
 	if (typeof props.node.showReplies === "undefined") {
+		// Show replies if comment is less than 5 minutes old
+		if (props.node.createdAt.getTime() > Date.now() - 5 * 60 * 1000) {
+			emit("update:show-replies", {
+				id: props.node.id,
+				show: true,
+			});
+		}
+		// Show replies if comment is less than 3 levels deep
 		emit("update:show-replies", {
 			id: props.node.id,
 			show: props.depth! < 3,
