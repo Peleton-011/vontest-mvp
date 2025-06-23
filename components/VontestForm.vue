@@ -281,7 +281,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 			</UStepper>
 			<!-- Stepper control buttons -->
 
-			<div class="flex justify-between">
+			<div class="flex justify-between mt-4">
 				<UButton
 					variant="outline"
 					:leading-icon="
