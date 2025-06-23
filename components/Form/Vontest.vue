@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { ref } from "vue";
+import type { RadioGroupItem, RadioGroupValue, StepperItem } from "@nuxt/ui";
+
 const props = defineProps<{
 	vontestId?: string;
 }>();
@@ -17,10 +20,96 @@ onMounted(async () => {
 	if (!props.vontestId) return;
 	const vontest = (await fetchVontest(props.vontestId)) || null;
 
-	vontest && editVontest(vontest);
+	if (vontest) editVontest(vontest);
 });
 
-const submit = async () => {
+const step = ref(0);
+
+const stepper = useTemplateRef("stepper");
+const stepperItems = ref<StepperItem[]>([
+	{
+		title: "Basic Info",
+		// description: " Describe your Vontest",
+		icon: "i-lucide-info",
+		slot: "info" as const,
+	},
+	{
+		title: "Proposal Settings",
+		// description: " Configure the proposals",
+		icon: "i-lucide-settings",
+		slot: "proposal" as const,
+	},
+	{
+		title: "Voting Method",
+		// description: " Select your voting method",
+		icon: "i-lucide-vote",
+		slot: "voting" as const,
+	},
+	{
+		title: "Review & Publish",
+		// description: " Review and publish your Vontest",
+		icon: "i-lucide-check",
+		slot: "review" as const,
+	},
+]);
+
+const permissionOptions = ref<RadioGroupItem[]>([
+	{
+		label: "Participants",
+		description: "Anyone can add proposals",
+		value: "participants",
+	},
+	{
+		label: "Creator",
+		description: "Only I can add proposals",
+		value: "creator",
+	},
+]);
+
+const anonymityOptions = ref<RadioGroupItem[]>([
+	{
+		label: "Public",
+		description: "Show votes and voter names",
+		value: "public",
+	},
+	{
+		label: "Private",
+		description: "Hide voter names",
+		value: "private",
+	},
+]);
+
+const proposalPermission = ref<RadioGroupValue>("participants");
+const options = ref([{ label: "" }, { label: "" }]);
+const votingMethod = ref("single");
+const showAdvanced = ref(false);
+const advancedSettings = ref<{
+	anonymity: RadioGroupValue;
+	allowUpdate: boolean;
+}>({ anonymity: "public", allowUpdate: false });
+
+const addOption = () => {
+	options.value.push({ label: "" });
+};
+const removeOption = (i: number) => {
+	options.value.splice(i, 1);
+};
+const toggleAdvanced = () => {
+	showAdvanced.value = !showAdvanced.value;
+};
+
+const publish = async () => {
+	console.log(form);
+	// Placeholder: handle form submission
+	console.log("Publishing vontest", {
+		title: form.title,
+		description: form.description,
+		proposalPermission: proposalPermission.value,
+		options: optionLabels.value,
+		votingMethod: votingMethod.value,
+		advancedSettings: advancedSettings.value,
+	});
+
 	if (props.vontestId) {
 		//Handle submit of an update
 		await updateVontest();
@@ -35,46 +124,214 @@ const submit = async () => {
 		navigateTo(`/vontests/${newVontest?.id}`);
 	}
 };
+
+const handleStepperClick = (index: number | string | undefined) => {
+	if (typeof index !== "number") {
+		alert("Error with Stepper, clicked: " + index);
+		return;
+	}
+	if (step.value < index) {
+		step.value = index;
+	} else if (index - step.value > 1) {
+		return;
+	} else {
+		step.value = index;
+	}
+};
+
+const optionLabels = computed(() => options.value.map((o) => o.label));
 </script>
-
 <template>
-	<div class="w-full flex flex-col items-center">
-		<form
-			@submit.prevent="submit"
-			class="space-y-4 md:max-w-3/4 lg:max-w-1/2"
-		>
-			<h1 class="text-2xl font-bold my-4 w-full text-center">
-				Submit a new Vontest
-			</h1>
+	<div class="flex flex-col items-center">
+		<!-- Bind the form state via :state to UForm -->
+		<UForm :state="form" class="w-1/2" @submit.prevent="publish">
+			<UStepper
+				ref="stepper"
+				v-model="step"
+				:items="stepperItems"
+				@update:model-value="handleStepperClick"
+			>
+				<!-- Stepper -->
 
-			<div>
-				<label for="title" class="block mb-1 text-lg font-semibold">
-					Question
-				</label>
+				<!-- Step 1: Basic Info -->
+				<template #info>
+					<div class="space-y-4">
+						<UFormField name="title" label="Title">
+							<UInput
+								id="title"
+								v-model="form.title"
+								placeholder="What’s the best way to reduce urban noise?"
+								required
+								class="w-full"
+							/>
+						</UFormField>
+						<UFormField name="description" label="Description">
+							<ClientOnly>
+								<!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
+								<MdEditor
+									id="description"
+									v-model="form.description"
+								/>
+							</ClientOnly>
+						</UFormField>
+					</div>
+				</template>
 
-				<UInput
-					id="title"
-					v-model="form.title"
-					placeholder="What’s the best way to reduce urban noise?"
-					required
-					class="w-full"
-				/>
-			</div>
-			<div>
-				<label
-					for="description"
-					class="block mb-1 text-lg font-semibold"
+				<!-- Step 2: Proposal Settings -->
+				<template #proposal>
+					<div class="space-y-4">
+						<UFormField
+							name="proposalPermission"
+							label="Who may add proposals?"
+						>
+							<URadioGroup
+								v-model="proposalPermission"
+								:items="permissionOptions"
+								variant="card"
+							/>
+						</UFormField>
+
+						<div
+							v-if="proposalPermission === 'creator'"
+							class="space-y-2"
+						>
+							<div
+								v-for="(opt, i) in options"
+								:key="i"
+								class="flex items-center gap-2"
+							>
+								<UFormField
+									:name="`options.${i}.label`"
+									label="Option"
+								>
+									<UInput
+										v-model="options[i].label"
+										required
+									/>
+								</UFormField>
+								<UButton
+									icon="i-lucide-x"
+									variant="ghost"
+									@click="removeOption(i)"
+								/>
+							</div>
+							<UButton variant="subtle" @click="addOption"
+								>+ Add another option</UButton
+							>
+						</div>
+					</div>
+				</template>
+
+				<!-- Step 3: Voting Method -->
+				<template #voting>
+					<div class="space-y-4">
+						<UFormField name="votingMethod" label="Voting Method">
+							<USelect
+								v-model="votingMethod"
+								:items="[
+									{ label: 'Single choice', value: 'single' },
+									{
+										label: 'Multiple choice',
+										value: 'multiple',
+									},
+									{ label: 'Ranked choice', value: 'ranked' },
+									{ label: 'Score voting', value: 'score' },
+								]"
+							/>
+						</UFormField>
+
+						<UButton variant="outline" @click="toggleAdvanced">
+							{{ showAdvanced ? "Hide" : "Custom" }} Settings
+						</UButton>
+						<UCollapsible v-model:open="showAdvanced">
+							<template #content>
+								<UFormField name="anonymity" label="Anonymity">
+									<URadioGroup
+										v-model="advancedSettings.anonymity"
+										:items="anonymityOptions"
+									/>
+								</UFormField>
+								<UFormField
+									name="allowUpdate"
+									label="Allow updates until close"
+								>
+									<UCheckbox
+										v-model="advancedSettings.allowUpdate"
+									/>
+								</UFormField>
+								<!-- Add more custom controls as needed -->
+							</template>
+						</UCollapsible>
+					</div>
+				</template>
+
+				<!-- Step 4: Review & Publish -->
+				<template #review>
+					<div class="space-y-4">
+						<UCard variant="subtle" class="p-4">
+							<h3 class="text-lg font-semibold">
+								Review your Vontest
+							</h3>
+							<p><strong>Title:</strong> {{ form.title }}</p>
+							<p>
+								<strong>Description:</strong>
+								{{ form.description || "—" }}
+							</p>
+							<p>
+								<strong>Proposals by:</strong>
+								{{
+									proposalPermission === "creator"
+										? "Only you"
+										: "Participants"
+								}}
+							</p>
+							<div v-if="proposalPermission === 'creator'">
+								<strong>Options:</strong>
+								<ul class="list-disc ml-6">
+									<li v-for="(opt, i) in options" :key="i">
+										{{ opt.label }}
+									</li>
+								</ul>
+							</div>
+							<p>
+								<strong>Voting Method:</strong>
+								{{ votingMethod }}
+							</p>
+							<p>
+								<strong>Anonymity:</strong>
+								{{ advancedSettings.anonymity }}<br />
+								<strong>Allow updates:</strong>
+								{{
+									advancedSettings.allowUpdate ? "Yes" : "No"
+								}}
+							</p>
+						</UCard>
+					</div>
+				</template>
+			</UStepper>
+			<!-- Stepper control buttons -->
+
+			<div class="flex justify-between mt-4">
+				<UButton
+					variant="outline"
+					:leading-icon="
+						stepper?.hasPrev ? 'i-lucide-arrow-left' : ''
+					"
+					:trailing-icon="stepper?.hasPrev ? '' : 'i-lucide-x'"
+					@click="stepper?.prev()"
+					>{{ stepper?.hasPrev ? "Back" : "Cancel" }}</UButton
 				>
-					Context (optional)
-				</label>
-				<ClientOnly>
-					<!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
-					<MdEditor v-model="form.description" id="description" />
-				</ClientOnly>
+				<UButton
+					:loading="loading"
+					:trailing-icon="
+						stepper?.hasNext
+							? 'i-lucide-arrow-right'
+							: 'i-lucide-upload'
+					"
+					@click="stepper?.hasNext ? stepper?.next() : publish()"
+					>{{ stepper?.hasNext ? "Next" : "Publish" }}</UButton
+				>
 			</div>
-			<UButton type="submit" :loading="loading" class="font-bold" to="">
-				Create <UIcon name="i-lucide-arrow-right" class="ml-2" />
-			</UButton>
-		</form>
+		</UForm>
 	</div>
 </template>
