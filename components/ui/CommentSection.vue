@@ -145,6 +145,12 @@ const handleToggleReplies = (commentId: string) => {
 	if (!node) return;
 	node.showReplies =
 		typeof node.showReplies === "undefined" ? true : !node.showReplies;
+	// Toggle visibility for another level of children
+	node.children.forEach(({ id }) => {
+		const child = nodeMap.value.get(id);
+		if (!child) return;
+		child.showReplies = node.showReplies;
+	});
 	console.log(nodeMap);
 };
 
@@ -155,17 +161,17 @@ const handleUpdateShowReplies = (payload: { id: string; show: boolean }) => {
 };
 
 const handleActivateReference = (commentId: string) => {
-    console.log("Activating reference:", commentId);
-    router.push({ hash: `#${commentId}` })
-    const node = nodeMap.value.get(commentId);
-    if (!node) return;
-    node.showReplies = true;
-    // Recursively show replies for all parents of this comment 
-    let parent = nodeMap.value.get(node.parentIds[0]);
-    while (parent) {
-        parent.showReplies = true;
-        parent = nodeMap.value.get(parent.parentIds[0]);
-    }
+	console.log("Activating reference:", commentId);
+	router.push({ hash: `#${commentId}` });
+	const node = nodeMap.value.get(commentId);
+	if (!node) return;
+	node.showReplies = true;
+	// Recursively show replies for all parents of this comment
+	let parent = nodeMap.value.get(node.parentIds[0]);
+	while (parent) {
+		parent.showReplies = true;
+		parent = nodeMap.value.get(parent.parentIds[0]);
+	}
 };
 
 watch(commentsTree, () => {
@@ -237,7 +243,7 @@ watch(commentsTree, () => {
 				@cancel-update="handleCancelUpdate"
 				@toggle-replies="handleToggleReplies"
 				@update:show-replies="handleUpdateShowReplies"
-                @activate-reference="handleActivateReference"
+				@activate-reference="handleActivateReference"
 			/>
 		</div>
 	</div>
