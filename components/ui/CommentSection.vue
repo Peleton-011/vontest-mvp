@@ -1,6 +1,11 @@
 <script lang="ts" setup>
 import CommentItem from "~/components/ui/CommentItem.vue";
 
+export type FullCommentNode = CommentNode & {
+	showReplies: boolean | undefined;
+	children: FullCommentNode[];
+};
+
 const props = defineProps<{
 	threadId: string;
 }>();
@@ -12,8 +17,8 @@ const {
 	editComment,
 	updateComment,
 	comments,
-    submitCommentLink,
-    deleteCommentLink,
+	submitCommentLink,
+	deleteCommentLink,
 	form,
 	resetForm,
 } = useComments(props.threadId);
@@ -21,16 +26,20 @@ const {
 const editingComment = ref<string>("");
 const isTopLevelCommentOpen = ref(false);
 
-const commentsTree = ref<CommentNode[]>([]);
-const nodeMap = ref<Map<string, CommentNode>>(new Map());
+const commentsTree = ref<FullCommentNode[]>([]);
+const nodeMap = ref<Map<string, FullCommentNode>>(new Map());
 
 // Helper: build a flat map id → CommentNode from the nested tree
-const buildNodeMap = (roots: CommentNode[]) => {
+const buildNodeMap = (roots: FullCommentNode[]) => {
 	nodeMap.value.clear();
-	const recurse = (node: CommentNode) => {
-		nodeMap.value.set(node.id, node);
-		node.children.forEach((child) => recurse(child));
+	const recurse = (commentNode: FullCommentNode) => {
+		commentNode.children = commentNode.children.map(recurse);
+		nodeMap.value.set(commentNode.id, commentNode);
+
+		return commentNode;
 	};
+	console.log(roots);
+	console.log(nodeMap.value);
 	roots.forEach((root) => recurse(root));
 };
 
@@ -38,9 +47,23 @@ const buildNodeMap = (roots: CommentNode[]) => {
 const loadComments = async () => {
 	try {
 		await fetchComments();
+		const oldNodeMap = nodeMap.value;
 
-		commentsTree.value = comments.value;
-		buildNodeMap(comments.value);
+		const recurse = (commentNode: CommentNode | FullCommentNode) => {
+			const node: FullCommentNode = {
+				...commentNode,
+				showReplies:
+					oldNodeMap.get(commentNode.id)?.showReplies || undefined,
+				children: [],
+			};
+			node.children = commentNode.children.map(recurse);
+
+			return node;
+		};
+
+		commentsTree.value = comments.value.map(recurse);
+
+		buildNodeMap(commentsTree.value);
 	} catch (e) {
 		console.error("Error loading comments:", e);
 	}
@@ -90,26 +113,37 @@ const handleEditComment = (commentId: string) => {
 const handleUpdateComment = async () => {
 	if (!form.id) return;
 	const node = nodeMap.value.get(form.id);
-    if (!node) return;
+	if (!node) return;
 
-    const oldParentIds = new Set(node.parentIds);
-    const newParentIds = new Set(form.parentIds);
+	const oldParentIds = new Set(node.parentIds);
+	const newParentIds = new Set(form.parentIds);
 
-    const replyInserts = form.parentIds.filter((id) => !oldParentIds.has(id));
-    const replyDeletes = node.parentIds.filter((id) => !newParentIds.has(id));
+	const replyInserts = form.parentIds.filter((id) => !oldParentIds.has(id));
+	const replyDeletes = node.parentIds.filter((id) => !newParentIds.has(id));
 
-    await Promise.all(
-        replyInserts.map((id) => submitCommentLink(id, node.id))
-    );
-    await Promise.all(
-        replyDeletes.map((id) => deleteCommentLink(id, node.id))
-    );
+	await Promise.all(replyInserts.map((id) => submitCommentLink(id, node.id)));
+	await Promise.all(replyDeletes.map((id) => deleteCommentLink(id, node.id)));
 
 	await updateComment();
 
 	await loadComments();
 	editingComment.value = "";
 	// console.log("Updating comment:", commentId);
+};
+
+// Handler: toggle replies
+const handleToggleReplies = (commentId: string) => {
+	const node = nodeMap.value.get(commentId);
+	if (!node) return;
+	node.showReplies =
+		typeof node.showReplies === "undefined" ? true : !node.showReplies;
+	console.log(nodeMap);
+};
+
+const handleUpdateShowReplies = (payload: { id: string; show: boolean }) => {
+    const node = nodeMap.value.get(payload.id);
+    if (!node) return;
+    node.showReplies = payload.show;
 };
 
 watch(commentsTree, () => {
@@ -182,6 +216,8 @@ watch(commentsTree, () => {
 					editingComment = '';
 					resetForm();
 				"
+				@toggle-replies="handleToggleReplies"
+                @update:show-replies="handleUpdateShowReplies"
 			/>
 		</div>
 	</div>
