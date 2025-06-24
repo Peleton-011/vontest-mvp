@@ -19,10 +19,7 @@ export const useVontests = () => {
 		title: "",
 		description: "",
 		proposalPermission: "creator" as "creator" | "participants",
-		options: [{ label: "" }, { label: "" }],
-		votingMethod: "single",
-		showAdvanced: false,
-		advancedSettings: { anonymity: "public", allowUpdate: false },
+		votingSettings: "",
 	});
 
 	const resetForm = () => {
@@ -32,7 +29,7 @@ export const useVontests = () => {
 	};
 
 	const createVontest = async () => {
-        console.log(form)
+		console.log(form);
 		const newVontest: VontestInsert = {
 			title: form.title,
 			description: form.description,
