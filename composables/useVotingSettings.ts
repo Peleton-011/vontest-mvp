@@ -78,7 +78,7 @@ export const useVotingSettings = () => {
 
 		if (!error) {
 			resetForm();
-			return data?.[0];
+			return data;
 		} else {
 			alert(error.message);
 		}
