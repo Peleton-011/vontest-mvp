@@ -7,13 +7,35 @@ const props = defineProps<{
 }>();
 
 const {
-	form,
+	form: vontestForm,
 	createVontest,
 	editVontest,
 	updateVontest,
 	fetchVontest,
 	loading,
 } = useVontests();
+
+const { form: settingsForm } = useVotingSettings();
+
+const form = computed({
+	get() {
+		return {
+            ...vontestForm,
+
+            ...settingsForm,
+		};
+	},
+
+	set(value) {
+		Object.entries(value).forEach(([key, val]) => {
+			if (key in vontestForm) {
+				(vontestForm as unknown)[key] = val;
+			} else if (key in settingsForm) {
+				(settingsForm as unknown)[key] = val;
+			}
+		});
+	},
+});
 
 // Fetch vontest if it's an update
 onMounted(async () => {
@@ -55,9 +77,9 @@ const stepperItems = ref<StepperItem[]>([
 
 const permissionOptions = ref<RadioGroupItem[]>([
 	{
-		label: "Participants",
+		label: "Anyone",
 		description: "Anyone can add proposals",
-		value: "participants",
+		value: "all",
 	},
 	{
 		label: "Creator",
@@ -79,15 +101,6 @@ const anonymityOptions = ref<RadioGroupItem[]>([
 	},
 ]);
 
-const proposalPermission = ref<RadioGroupValue>("participants");
-const options = ref([{ label: "" }, { label: "" }]);
-const votingMethod = ref("single");
-const showAdvanced = ref(false);
-const advancedSettings = ref<{
-	anonymity: RadioGroupValue;
-	allowUpdate: boolean;
-}>({ anonymity: "public", allowUpdate: false });
-
 const addOption = () => {
 	options.value.push({ label: "" });
 };
@@ -101,14 +114,7 @@ const toggleAdvanced = () => {
 const publish = async () => {
 	console.log(form);
 	// Placeholder: handle form submission
-	console.log("Publishing vontest", {
-		title: form.title,
-		description: form.description,
-		proposalPermission: proposalPermission.value,
-		options: optionLabels.value,
-		votingMethod: votingMethod.value,
-		advancedSettings: advancedSettings.value,
-	});
+	console.log("Publishing vontest", form);
 
 	if (props.vontestId) {
 		//Handle submit of an update
@@ -126,6 +132,7 @@ const publish = async () => {
 };
 
 const handleStepperClick = (index: number | string | undefined) => {
+	console.log(vontestForm);
 	if (typeof index !== "number") {
 		alert("Error with Stepper, clicked: " + index);
 		return;
@@ -159,7 +166,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 						<UFormField name="title" label="Title">
 							<UInput
 								id="title"
-								v-model="form.title"
+								v-model="form.title.value"
 								placeholder="What’s the best way to reduce urban noise?"
 								required
 								class="w-full"
@@ -170,7 +177,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 								<!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
 								<MdEditor
 									id="description"
-									v-model="form.description"
+									v-model="form.description.value"
 								/>
 							</ClientOnly>
 						</UFormField>
@@ -185,14 +192,14 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 							label="Who may add proposals?"
 						>
 							<URadioGroup
-								v-model="proposalPermission"
+								v-model="form.proposalPermission.value"
 								:items="permissionOptions"
 								variant="card"
 							/>
 						</UFormField>
 
 						<div
-							v-if="proposalPermission === 'creator'"
+							v-if="form.proposalPermission.value === 'creator'"
 							class="space-y-2"
 						>
 							<div
@@ -227,7 +234,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 					<div class="space-y-4">
 						<UFormField name="votingMethod" label="Voting Method">
 							<USelect
-								v-model="votingMethod"
+								v-model="form.votingType.value"
 								:items="[
 									{ label: 'Single choice', value: 'single' },
 									{
@@ -247,7 +254,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 							<template #content>
 								<UFormField name="anonymity" label="Anonymity">
 									<URadioGroup
-										v-model="advancedSettings.anonymity"
+										v-model="form.anonymous.value"
 										:items="anonymityOptions"
 									/>
 								</UFormField>
@@ -255,9 +262,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 									name="allowUpdate"
 									label="Allow updates until close"
 								>
-									<UCheckbox
-										v-model="advancedSettings.allowUpdate"
-									/>
+									<UCheckbox v-model="form.allowRevoting.value" />
 								</UFormField>
 								<!-- Add more custom controls as needed -->
 							</template>
@@ -272,20 +277,20 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 							<h3 class="text-lg font-semibold">
 								Review your Vontest
 							</h3>
-							<p><strong>Title:</strong> {{ form.title }}</p>
+							<p><strong>Title:</strong> {{ form.title.value }}</p>
 							<p>
 								<strong>Description:</strong>
-								{{ form.description || "—" }}
+								{{ form.description.value || "—" }}
 							</p>
 							<p>
 								<strong>Proposals by:</strong>
 								{{
-									proposalPermission === "creator"
+									form.proposalPermission.value === "creator"
 										? "Only you"
 										: "Participants"
 								}}
 							</p>
-							<div v-if="proposalPermission === 'creator'">
+							<div v-if="form.proposalPermission.value === 'creator'">
 								<strong>Options:</strong>
 								<ul class="list-disc ml-6">
 									<li v-for="(opt, i) in options" :key="i">
@@ -295,15 +300,13 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 							</div>
 							<p>
 								<strong>Voting Method:</strong>
-								{{ votingMethod }}
+								{{ form.votingType.value }}
 							</p>
 							<p>
 								<strong>Anonymity:</strong>
-								{{ advancedSettings.anonymity }}<br />
+								{{ form.anonymous.value }}<br />
 								<strong>Allow updates:</strong>
-								{{
-									advancedSettings.allowUpdate ? "Yes" : "No"
-								}}
+								{{ form.allowRevoting.value ? "Yes" : "No" }}
 							</p>
 						</UCard>
 					</div>
