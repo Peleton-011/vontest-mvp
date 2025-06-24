@@ -90,19 +90,19 @@ export type Database = {
       }
       profiles: {
         Row: {
-          avatar_url: string | null
+          avatar_url: string
           created_at: string | null
           id: string
           username: string | null
         }
         Insert: {
-          avatar_url?: string | null
+          avatar_url?: string
           created_at?: string | null
           id: string
           username?: string | null
         }
         Update: {
-          avatar_url?: string | null
+          avatar_url?: string
           created_at?: string | null
           id?: string
           username?: string | null
@@ -177,6 +177,7 @@ export type Database = {
           id: string
           title: string | null
           type: string
+          voting_settings_id: number | null
         }
         Insert: {
           created_at?: string | null
@@ -185,6 +186,7 @@ export type Database = {
           id?: string
           title?: string | null
           type?: string
+          voting_settings_id?: number | null
         }
         Update: {
           created_at?: string | null
@@ -193,6 +195,7 @@ export type Database = {
           id?: string
           title?: string | null
           type?: string
+          voting_settings_id?: number | null
         }
         Relationships: [
           {
@@ -200,6 +203,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vontests_voting_settings_id_fkey"
+            columns: ["voting_settings_id"]
+            isOneToOne: false
+            referencedRelation: "voting_settings"
             referencedColumns: ["id"]
           },
         ]
@@ -249,6 +259,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      voting_settings: {
+        Row: {
+          allow_revoting: boolean
+          anonymous: boolean
+          created_at: string
+          id: number
+          max_votes: number | null
+          min_votes: number | null
+          requires_login: boolean
+          result_visibility: string
+          updated_at: string | null
+          votes_per_user: number
+          voting_end_at: string | null
+          voting_start_at: string | null
+          voting_type: string
+        }
+        Insert: {
+          allow_revoting?: boolean
+          anonymous?: boolean
+          created_at?: string
+          id?: number
+          max_votes?: number | null
+          min_votes?: number | null
+          requires_login?: boolean
+          result_visibility?: string
+          updated_at?: string | null
+          votes_per_user?: number
+          voting_end_at?: string | null
+          voting_start_at?: string | null
+          voting_type: string
+        }
+        Update: {
+          allow_revoting?: boolean
+          anonymous?: boolean
+          created_at?: string
+          id?: number
+          max_votes?: number | null
+          min_votes?: number | null
+          requires_login?: boolean
+          result_visibility?: string
+          updated_at?: string | null
+          votes_per_user?: number
+          voting_end_at?: string | null
+          voting_start_at?: string | null
+          voting_type?: string
+        }
+        Relationships: []
       }
     }
     Views: {
