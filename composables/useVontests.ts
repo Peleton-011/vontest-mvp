@@ -18,7 +18,7 @@ export const useVontests = () => {
 		id: null as string | null,
 		title: "",
 		description: "",
-		proposalPermission: "creator" as "creator" | "participants",
+		proposalPermission: "creator" as "creator" | "all",
 		votingSettings: "",
 	});
 
@@ -26,6 +26,8 @@ export const useVontests = () => {
 		form.id = null;
 		form.title = "";
 		form.description = "";
+		form.proposalPermission = "all";
+		form.votingSettings = "";
 	};
 
 	const createVontest = async () => {
@@ -101,7 +103,7 @@ export const useVontests = () => {
 		loading: pending,
 		error,
 		refresh,
-		form,
+		form: { ...toRefs(form) },
 		createVontest,
 		updateVontest,
 		deleteVontest,
