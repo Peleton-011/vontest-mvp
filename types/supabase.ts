@@ -177,7 +177,7 @@ export type Database = {
           id: string
           title: string | null
           type: string
-          voting_settings_id: number | null
+          voting_settings_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -186,7 +186,7 @@ export type Database = {
           id?: string
           title?: string | null
           type?: string
-          voting_settings_id?: number | null
+          voting_settings_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -195,7 +195,7 @@ export type Database = {
           id?: string
           title?: string | null
           type?: string
-          voting_settings_id?: number | null
+          voting_settings_id?: string | null
         }
         Relationships: [
           {
@@ -265,13 +265,12 @@ export type Database = {
           allow_revoting: boolean
           anonymous: boolean
           created_at: string
-          id: number
+          id: string
           max_votes: number | null
           min_votes: number | null
           requires_login: boolean
           result_visibility: string
           updated_at: string | null
-          votes_per_user: number
           voting_end_at: string | null
           voting_start_at: string | null
           voting_type: string
@@ -280,13 +279,12 @@ export type Database = {
           allow_revoting?: boolean
           anonymous?: boolean
           created_at?: string
-          id?: number
+          id?: string
           max_votes?: number | null
           min_votes?: number | null
           requires_login?: boolean
           result_visibility?: string
           updated_at?: string | null
-          votes_per_user?: number
           voting_end_at?: string | null
           voting_start_at?: string | null
           voting_type: string
@@ -295,13 +293,12 @@ export type Database = {
           allow_revoting?: boolean
           anonymous?: boolean
           created_at?: string
-          id?: number
+          id?: string
           max_votes?: number | null
           min_votes?: number | null
           requires_login?: boolean
           result_visibility?: string
           updated_at?: string | null
-          votes_per_user?: number
           voting_end_at?: string | null
           voting_start_at?: string | null
           voting_type?: string
