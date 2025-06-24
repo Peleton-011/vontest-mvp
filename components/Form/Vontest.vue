@@ -192,7 +192,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 							label="Who may add proposals?"
 						>
 							<URadioGroup
-								v-model="form.proposalPermission.value as RadioGroupItem"
+								v-model="form.proposalPermission.value as RadioGroupValue"
 								:items="permissionOptions"
 								variant="card"
 							/>
@@ -254,7 +254,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 							<template #content>
 								<UFormField name="anonymity" label="Anonymity">
 									<URadioGroup
-										v-model="form.anonymous.value"
+										v-model="form.anonymous.value as RadioGroupValue"
 										:items="anonymityOptions"
 									/>
 								</UFormField>
