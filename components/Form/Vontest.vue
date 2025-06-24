@@ -20,9 +20,9 @@ const { form: settingsForm } = useVotingSettings();
 const form = computed({
 	get() {
 		return {
-            ...vontestForm,
+			...vontestForm,
 
-            ...settingsForm,
+			...settingsForm,
 		};
 	},
 
@@ -234,7 +234,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 					<div class="space-y-4">
 						<UFormField name="votingMethod" label="Voting Method">
 							<USelect
-								v-model="form.votingType.value"
+								v-model="form.votingType"
 								:items="[
 									{ label: 'Single choice', value: 'single' },
 									{
@@ -262,7 +262,9 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 									name="allowUpdate"
 									label="Allow updates until close"
 								>
-									<UCheckbox v-model="form.allowRevoting.value" />
+									<UCheckbox
+										v-model="form.allowRevoting.value"
+									/>
 								</UFormField>
 								<!-- Add more custom controls as needed -->
 							</template>
@@ -277,7 +279,9 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 							<h3 class="text-lg font-semibold">
 								Review your Vontest
 							</h3>
-							<p><strong>Title:</strong> {{ form.title.value }}</p>
+							<p>
+								<strong>Title:</strong> {{ form.title.value }}
+							</p>
 							<p>
 								<strong>Description:</strong>
 								{{ form.description.value || "—" }}
@@ -290,7 +294,11 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 										: "Participants"
 								}}
 							</p>
-							<div v-if="form.proposalPermission.value === 'creator'">
+							<div
+								v-if="
+									form.proposalPermission.value === 'creator'
+								"
+							>
 								<strong>Options:</strong>
 								<ul class="list-disc ml-6">
 									<li v-for="(opt, i) in options" :key="i">
