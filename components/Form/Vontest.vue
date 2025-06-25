@@ -15,7 +15,7 @@ const {
 	loading,
 } = useVontests();
 
-const { form: settingsForm } = useVotingSettings();
+const { form: settingsForm, createVotingSetting, error: settingsError } = useVotingSettings();
 
 const form = computed({
 	get() {
@@ -133,6 +133,14 @@ const publish = async () => {
 		navigateTo(`/vontests/${props.vontestId}`);
 		return;
 	}
+
+    const settings = await createVotingSetting();
+
+    if(!settings) {
+        console.error("Error creating voting settings: ", settingsError)
+        return;
+    }
+    form.value.votingSettings.value = settings[0].id
 
 	//Handle submit of a new vontest
 	const newVontest = await createVontest();
