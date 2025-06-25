@@ -255,7 +255,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 					<div class="space-y-4">
 						<UFormField name="votingMethod" label="Voting Method">
 							<USelect
-								v-model="form.votingType"
+								v-model="form.votingType.value"
 								:items="[
 									{ label: 'Single choice', value: 'single' },
 									{
@@ -283,7 +283,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 									name="allowUpdate"
 									label="Allow updates until close"
 								>
-									<UCheckbox v-model="form.allowRevoting" />
+									<UCheckbox v-model="form.allowRevoting.value" />
 								</UFormField>
 								<!-- Add more custom controls as needed -->
 							</template>
