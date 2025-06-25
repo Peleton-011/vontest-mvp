@@ -39,10 +39,10 @@ const form = computed({
 
 const anonymityValue = computed({
 	get() {
-		return form.value.anonymous ? "private" : "public";
+		return form.value.anonymous.value ? "private" : "public";
 	},
 	set(value) {
-		form.value.anonymous = value === "private";
+		form.value.anonymous.value = value === "private";
 	},
 });
 
