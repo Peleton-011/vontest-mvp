@@ -22,6 +22,17 @@ export const useVontests = () => {
 		votingSettings: "",
 	});
 
+	const vontestType = computed({
+		get() {
+			if (form.proposalPermission === "creator") return "choice";
+			if (form.proposalPermission === "all") return "solution";
+			return "";
+		},
+		set(value) {
+			form.proposalPermission = value === "choice" ? "creator" : "all";
+		},
+	});
+
 	const resetForm = () => {
 		form.id = null;
 		form.title = "";
@@ -31,10 +42,12 @@ export const useVontests = () => {
 	};
 
 	const createVontest = async () => {
-		console.log(form);
+		// console.log(form);
 		const newVontest: VontestInsert = {
 			title: form.title,
 			description: form.description,
+			type: vontestType.value,
+			voting_settings_id: form.votingSettings,
 		};
 
 		const { error, data } = await supabase
