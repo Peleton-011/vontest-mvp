@@ -167,7 +167,6 @@ const handleStepperClick = (index: number | string | undefined) => {
 	}
 };
 
-const optionLabels = computed(() => options.value.map((o) => o.label));
 </script>
 <template>
 	<div class="flex flex-col items-center">
