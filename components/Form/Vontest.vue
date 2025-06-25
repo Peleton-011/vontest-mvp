@@ -29,11 +29,20 @@ const form = computed({
 	set(value) {
 		Object.entries(value).forEach(([key, val]) => {
 			if (key in vontestForm) {
-				(vontestForm as unknown)[key] = val;
+				(vontestForm as { [key: string]: unknown })[key] = val;
 			} else if (key in settingsForm) {
-				(settingsForm as unknown)[key] = val;
+				(settingsForm as { [key: string]: unknown })[key] = val;
 			}
 		});
+	},
+});
+
+const anonymityValue = computed({
+	get() {
+		return form.value.anonymous ? "private" : "public";
+	},
+	set(value) {
+		form.value.anonymous = value === "private";
 	},
 });
 
@@ -44,6 +53,8 @@ onMounted(async () => {
 
 	if (vontest) editVontest(vontest);
 });
+
+const showAdvanced = ref(false);
 
 const step = ref(0);
 
@@ -254,7 +265,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 							<template #content>
 								<UFormField name="anonymity" label="Anonymity">
 									<URadioGroup
-										v-model="form.anonymous.value as RadioGroupValue"
+										v-model="anonymityValue as RadioGroupValue"
 										:items="anonymityOptions"
 									/>
 								</UFormField>
@@ -262,9 +273,7 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 									name="allowUpdate"
 									label="Allow updates until close"
 								>
-									<UCheckbox
-										v-model="form.allowRevoting.value"
-									/>
+									<UCheckbox v-model="form.allowRevoting" />
 								</UFormField>
 								<!-- Add more custom controls as needed -->
 							</template>
@@ -312,9 +321,9 @@ const optionLabels = computed(() => options.value.map((o) => o.label));
 							</p>
 							<p>
 								<strong>Anonymity:</strong>
-								{{ form.anonymous }}<br />
+								{{ anonymityValue }}<br />
 								<strong>Allow updates:</strong>
-								{{ form.allowRevoting.value ? "Yes" : "No" }}
+								{{ form.allowRevoting ? "Yes" : "No" }}
 							</p>
 						</UCard>
 					</div>
