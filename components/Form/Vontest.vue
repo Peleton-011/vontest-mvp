@@ -112,6 +112,8 @@ const anonymityOptions = ref<RadioGroupItem[]>([
 	},
 ]);
 
+const options = ref<{ label: string }[]>([{ label: "" }]);
+
 const addOption = () => {
 	options.value.push({ label: "" });
 };
