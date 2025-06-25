@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import DOMPurify from "dompurify";
+
 const props = defineProps<{
 	to: string;
 	title: string;
@@ -32,9 +34,8 @@ onMounted(() => {
 					<span
 						ref="text"
 						class="prose dark:prose-inverted markdown-body ql-editor pt-0 text-sm text-gray-400 border-neutral-700"
-						v-html="description"
-					>
-					</span>
+						v-html="DOMPurify.sanitize(description)"
+					/>
 				</div>
 			</div>
 			<template #footer>
@@ -45,7 +46,7 @@ onMounted(() => {
 					>
 
 					<div class="flex gap-2">
-						<slot name="actions"></slot>
+						<slot name="actions" />
 					</div>
 				</div>
 			</template>

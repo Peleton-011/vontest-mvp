@@ -2,6 +2,7 @@
 import { UiCommentSection } from "#components";
 import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
 import StaticCard from "~/components/ui/StaticCard.vue";
+import DOMPurify from "dompurify";
 import type { Database } from "~/types/supabase";
 
 type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
@@ -37,14 +38,6 @@ onMounted(() => {
 	fetchProposals();
 	fetchThread(vontestId, "vontest");
 });
-
-watch(proposals, () => {
-	console.log(proposals.value);
-});
-watch(paginatedProposals, () => {
-	console.log(paginatedProposals.value);
-	console.log(paginatedProposals.value.length);
-});
 </script>
 
 <template>
@@ -66,8 +59,9 @@ watch(paginatedProposals, () => {
 					</div>
 				</template>
 				<p
+                    v-if="vontest.description"
 					class="text-gray-400 markdown-body ql-editor"
-					v-html="vontest.description"
+					v-html="DOMPurify.sanitize(vontest.description)"
 				/>
 				<template #footer>
 					<div class="flex justify-between items-center gap-2">
