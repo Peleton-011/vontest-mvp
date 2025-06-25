@@ -102,21 +102,21 @@ onMounted(fetchProposals);
 					>Points: {{ votes[proposal.id] }}</label
 				>
 				<input
+					v-model="votes[proposal.id]"
 					type="range"
 					min="0"
 					:max="totalPoints"
-					v-model="votes[proposal.id]"
 					class="w-full mt-2 accent-primary-500"
-				/>
+				>
 			</template>
 		</UCard>
 
 		<UButton
 			:disabled="remainingPoints !== 0 || loading"
-			@click="submitVotes"
 			:loading="loading"
 			trailing-icon="i-lucide-check-circle"
 			class="font-bold"
+			@click="submitVotes"
 		>
 			Submit Votes
 		</UButton>

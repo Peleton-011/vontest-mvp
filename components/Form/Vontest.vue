@@ -330,7 +330,7 @@ const handleStepperClick = (index: number | string | undefined) => {
 							</p>
 							<p>
 								<strong>Anonymity:</strong>
-								{{ anonymityValue }}<br />
+								{{ anonymityValue }}<br >
 								<strong>Allow updates:</strong>
 								{{ form.allowRevoting ? "Yes" : "No" }}
 							</p>

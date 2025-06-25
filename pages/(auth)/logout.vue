@@ -36,8 +36,8 @@ logout();
 				<u-button
 					size="lg"
 					block
-					@click="redirectToHome"
 					class="font-bold"
+					@click="redirectToHome"
 				>
 					Go to Homepage
 					<u-icon name="i-lucide-home" class="ml-2" />

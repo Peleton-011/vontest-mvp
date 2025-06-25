@@ -136,9 +136,9 @@ const toggleAdminRole = async (user: any) => {
 								<UButton
 									v-else
 									size="sm"
-									@click="toggleAdminRole(user)"
 									variant="outline"
 									color="primary"
+									@click="toggleAdminRole(user)"
 								>
 									{{
 										user.app_metadata?.role === "admin"

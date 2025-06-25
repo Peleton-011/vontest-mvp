@@ -22,7 +22,7 @@ const redirectToDashboard = () => {
   
         <div class="mt-6">
           <!-- Redirect to dashboard or home -->
-          <u-button size="lg" block @click="redirectToDashboard" class="font-bold">
+          <u-button size="lg" block class="font-bold" @click="redirectToDashboard">
             Go to Dashboard
             <u-icon name="i-lucide-home" class="ml-2" />
           </u-button>

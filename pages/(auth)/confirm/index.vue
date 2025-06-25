@@ -1,10 +1,9 @@
 <script setup>
 const supabase = useSupabaseClient();
-const router = useRouter();
 
 // Function to resend confirmation email
 const resendConfirmation = async () => {
-	const { data, error } = await supabase.auth.resend({ type: "signup" });
+	const { error } = await supabase.auth.resend({ type: "signup" });
 
 	if (error) {
 		alert("Error sending confirmation email: " + error.message);
@@ -38,8 +37,8 @@ const resendConfirmation = async () => {
 				<u-button
 					size="lg"
 					block
-					@click="resendConfirmation"
 					class="font-bold"
+					@click="resendConfirmation"
 				>
 					Resend Confirmation Email
 					<u-icon name="i-lucide-refresh-ccw" class="ml-2" />
