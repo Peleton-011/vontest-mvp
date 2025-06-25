@@ -99,6 +99,8 @@ export const useVontests = () => {
 		form.id = vontest.id;
 		form.title = vontest.title ?? "";
 		form.description = vontest.description ?? "";
+		vontestType.value = vontest.type as "choice" | "solution";
+		form.votingSettings = vontest.voting_settings_id ?? "";
 	};
 
 	const fetchVontest = async (vontestId: string) => {
