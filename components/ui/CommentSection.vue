@@ -12,8 +12,8 @@ const {
 	editComment,
 	updateComment,
 	comments,
-    submitCommentLink,
-    deleteCommentLink,
+	submitCommentLink,
+	deleteCommentLink,
 	form,
 	resetForm,
 } = useComments(props.threadId);
@@ -50,7 +50,7 @@ onMounted(loadComments);
 
 // Handler: post a new comment
 const postComment = async () => {
-	if (!form.comment.trim()) return;
+	if (!form.comment.value.trim()) return;
 	try {
 		await submitComment();
 		resetForm();
@@ -88,22 +88,20 @@ const handleEditComment = (commentId: string) => {
 
 // Handler: update a comment
 const handleUpdateComment = async () => {
-	if (!form.id) return;
-	const node = nodeMap.value.get(form.id);
-    if (!node) return;
+	if (!form.id.value) return;
+	const node = nodeMap.value.get(form.id.value);
+	if (!node) return;
 
-    const oldParentIds = new Set(node.parentIds);
-    const newParentIds = new Set(form.parentIds);
+	const oldParentIds = new Set(node.parentIds);
+	const newParentIds = new Set(form.parentIds.value);
 
-    const replyInserts = form.parentIds.filter((id) => !oldParentIds.has(id));
-    const replyDeletes = node.parentIds.filter((id) => !newParentIds.has(id));
+	const replyInserts = form.parentIds.value.filter(
+		(id) => !oldParentIds.has(id)
+	);
+	const replyDeletes = node.parentIds.filter((id) => !newParentIds.has(id));
 
-    await Promise.all(
-        replyInserts.map((id) => submitCommentLink(id, node.id))
-    );
-    await Promise.all(
-        replyDeletes.map((id) => deleteCommentLink(id, node.id))
-    );
+	await Promise.all(replyInserts.map((id) => submitCommentLink(id, node.id)));
+	await Promise.all(replyDeletes.map((id) => deleteCommentLink(id, node.id)));
 
 	await updateComment();
 
@@ -134,7 +132,7 @@ watch(commentsTree, () => {
 			<template #content>
 				<div class="mb-4">
 					<textarea
-						v-model="form.comment"
+						v-model="form.comment.value"
 						class="w-full p-2 rounded bg-gray-800"
 						rows="3"
 						placeholder="Write your reply..."
@@ -142,7 +140,7 @@ watch(commentsTree, () => {
 					<div class="text-right mt-2">
 						<UButton
 							label="Post Comment"
-							:disabled="!form.comment?.trim()"
+							:disabled="!form.comment.value.trim()"
 							@click="
 								postComment();
 								isTopLevelCommentOpen = false;
@@ -169,11 +167,11 @@ watch(commentsTree, () => {
 				:node="node"
 				:depth="0"
 				:node-map="nodeMap"
-				:new-comment-text="form.comment"
-				:new-comment-parents="form.parentIds"
+				:new-comment-text="form.comment.value"
+				:new-comment-parents="form.parentIds.value"
 				:editing-comment="editingComment"
-				@update:comment-text="form.comment = $event"
-				@update:comment-parents="form.parentIds = $event"
+				@update:comment-text="form.comment.value = $event"
+				@update:comment-parents="form.parentIds.value = $event"
 				@post-comment="postComment"
 				@delete-comment="handleDeleteComment"
 				@edit-comment="handleEditComment"
