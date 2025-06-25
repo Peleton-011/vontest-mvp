@@ -53,6 +53,28 @@ function getContentLength() {
 
 <template>
 	<div>
+		<UDrawer
+			:overlay="false"
+			should-scale-background
+			:set-background-color-on-scale="false"
+			title="Drawer with description"
+			description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+            inset
+		>
+			<UButton
+				label="Open"
+				color="neutral"
+				variant="subtle"
+				trailing-icon="i-lucide-chevron-up"
+			/>
+
+			<template #content>
+				<div>
+                CONTENT
+                </div>
+			</template>
+		</UDrawer>
+
 		<div v-if="false">
 			<div>
 				<p ref="test">
@@ -109,7 +131,7 @@ function getContentLength() {
 						@text-change="handleTextChange"
 					/>
 				</ClientOnly>
-				<hr >
+				<hr />
 				<ClientOnly>
 					<MdEditor
 						v-if="content"
