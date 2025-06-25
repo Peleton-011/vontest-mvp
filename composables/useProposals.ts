@@ -118,7 +118,7 @@ export const useProposals = (vontestId: string) => {
 
 	return {
 		proposals,
-		form,
+		form: { ...toRefs(form) },
 		loading,
 		error,
 		fetchProposals,

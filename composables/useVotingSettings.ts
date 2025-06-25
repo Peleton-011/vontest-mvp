@@ -140,7 +140,7 @@ export const useVotingSettings = () => {
 	return {
 		loading,
 		error,
-		form,
+		form: { ...toRefs(form) },
 		createVotingSetting,
 		updateVotingSetting,
 		deleteVotingSetting,
