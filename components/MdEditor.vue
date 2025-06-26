@@ -113,7 +113,7 @@ function styleEditor() {
 		contentArea.classList.add(
 			"prose",
 			// "text-white",
-			"min-h-[500px]",
+			"min-h-[200px]",
 			"markdown-body"
 		);
 	}

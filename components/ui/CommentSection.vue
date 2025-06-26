@@ -21,6 +21,8 @@ const {
 const editingComment = ref<string>("");
 const isTopLevelCommentOpen = ref(false);
 
+const isAdvancedEditorOpen = ref(false);
+
 const commentsTree = ref<CommentNode[]>([]);
 const nodeMap = ref<Map<string, CommentNode>>(new Map());
 
@@ -159,7 +161,16 @@ watch(commentsTree, () => {
 			</template>
 		</UCollapsible>
 
+        <UButton
+			label="Open"
+			color="neutral"
+			variant="subtle"
+			trailing-icon="i-lucide-chevron-up"
+			@click="isAdvancedEditorOpen = !isAdvancedEditorOpen"
+		/>
+
         <UiEditorDrawer
+            v-model:open="isAdvancedEditorOpen"
             :new-comment-text="form.comment.value"  
             :new-comment-parents="form.parentIds.value"
             @update:comment-text="form.comment.value = $event"

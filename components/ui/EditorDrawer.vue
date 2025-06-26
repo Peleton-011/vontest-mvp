@@ -20,7 +20,7 @@ const emit = defineEmits<{
 	(e: "post-comment" | "cancel"): void;
 }>();
 
-const open = ref(false);
+const open = defineModel<boolean>("open");
 </script>
 
 <template>
@@ -32,51 +32,46 @@ const open = ref(false);
 		v-model:open="open"
 		inset
 	>
-		<UButton
-			label="Open"
-			color="neutral"
-			variant="subtle"
-			trailing-icon="i-lucide-chevron-up"
-			@click="open.value = !open.value"
-		/>
 
 		<template #content>
-			<div class="p-4 grid grid-cols-3">
-				<div class="col-span-2 flex flex-col">
-					<ClientOnly>
-						<!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
-						<MdEditor
-							id="description"
-							v-model="localCommentText"
-			
-						/>
-					</ClientOnly>
+			<div class="flex flex-col p-4 h-1/3">
+				<!-- Body -->
+				<div class="flex">
+					<div class="flex flex-col w-2/3">
+						<ClientOnly>
+							<!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
+							<MdEditor
+								id="description"
+								v-model="localCommentText"
+								class="flex flex-grow"
+							/>
+						</ClientOnly>
+					</div>
+					<div class="p-2 w-1/3">
+						<div class="bg-neutral-600"></div>
+					</div>
 				</div>
-				<div class="col-span-1 p-2">
-					<div class="bg-neutral-700"></div>
+				<!-- Footer -->
+				<div class="flex justify-around mt-4">
+					<UButton
+						class="w-1/3 text-center"
+						label="Post"
+						:disabled="!localCommentText.trim()"
+						@click="
+							emit('post-comment');
+							open = false;
+						"
+					/>
+					<UButton
+						class="w-1/3 text-center"
+						label="Cancel"
+						variant="subtle"
+						@click="
+							emit('cancel');
+							open = false;
+						"
+					/>
 				</div>
-			</div>
-		</template>
-
-		<template #footer>
-            <div class="flex justify-between mt-2">
-                aaaa
-				<UButton
-					label="Post"
-					:disabled="!localCommentText.value.trim()"
-					@click="
-						emit('post-comment');
-						open.value = false;
-					"
-				/>
-				<UButton
-					label="Cancel"
-					variant="subtle"
-					@click="
-						emit('cancel');
-						open.value = false;
-					"
-				/>
 			</div>
 		</template>
 	</UDrawer>
