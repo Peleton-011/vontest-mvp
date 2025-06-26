@@ -17,7 +17,7 @@ const emit = defineEmits<{
 		payload: string
 	): void;
 	(e: "update:comment-parents", parents: string[]): void;
-	(e: "post-comment" | "post-update" | "cancel-update"): void;
+	(e: "post-comment" | "post-update"): void;
 }>();
 
 const user = useSupabaseUser();
