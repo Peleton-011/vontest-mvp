@@ -132,36 +132,22 @@ watch(commentsTree, () => {
 		<!-- New top-level comment box -->
 		<UCollapsible v-model:open="isTopLevelCommentOpen" class="mb-4">
 			<template #content>
-				<div class="mb-4">
-					<textarea
-						v-model="form.comment.value"
-						class="w-full p-2 rounded bg-gray-800"
-						rows="3"
-						placeholder="Write your reply..."
-					/>
-					<div class="text-right mt-2">
-						<UButton
-							label="Post Comment"
-							:disabled="!form.comment.value.trim()"
-							@click="
-								postComment();
-								isTopLevelCommentOpen = false;
-							"
-						/>
-						<UButton
-							label="Cancel"
-							variant="subtle"
-							@click="
-								resetForm();
-								isTopLevelCommentOpen = false;
-							"
-						/>
-					</div>
-				</div>
+				<UiSimpleEditor
+					:new-comment-text="form.comment.value"
+					@cancel="
+						isTopLevelCommentOpen = true;
+						resetForm();
+					"
+					@post-comment="
+						isTopLevelCommentOpen = false;
+						postComment();
+					"
+					@update:comment-text="form.comment.value = $event"
+				/>
 			</template>
 		</UCollapsible>
 
-        <UButton
+		<UButton
 			label="Open"
 			color="neutral"
 			variant="subtle"
@@ -169,15 +155,15 @@ watch(commentsTree, () => {
 			@click="isAdvancedEditorOpen = !isAdvancedEditorOpen"
 		/>
 
-        <UiEditorDrawer
-            v-model:open="isAdvancedEditorOpen"
-            :new-comment-text="form.comment.value"  
-            :new-comment-parents="form.parentIds.value"
-            @update:comment-text="form.comment.value = $event"
-            @update:comment-parents="form.parentIds.value = $event"
-            @post-comment="postComment"
-            @cancel="resetForm"       
-        />
+		<UiEditorDrawer
+			v-model:open="isAdvancedEditorOpen"
+			:new-comment-text="form.comment.value"
+			:new-comment-parents="form.parentIds.value"
+			@update:comment-text="form.comment.value = $event"
+			@update:comment-parents="form.parentIds.value = $event"
+			@post-comment="postComment"
+			@cancel="resetForm"
+		/>
 
 		<!-- Recursive Comments Tree -->
 		<div class="space-y-4">

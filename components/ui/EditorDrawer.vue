@@ -1,8 +1,16 @@
 <script lang="ts" setup>
-const props = defineProps<{
-	newCommentText: string;
-	newCommentParents: string[];
-}>();
+const props = withDefaults(
+	defineProps<{
+		newCommentText: string;
+		newCommentParents: string[];
+		isAdvanced?: boolean;
+	}>(),
+	{
+		isAdvanced: true,
+	}
+);
+
+alert(props.isAdvanced);
 
 // Computed getter/setter for this node’s comment text
 const localCommentText = computed<string>({
@@ -44,12 +52,20 @@ const handlePostComment = () => {
 	>
 		<template #content>
 			<UiAdvancedEditor
+				v-if="isAdvanced"
 				:new-comment-text="localCommentText"
 				:new-comment-parents="newCommentParents"
 				@cancel="handleCancel"
 				@post-comment="handlePostComment"
 				@update:comment-text="localCommentText = $event"
 				@update:comment-parents="emit('update:comment-parents', $event)"
+			/>
+			<UiSimpleEditor
+				v-else
+				:new-comment-text="localCommentText"
+				@cancel="handleCancel"
+				@post-comment="handlePostComment"
+				@update:comment-text="localCommentText = $event"
 			/>
 		</template>
 	</UDrawer>
