@@ -159,6 +159,15 @@ watch(commentsTree, () => {
 			</template>
 		</UCollapsible>
 
+        <UiEditorDrawer
+            :new-comment-text="form.comment.value"  
+            :new-comment-parents="form.parentIds.value"
+            @update:comment-text="form.comment.value = $event"
+            @update:comment-parents="form.parentIds.value = $event"
+            @post-comment="postComment"
+            @cancel="resetForm"       
+        />
+
 		<!-- Recursive Comments Tree -->
 		<div class="space-y-4">
 			<CommentItem
