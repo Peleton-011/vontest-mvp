@@ -17,7 +17,7 @@ const localCommentText = computed<string>({
 const emit = defineEmits<{
 	(e: "update:comment-text", payload: string): void;
 	(e: "update:comment-parents", parents: string[]): void;
-	(e: "post-comment" | "cancel"): void;
+	(e: "post-comment" | "cancel" | "toggle-editor"): void;
 }>();
 </script>
 <template>
@@ -35,7 +35,14 @@ const emit = defineEmits<{
 				</ClientOnly>
 			</div>
 			<div class="p-2 w-1/3">
-				<div class="bg-neutral-600"></div>
+				<div class="bg-neutral-600 flex flex-col justify-end">
+					<UButton
+						class="w-full text-center"
+						variant="subtle"
+						label="Simple Editor"
+						@click="emit('toggle-editor')"
+					/>
+				</div>
 			</div>
 		</div>
 		<!-- Footer -->
