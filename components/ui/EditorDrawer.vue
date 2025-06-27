@@ -11,7 +11,6 @@ const props = withDefaults(
 	}
 );
 
-alert(props.isAdvanced);
 
 // Computed getter/setter for this node’s comment text
 const localCommentText = computed<string>({
@@ -42,17 +41,12 @@ const handlePostComment = () => {
 };
 
 watch(open, () => {
-	console.log("a");
 	// Set body pointer events to auto after 250ms
 	setTimeout(() => {
 		document.body.style.pointerEvents = "auto";
 	}, 250);
 });
 
-function handleDrawerUpdate() {
-	// Set body pointer events to auto
-	document.body.style.pointerEvents = "auto";
-}
 </script>
 
 <template>
@@ -64,7 +58,6 @@ function handleDrawerUpdate() {
 		:set-background-color-on-scale="false"
 		v-model:open="open"
 		inset
-		@update:open="handleDrawerUpdate"
 	>
 		<template #content>
 			<UiAdvancedEditor
