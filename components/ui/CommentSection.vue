@@ -19,12 +19,16 @@ const {
 } = useComments(props.threadId);
 
 const editingComment = ref<string>("");
-const isTopLevelCommentOpen = ref(false);
+const isTopLevelComment = ref(false);
 
 const isAdvancedEditorOpen = ref(false);
 
 const commentsTree = ref<CommentNode[]>([]);
 const nodeMap = ref<Map<string, CommentNode>>(new Map());
+
+const isTopLevelCommentOpen = computed(() => {
+	return isTopLevelComment.value && !isAdvancedEditorOpen.value;
+});
 
 // Helper: build a flat map id → CommentNode from the nested tree
 const buildNodeMap = (roots: CommentNode[]) => {
@@ -125,9 +129,14 @@ watch(commentsTree, () => {
 				label="Join the Discussion"
 				variant="subtle"
 				trailing-icon="i-lucide-chevron-down"
-				@click="isTopLevelCommentOpen = !isTopLevelCommentOpen"
+				@click="isTopLevelComment = !isTopLevelComment"
 			/>
 		</div>
+
+		{{ isTopLevelComment }}
+		{{ isAdvancedEditorOpen }}
+		{{ isTopLevelComment && !isAdvancedEditorOpen }}
+		{{ isAdvancedEditorOpen ? "a" : editingComment }}
 
 		<!-- New top-level comment box -->
 		<UCollapsible v-model:open="isTopLevelCommentOpen" class="mb-4">
@@ -135,11 +144,11 @@ watch(commentsTree, () => {
 				<UiSimpleEditor
 					:new-comment-text="form.comment.value"
 					@cancel="
-						isTopLevelCommentOpen = true;
+						isTopLevelComment = false;
 						resetForm();
 					"
 					@post-comment="
-						isTopLevelCommentOpen = false;
+						isTopLevelComment = false;
 						postComment();
 					"
 					@update:comment-text="form.comment.value = $event"
@@ -177,6 +186,7 @@ watch(commentsTree, () => {
 				:new-comment-text="form.comment.value"
 				:new-comment-parents="form.parentIds.value"
 				:editing-comment="editingComment"
+				:is-advanced="isAdvancedEditorOpen"
 				@update:comment-text="form.comment.value = $event"
 				@update:comment-parents="form.parentIds.value = $event"
 				@post-comment="postComment"

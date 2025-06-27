@@ -9,6 +9,7 @@ const props = defineProps<{
 	newCommentParents: string[];
 	newCommentText: string;
 	editingComment?: string;
+	isAdvanced?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -200,28 +201,31 @@ const handleDeleteRef = (id: string) => {
 				</template>
 			</UCard>
 
-			<div
-				v-if="
-					newCommentParents[0] === node.id &&
-					!isEditing &&
-					!editingComment
-				"
-				class="mb-4"
-			>
-				<textarea
-					v-model="localCommentText"
-					class="w-full p-2 rounded bg-gray-800"
-					rows="3"
-					placeholder="Write your reply..."
-				/>
-				<div class="text-right mt-2">
-					<UButton
-						label="Post Comment"
-						:disabled="!localCommentText?.trim()"
-						@click="emit('post-comment')"
+			<Transition name="fade">
+				<div
+					v-if="
+						newCommentParents[0] === node.id &&
+						!isEditing &&
+						!editingComment &&
+						!props.isAdvanced
+					"
+					class="mb-4"
+				>
+					<textarea
+						v-model="localCommentText"
+						class="w-full p-2 rounded bg-gray-800"
+						rows="3"
+						placeholder="Write your reply..."
 					/>
+					<div class="text-right mt-2">
+						<UButton
+							label="Post Comment"
+							:disabled="!localCommentText?.trim()"
+							@click="emit('post-comment')"
+						/>
+					</div>
 				</div>
-			</div>
+			</Transition>
 
 			<!-- Recursive rendering of primary‐nested children -->
 			<Transition name="fade">
@@ -238,6 +242,7 @@ const handleDeleteRef = (id: string) => {
 						:new-comment-text="localCommentText"
 						:new-comment-parents="newCommentParents"
 						:editing-comment="editingComment"
+						:is-advanced="isAdvanced"
 						@update:comment-text="
 							(payload) => emit('update:comment-text', payload)
 						"
