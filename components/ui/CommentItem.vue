@@ -115,7 +115,7 @@ const handleDeleteRef = (id: string) => {
                 <Transition name="fade">
                     <UiSimpleEditor
                         v-if="isEditing"
-                        new-comment-text="localCommentText"
+                        :new-comment-text="localCommentText"
                         @cancel="emit('cancel-update')"
                         @post-comment="emit('post-update')"
                         @update:comment-text="emit('update:comment-text', $event)"
@@ -199,7 +199,7 @@ const handleDeleteRef = (id: string) => {
 						!editingComment &&
 						!props.isAdvanced
 					"
-					new-comment-text="localCommentText"
+					:new-comment-text="localCommentText"
 					@cancel="emit('cancel-update')"
 					@post-comment="emit('post-comment')"
 					@update:comment-text="emit('update:comment-text', $event)"
