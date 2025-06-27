@@ -45,11 +45,7 @@ const toggleShowRefs = () => {
 						other comments
 					</button>
 				</small>
-				<ul v-if="showRefs" class="list-disc list-inside text-gray-400">
-					<li v-for="ref in refs" :key="ref.id" class="my-1">
-						<UiCommentRef :reference="ref" />
-					</li>
-				</ul>
+				<UiRefsList v-if="showRefs" :refs="refs" />
 			</div>
 		</small>
 	</div>

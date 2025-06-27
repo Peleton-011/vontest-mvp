@@ -159,6 +159,7 @@ watch(commentsTree, () => {
 			v-model:open="isAdvancedEditorOpen"
 			:new-comment-text="form.comment.value"
 			:new-comment-parents="form.parentIds.value"
+			:node-map="nodeMap"
 			@update:comment-text="form.comment.value = $event"
 			@update:comment-parents="form.parentIds.value = $event"
 			@post-comment="postComment"

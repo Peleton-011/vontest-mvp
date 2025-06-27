@@ -3,6 +3,7 @@ const props = withDefaults(
 	defineProps<{
 		newCommentText: string;
 		newCommentParents: string[];
+		nodeMap: Map<string, CommentNode>;
 		isAdvanced?: boolean;
 	}>(),
 	{
@@ -55,6 +56,19 @@ const handlePostComment = () => {
 				v-if="isAdvanced"
 				:new-comment-text="localCommentText"
 				:new-comment-parents="newCommentParents"
+				:parent-refs="
+					props.newCommentParents.map((id) => {
+						const node = props.nodeMap.get(id)!;
+						return {
+							id,
+							author: node.author!,
+							comment: {
+								text: node.comment,
+								createdAt: node.createdAt,
+							},
+						};
+					})
+				"
 				@cancel="handleCancel"
 				@post-comment="handlePostComment"
 				@update:comment-text="localCommentText = $event"

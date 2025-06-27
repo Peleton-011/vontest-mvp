@@ -1,7 +1,9 @@
 <script lang="ts" setup>
+import type { Ref } from "./CommentRefs.vue";
 const props = defineProps<{
 	newCommentText: string;
 	newCommentParents: string[];
+	parentRefs: Ref[];
 }>();
 
 // Computed getter/setter for this node’s comment text
@@ -35,7 +37,8 @@ const emit = defineEmits<{
 				</ClientOnly>
 			</div>
 			<div class="p-2 w-1/3">
-				<div class="bg-neutral-600 flex flex-col justify-end">
+				<div class="bg-neutral-600 flex flex-col justify-between">
+					<UiRefsList :refs="parentRefs" />
 					<UButton
 						class="w-full text-center"
 						variant="subtle"
