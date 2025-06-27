@@ -40,16 +40,31 @@ const handlePostComment = () => {
 	open.value = false;
 	emit("post-comment");
 };
+
+watch(open, () => {
+	console.log("a");
+	// Set body pointer events to auto after 250ms
+	setTimeout(() => {
+		document.body.style.pointerEvents = "auto";
+	}, 250);
+});
+
+function handleDrawerUpdate() {
+	// Set body pointer events to auto
+	document.body.style.pointerEvents = "auto";
+}
 </script>
 
 <template>
 	<UDrawer
+		:modal="true"
 		:overlay="false"
-		:modal="false"
+		:dismissible="false"
 		should-scale-background
 		:set-background-color-on-scale="false"
 		v-model:open="open"
 		inset
+		@update:open="handleDrawerUpdate"
 	>
 		<template #content>
 			<UiAdvancedEditor
