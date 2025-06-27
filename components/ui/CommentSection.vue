@@ -116,10 +116,10 @@ const handleUpdateComment = async () => {
 	// console.log("Updating comment:", commentId);
 };
 
-watch(commentsTree, () => {
-	console.log("Comments updated:", commentsTree.value);
-	console.log(buildNodeMap(commentsTree.value));
-});
+// watch(commentsTree, () => {
+	// console.log("Comments updated:", commentsTree.value);
+	// console.log(buildNodeMap(commentsTree.value));
+// });
 </script>
 <template>
 	<div>
@@ -132,11 +132,6 @@ watch(commentsTree, () => {
 				@click="isTopLevelComment = !isTopLevelComment"
 			/>
 		</div>
-
-		{{ isTopLevelComment }}
-		{{ isAdvancedEditorOpen }}
-		{{ isTopLevelComment && !isAdvancedEditorOpen }}
-		{{ isAdvancedEditorOpen ? "a" : editingComment }}
 
 		<!-- New top-level comment box -->
 		<UCollapsible v-model:open="isTopLevelCommentOpen" class="mb-4">
