@@ -15,7 +15,7 @@ const localCommentText = computed<string>({
 
 const emit = defineEmits<{
 	(e: "update:comment-text", payload: string): void;
-	(e: "post-comment" | "cancel"): void;
+	(e: "post-comment" | "cancel" | "toggle-editor"): void;
 }>();
 </script>
 <template>
