@@ -148,7 +148,7 @@ watch(commentsTree, () => {
 		</UCollapsible>
 
 		<UButton
-			label="Open"
+			:label="isAdvancedEditorOpen ? 'Close Editor' : 'Advanced Editor'"
 			color="neutral"
 			variant="subtle"
 			trailing-icon="i-lucide-chevron-up"
