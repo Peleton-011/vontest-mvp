@@ -111,26 +111,16 @@ const handleDeleteRef = (id: string) => {
 				<p v-if="!isEditing" class="text-gray-300">
 					{{ node.comment }}
 				</p>
-				<div v-else class="mb-4">
-					<textarea
-						v-model="localCommentText"
-						class="w-full p-2 rounded bg-gray-800"
-						rows="3"
-						placeholder="Write your reply..."
-					/>
-					<div class="text-right mt-2">
-						<UButton
-							label="Update Comment"
-							:disabled="!localCommentText?.trim()"
-							@click="emit('post-update')"
-						/>
-						<UButton
-							label="Cancel"
-							variant="subtle"
-							@click="emit('cancel-update')"
-						/>
-					</div>
-				</div>
+
+                <Transition name="fade">
+                    <UiSimpleEditor
+                        v-if="isEditing"
+                        new-comment-text="localCommentText"
+                        @cancel="emit('cancel-update')"
+                        @post-comment="emit('post-update')"
+                        @update:comment-text="emit('update:comment-text', $event)"
+                    />
+                </Transition>
 
 				<template #footer>
 					<div class="flex flex-col gap-2">
@@ -202,29 +192,19 @@ const handleDeleteRef = (id: string) => {
 			</UCard>
 
 			<Transition name="fade">
-				<div
+				<UiSimpleEditor
 					v-if="
 						newCommentParents[0] === node.id &&
 						!isEditing &&
 						!editingComment &&
 						!props.isAdvanced
 					"
-					class="mb-4"
+					new-comment-text="localCommentText"
+					@cancel="emit('cancel-update')"
+					@post-comment="emit('post-comment')"
+					@update:comment-text="emit('update:comment-text', $event)"
 				>
-					<textarea
-						v-model="localCommentText"
-						class="w-full p-2 rounded bg-gray-800"
-						rows="3"
-						placeholder="Write your reply..."
-					/>
-					<div class="text-right mt-2">
-						<UButton
-							label="Post Comment"
-							:disabled="!localCommentText?.trim()"
-							@click="emit('post-comment')"
-						/>
-					</div>
-				</div>
+				</UiSimpleEditor>
 			</Transition>
 
 			<!-- Recursive rendering of primary‐nested children -->
