@@ -14,6 +14,11 @@ const showRefs = ref(false);
 const toggleShowRefs = () => {
 	showRefs.value = !showRefs.value;
 };
+
+const emit = defineEmits<{
+    (e: "remove-ref", payload: string): void;
+}>();
+
 </script>
 
 <template>
@@ -45,7 +50,7 @@ const toggleShowRefs = () => {
 						other comments
 					</button>
 				</small>
-				<UiRefsList v-if="showRefs" :refs="refs" />
+				<UiRefsList v-if="showRefs" :refs="refs" @remove-ref="emit('remove-ref', $event)"/>
 			</div>
 		</small>
 	</div>

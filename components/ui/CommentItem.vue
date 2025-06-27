@@ -62,6 +62,13 @@ const renderReplyButtonLabel = () => {
 	if (props.newCommentParents[0] === props.node.id) return "Cancel";
 	return "Stop Replying To";
 };
+
+const handleDeleteRef = (id: string) => {
+	const newCommentParents = props.newCommentParents.filter(
+		(toRemove) => id !== toRemove
+	);
+	emit("update:comment-parents", newCommentParents);
+};
 </script>
 
 <template>
@@ -131,15 +138,19 @@ const renderReplyButtonLabel = () => {
 						<UiCommentRefs
 							:refs="
 								node.secondaryParentIds.map((id) => {
-                                    const node = nodeMap.get(id)!;
+									const node = nodeMap.get(id)!;
 									return {
 										id,
 										author: node.author!,
-                                        comment: {text: node.comment, createdAt: node.createdAt}
+										comment: {
+											text: node.comment,
+											createdAt: node.createdAt,
+										},
 									};
 								})
 							"
 							direction="forward"
+							@remove-ref="handleDeleteRef"
 						/>
 
 						<!-- Reply button / collapsible -->
@@ -169,15 +180,21 @@ const renderReplyButtonLabel = () => {
 
 						<!-- Secondary children/ Backward refs (“Also referenced by”) -->
 						<UiCommentRefs
-							:refs="node.backChildrenIds.map((id) => {
-                                const node = nodeMap.get(id)!;
+							:refs="
+								node.backChildrenIds.map((id) => {
+									const node = nodeMap.get(id)!;
 									return {
 										id,
 										author: node.author!,
-                                        comment: {text: node.comment, createdAt: node.createdAt}
+										comment: {
+											text: node.comment,
+											createdAt: node.createdAt,
+										},
 									};
-								})"
+								})
+							"
 							direction="backward"
+							@remove-ref="handleDeleteRef"
 						/>
 					</div>
 				</template>
