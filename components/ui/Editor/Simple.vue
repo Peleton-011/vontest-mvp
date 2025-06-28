@@ -19,7 +19,7 @@ const emit = defineEmits<{
 }>();
 </script>
 <template>
-	<div class="flex flex-col">
+	<div class="flex flex-col p-4">
 		<div class="relative mb-4">
 			<textarea
 				v-model="localCommentText"
