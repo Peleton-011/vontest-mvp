@@ -1,4 +1,11 @@
 <script lang="ts" setup>
+import CommentItem from "./Item.vue";
+
+export type FullCommentNode = CommentNode & {
+	showReplies: boolean | undefined;
+	children: FullCommentNode[];
+};
+
 const props = defineProps<{
 	threadId: string;
 }>();
@@ -24,14 +31,15 @@ const isAdvanced = computed(() => {
 	//If the editor opened is the alternate one, the type will be the opposite
 	return isAlternateEditorOpen.value ? !defaultValue : defaultValue;
 });
+const router = useRouter();
 
 const editingComment = ref<string>("");
 const isTopLevelComment = ref(false);
 
 const isAlternateEditorOpen = ref(false);
 
-const commentsTree = ref<CommentNode[]>([]);
-const nodeMap = ref<Map<string, CommentNode>>(new Map());
+const commentsTree = ref<FullCommentNode[]>([]);
+const nodeMap = ref<Map<string, FullCommentNode>>(new Map());
 
 const isTopLevelCommentOpen = computed(() => {
 	return (
@@ -42,12 +50,16 @@ const isTopLevelCommentOpen = computed(() => {
 });
 
 // Helper: build a flat map id → CommentNode from the nested tree
-const buildNodeMap = (roots: CommentNode[]) => {
+const buildNodeMap = (roots: FullCommentNode[]) => {
 	nodeMap.value.clear();
-	const recurse = (node: CommentNode) => {
-		nodeMap.value.set(node.id, node);
-		node.children.forEach((child) => recurse(child));
+	const recurse = (commentNode: FullCommentNode) => {
+		commentNode.children = commentNode.children.map(recurse);
+		nodeMap.value.set(commentNode.id, commentNode);
+
+		return commentNode;
 	};
+	console.log(roots);
+	console.log(nodeMap.value);
 	roots.forEach((root) => recurse(root));
 };
 
@@ -55,9 +67,23 @@ const buildNodeMap = (roots: CommentNode[]) => {
 const loadComments = async () => {
 	try {
 		await fetchComments();
+		const oldNodeMap = nodeMap.value;
 
-		commentsTree.value = comments.value;
-		buildNodeMap(comments.value);
+		const recurse = (commentNode: CommentNode | FullCommentNode) => {
+			const node: FullCommentNode = {
+				...commentNode,
+				showReplies:
+					oldNodeMap.get(commentNode.id)?.showReplies || undefined,
+				children: [],
+			};
+			node.children = commentNode.children.map(recurse);
+
+			return node;
+		};
+
+		commentsTree.value = comments.value.map(recurse);
+
+		buildNodeMap(commentsTree.value);
 	} catch (e) {
 		console.error("Error loading comments:", e);
 	}
@@ -103,6 +129,12 @@ const handleEditComment = (commentId: string) => {
 	});
 };
 
+// Handler: cancel a comment update
+const handleCancelUpdate = () => {
+	editingComment.value = "";
+	resetForm();
+};
+
 // Handler: update a comment
 const handleUpdateComment = async () => {
 	if (!form.id.value) return;
@@ -127,9 +159,44 @@ const handleUpdateComment = async () => {
 	// console.log("Updating comment:", commentId);
 };
 
+// Handler: toggle replies
+const handleToggleReplies = (commentId: string) => {
+	const node = nodeMap.value.get(commentId);
+	if (!node) return;
+	node.showReplies =
+		typeof node.showReplies === "undefined" ? true : !node.showReplies;
+	// Toggle visibility for another level of children
+	node.children.forEach(({ id }) => {
+		const child = nodeMap.value.get(id);
+		if (!child) return;
+		child.showReplies = node.showReplies;
+	});
+	// console.log(nodeMap);
+};
+
+const handleUpdateShowReplies = (payload: { id: string; show: boolean }) => {
+	const node = nodeMap.value.get(payload.id);
+	if (!node) return;
+	node.showReplies = payload.show;
+};
+
+const handleActivateReference = (commentId: string) => {
+	// console.log("Activating reference:", commentId);
+	router.push({ hash: `#${commentId}` });
+	const node = nodeMap.value.get(commentId);
+	if (!node) return;
+	node.showReplies = true;
+	// Recursively show replies for all parents of this comment
+	let parent = nodeMap.value.get(node.parentIds[0]);
+	while (parent) {
+		parent.showReplies = true;
+		parent = nodeMap.value.get(parent.parentIds[0]);
+	}
+};
+
 // watch(commentsTree, () => {
-// console.log("Comments updated:", commentsTree.value);
-// console.log(buildNodeMap(commentsTree.value));
+// 	console.log("Comments updated:", commentsTree.value);
+// 	console.log(buildNodeMap(commentsTree.value));
 // });
 </script>
 <template>
@@ -199,11 +266,11 @@ const handleUpdateComment = async () => {
 				@delete-comment="handleDeleteComment"
 				@edit-comment="handleEditComment"
 				@post-update="handleUpdateComment"
-				@cancel-update="
-					editingComment = '';
-					resetForm();
-				"
 				@toggle-editor="isAlternateEditorOpen = !isAlternateEditorOpen"
+				@cancel-update="handleCancelUpdate"
+				@toggle-replies="handleToggleReplies"
+				@update:show-replies="handleUpdateShowReplies"
+				@activate-reference="handleActivateReference"
 			/>
 		</div>
 	</div>

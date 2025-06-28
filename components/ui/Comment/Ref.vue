@@ -4,17 +4,22 @@ const { reference } = defineProps<{
 	reference: Ref;
 }>();
 
+const emit = defineEmits<{
+	(e: "activate-reference", payload: string): void;
+}>();
+
 const { author, comment } = reference;
 </script>
 
 <template>
 	<UPopover mode="hover">
-		<a
-			:href="'#' + reference.id"
-			class="underline hover:text-gray-200 inline-block align-middle my-1"
+		<UButton
+			variant="link"
+			class="underline !hover:text-gray-200 inline-block align-middle my-1 cursor-pointer"
+			@click="emit('activate-reference', reference.id)"
 		>
 			<UiUserTag :author="reference.author" />
-		</a>
+		</UButton>
 
 		<template #content>
 			<div class="p-4">

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { CommentNode } from "~/composables/useComments";
 import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
 import DOMPurify from "dompurify";
+import type { FullCommentNode } from "./Section.vue";
 
 const props = defineProps<{
-	node: CommentNode;
+	node: FullCommentNode;
 	depth?: number;
-	nodeMap: Map<string, CommentNode>;
+	nodeMap: Map<string, FullCommentNode>;
 	newCommentParents: string[];
 	newCommentText: string;
 	editingComment?: string;
@@ -15,23 +15,24 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	(
-		e: "update:comment-text" | "delete-comment" | "edit-comment",
+		e: "post-comment" | "post-update" | "cancel-update" | "toggle-editor"
+	): void;
+	(
+		e:
+			| "update:comment-text"
+			| "delete-comment"
+			| "edit-comment"
+			| "toggle-replies"
+			| "activate-reference",
 		payload: string
 	): void;
 	(e: "update:comment-parents", parents: string[]): void;
-	(
-		e: "post-comment" | "post-update" | "cancel-update" | "toggle-editor"
-	): void;
+	(e: "update:show-replies", payload: { id: string; show: boolean }): void;
 }>();
 
 const user = useSupabaseUser();
 
 const isEditing = computed(() => props.editingComment === props.node.id);
-
-const showReplies = ref(props.depth === undefined || props.depth < 2);
-const toggleReplies = () => {
-	showReplies.value = !showReplies.value;
-};
 
 // Computed getter/setter for this node’s comment text
 const localCommentText = computed<string>({
@@ -73,6 +74,22 @@ const handleDeleteRef = (id: string) => {
 	);
 	emit("update:comment-parents", newCommentParents);
 };
+onMounted(() => {
+	if (typeof props.node.showReplies === "undefined") {
+		// Show replies if comment is less than 5 minutes old
+		if (props.node.createdAt.getTime() > Date.now() - 5 * 60 * 1000) {
+			emit("update:show-replies", {
+				id: props.node.id,
+				show: true,
+			});
+		}
+		// Show replies if comment is less than 3 levels deep
+		emit("update:show-replies", {
+			id: props.node.id,
+			show: props.depth! < 3,
+		});
+	}
+});
 </script>
 
 <template>
@@ -156,6 +173,9 @@ const handleDeleteRef = (id: string) => {
 							"
 							direction="forward"
 							@remove-ref="handleDeleteRef"
+							@activate-reference="
+								emit('activate-reference', $event)
+							"
 						/>
 
 						<!-- Reply button / collapsible -->
@@ -174,9 +194,12 @@ const handleDeleteRef = (id: string) => {
 							<button
 								v-if="node.children.length"
 								class="text-sm text-gray-400 hover:text-primary-400"
-								@click="toggleReplies"
+								@click="
+									emit('toggle-replies', node.id);
+									console.log(node.showReplies);
+								"
 							>
-								{{ showReplies ? "Hide" : "Show" }}
+								{{ node.showReplies ? "Hide" : "Show" }}
 								{{ node.children.length }} repl{{
 									node.children.length === 1 ? "y" : "ies"
 								}}
@@ -200,8 +223,12 @@ const handleDeleteRef = (id: string) => {
 							"
 							direction="backward"
 							@remove-ref="handleDeleteRef"
+							@activate-reference="
+								emit('activate-reference', $event)
+							"
 						/>
 					</div>
+					<div>ShowReplies: {{ node.showReplies }}</div>
 				</template>
 			</UCard>
 
@@ -229,7 +256,7 @@ const handleDeleteRef = (id: string) => {
 			<!-- Recursive rendering of primary‐nested children -->
 			<Transition name="fade">
 				<div
-					v-if="node.children.length && showReplies"
+					v-if="node.children.length && node.showReplies"
 					class="space-y-4 mt-4"
 				>
 					<UiCommentItem
@@ -254,6 +281,11 @@ const handleDeleteRef = (id: string) => {
 						@post-update="emit('post-update')"
 						@cancel-update="emit('cancel-update')"
 						@toggle-editor="emit('toggle-editor')"
+						@toggle-replies="emit('toggle-replies', $event)"
+						@update:show-replies="
+							emit('update:show-replies', $event)
+						"
+						@activate-reference="emit('activate-reference', $event)"
 					/>
 				</div>
 			</Transition>

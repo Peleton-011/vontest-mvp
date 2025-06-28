@@ -10,15 +10,14 @@ const { refs, direction } = defineProps<{
 	direction: "forward" | "backward";
 }>();
 
+const emit = defineEmits<{
+	(e: "activate-reference" | "remove-ref", payload: string): void;
+}>();
+
 const showRefs = ref(false);
 const toggleShowRefs = () => {
 	showRefs.value = !showRefs.value;
 };
-
-const emit = defineEmits<{
-    (e: "remove-ref", payload: string): void;
-}>();
-
 </script>
 
 <template>
@@ -31,7 +30,10 @@ const emit = defineEmits<{
 						: "Also referenced by:"
 				}}
 				<span v-for="(ref, idx) in refs" :key="ref.id" class="flex">
-					<UiCommentRef :reference="ref" />
+					<UiCommentRef
+						:reference="ref"
+						@activate-reference="emit('activate-reference', $event)"
+					/>
 					<span v-if="idx < refs.length - 1">, </span>
 				</span>
 			</div>
@@ -50,7 +52,12 @@ const emit = defineEmits<{
 						other comments
 					</button>
 				</small>
-				<UiCommentRefsList v-if="showRefs" :refs="refs" @remove-ref="emit('remove-ref', $event)"/>
+				<UiCommentRefsList
+					v-if="showRefs"
+					:refs="refs"
+					@remove-ref="emit('remove-ref', $event)"
+					@activate-reference="emit('activate-reference', $event)"
+				/>
 			</div>
 		</small>
 	</div>
