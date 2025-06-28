@@ -21,7 +21,7 @@ const isAdvanced = computed(() => {
 });
 
 const emit = defineEmits<{
-	(e: "update:comment-text", payload: string): void;
+	(e: "update:comment-text" | "activate-reference", payload: string): void;
 	(e: "update:comment-parents", parents: string[]): void;
 	(e: "post-comment" | "cancel" | "toggle-editor"): void;
 }>();
@@ -60,14 +60,31 @@ const localCommentText = computed<string>({
 			@update:comment-text="localCommentText = $event"
 			@update:comment-parents="emit('update:comment-parents', $event)"
 			@toggle-editor="emit('toggle-editor')"
+            @activate-reference="emit('activate-reference', $event)"
 		/>
 		<UiEditorSimple
 			v-else
 			:new-comment-text="localCommentText"
+			:new-comment-parents="props.newCommentParents"
+			:parent-refs="
+				props.newCommentParents.map((id) => {
+					const node = props.nodeMap.get(id)!;
+					return {
+						id,
+						author: node.author!,
+						comment: {
+							text: node.comment,
+							createdAt: node.createdAt,
+						},
+					};
+				})
+			"
 			@cancel="emit('cancel')"
 			@post-comment="emit('post-comment')"
 			@update:comment-text="localCommentText = $event"
+			@update:comment-parents="emit('update:comment-parents', $event)"
 			@toggle-editor="emit('toggle-editor')"
+            @activate-reference="emit('activate-reference', $event)"
 		/>
 	</div>
 </template>

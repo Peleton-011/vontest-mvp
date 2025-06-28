@@ -1,6 +1,10 @@
 <script lang="ts" setup>
+import type { Ref } from "../Comment/Refs.vue";
+
 const props = defineProps<{
 	newCommentText: string;
+	newCommentParents: string[];
+	parentRefs: Ref[];
 }>();
 
 // Computed getter/setter for this node’s comment text
@@ -14,18 +18,43 @@ const localCommentText = computed<string>({
 });
 
 const emit = defineEmits<{
-	(e: "update:comment-text", payload: string): void;
+	(e: "update:comment-text" | "activate-reference", payload: string): void;
+	(e: "update:comment-parents", parents: string[]): void;
 	(e: "post-comment" | "cancel" | "toggle-editor"): void;
 }>();
+
+const handleDeleteRef = (id: string) => {
+	const newCommentParents = props.newCommentParents.filter(
+		(toRemove) => id !== toRemove
+	);
+	emit("update:comment-parents", newCommentParents);
+};
 </script>
 <template>
 	<div class="flex flex-col p-4">
+		<div v-if="parentRefs.length" class="flex align-center mb-2">
+			<h2
+				class="text-lg font-semibold mb-0 leading-none flex items-center"
+			>
+				Replying To:
+			</h2>
+			<UiCommentRefs
+				:refs="parentRefs"
+				direction="editor"
+				@remove-ref="handleDeleteRef"
+				@activate-reference="emit('activate-reference', $event)"
+			/>
+		</div>
 		<div class="relative mb-4">
 			<textarea
 				v-model="localCommentText"
 				class="w-full p-2 rounded bg-gray-800"
 				rows="3"
-				placeholder="Write your reply..."
+				:placeholder="
+					parentRefs.length
+						? 'Write your reply...'
+						: 'Write your comment...'
+				"
 			/>
 			<UiCommentEditorOptions
 				class="absolute top-2 right-2 z-10"

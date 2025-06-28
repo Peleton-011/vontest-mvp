@@ -17,7 +17,7 @@ const localCommentText = computed<string>({
 });
 
 const emit = defineEmits<{
-	(e: "update:comment-text", payload: string): void;
+	(e: "update:comment-text" | "activate-reference", payload: string): void;
 	(e: "update:comment-parents", parents: string[]): void;
 	(e: "post-comment" | "cancel" | "toggle-editor"): void;
 }>();
@@ -44,7 +44,7 @@ const handleDeleteRef = (id: string) => {
 				</ClientOnly>
 			</div>
 			<div class="p-2 w-1/3 flex flex-col justify-between">
-				<div>
+				<div >
 					<div class="flex justify-between">
 						<h2 class="text-lg font-semibold mb-2">Replying To:</h2>
 						<UiCommentEditorOptions
@@ -54,9 +54,16 @@ const handleDeleteRef = (id: string) => {
 					</div>
 					<div>
 						<UiCommentRefsList
+                        v-if="parentRefs.length"
 							:refs="parentRefs"
 							@remove-ref="handleDeleteRef"
+                            @activate-reference="emit('activate-reference', $event)"
 						/>
+                        <ul v-else class="text-gray-400">
+                            <li class="my-1 list-disc ml-8">
+                                No one yet...
+                            </li>
+                        </ul>
 					</div>
 				</div>
 				<div class="flex justify-around gap-2">

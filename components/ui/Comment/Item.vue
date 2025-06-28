@@ -249,6 +249,7 @@ onMounted(() => {
 						emit('update:comment-parents', $event)
 					"
 					@toggle-editor="emit('toggle-editor')"
+                    @activate-reference="emit('activate-reference', $event)"
 				/>
 			</Transition>
 
