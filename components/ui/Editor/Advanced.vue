@@ -43,19 +43,20 @@ const handleDeleteRef = (id: string) => {
 					/>
 				</ClientOnly>
 			</div>
-			<div class="p-2 w-1/3 flex flex-col justify-between">
-                    <div>
-                        <UiRefsList
+			<div class="p-2 w-1/3 flex flex-col">
+				<div class="mb-4 flex justify-between">
+					<h2 class="text-lg font-semibold mb-2">Replying To:</h2>
+					<UiCommentEditorOptions
+                        :is-advanced="true"
+						@toggle-editor="emit('toggle-editor')"
+					/>
+				</div>
+				<div>
+					<UiRefsList
 						:refs="parentRefs"
 						@remove-ref="handleDeleteRef"
 					/>
-                    </div>
-					<UButton
-						class="w-full text-center"
-						variant="subtle"
-						label="Simple Editor"
-						@click="emit('toggle-editor')"
-					/>
+				</div>
 			</div>
 		</div>
 		<!-- Footer -->
