@@ -145,7 +145,7 @@ const handleUpdateComment = async () => {
 					:new-comment-text="form.comment.value"
 					:new-comment-parents="form.parentIds.value"
 					:node-map="nodeMap"
-					:is-advanced="isAdvanced"
+					:is-alternate="isAlternateEditorOpen"
 					@cancel="
 						isTopLevelComment = false;
 						resetForm();
@@ -205,7 +205,7 @@ const handleUpdateComment = async () => {
 					editingComment = '';
 					resetForm();
 				"
-				@toggle-editor="() => {isAlternateEditorOpen = !isAlternateEditorOpen; console.log('toogle editor')}"
+				@toggle-editor="isAlternateEditorOpen = !isAlternateEditorOpen"
 			/>
 		</div>
 	</div>
