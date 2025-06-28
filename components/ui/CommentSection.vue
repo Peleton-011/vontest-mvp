@@ -18,16 +18,23 @@ const {
 	resetForm,
 } = useComments(props.threadId);
 
+const { settings, fetchSettings } = useUserSettings();
+onMounted(fetchSettings);
+
+const isAdvanced = computed(() => {
+	return settings?.value?.defaultEditor === "advanced";
+});
+
 const editingComment = ref<string>("");
 const isTopLevelComment = ref(false);
 
-const isAdvancedEditorOpen = ref(false);
+const isAternateEditorOpen = ref(false);
 
 const commentsTree = ref<CommentNode[]>([]);
 const nodeMap = ref<Map<string, CommentNode>>(new Map());
 
 const isTopLevelCommentOpen = computed(() => {
-	return isTopLevelComment.value && !isAdvancedEditorOpen.value;
+	return isTopLevelComment.value && !isAternateEditorOpen.value;
 });
 
 // Helper: build a flat map id → CommentNode from the nested tree
@@ -117,8 +124,8 @@ const handleUpdateComment = async () => {
 };
 
 // watch(commentsTree, () => {
-	// console.log("Comments updated:", commentsTree.value);
-	// console.log(buildNodeMap(commentsTree.value));
+// console.log("Comments updated:", commentsTree.value);
+// console.log(buildNodeMap(commentsTree.value));
 // });
 </script>
 <template>
@@ -136,8 +143,11 @@ const handleUpdateComment = async () => {
 		<!-- New top-level comment box -->
 		<UCollapsible v-model:open="isTopLevelCommentOpen" class="mb-4">
 			<template #content>
-				<UiSimpleEditor
+				<UiEditorGeneral
 					:new-comment-text="form.comment.value"
+					:new-comment-parents="form.parentIds.value"
+					:node-map="nodeMap"
+					:is-advanced="isAdvanced"
 					@cancel="
 						isTopLevelComment = false;
 						resetForm();
@@ -147,23 +157,25 @@ const handleUpdateComment = async () => {
 						postComment();
 					"
 					@update:comment-text="form.comment.value = $event"
+					@update:comment-parents="form.parentIds.value = $event"
 				/>
 			</template>
 		</UCollapsible>
 
 		<UButton
-			:label="isAdvancedEditorOpen ? 'Close Editor' : 'Advanced Editor'"
+			:label="isAternateEditorOpen ? 'Close Editor' : 'Advanced Editor'"
 			color="neutral"
 			variant="subtle"
 			trailing-icon="i-lucide-chevron-up"
-			@click="isAdvancedEditorOpen = !isAdvancedEditorOpen"
+			@click="isAternateEditorOpen = !isAternateEditorOpen"
 		/>
 
 		<UiEditorDrawer
-			v-model:open="isAdvancedEditorOpen"
+			v-model:open="isAternateEditorOpen"
 			:new-comment-text="form.comment.value"
 			:new-comment-parents="form.parentIds.value"
 			:node-map="nodeMap"
+			:is-advanced="isAdvanced"
 			@update:comment-text="form.comment.value = $event"
 			@update:comment-parents="form.parentIds.value = $event"
 			@post-comment="postComment"
@@ -181,7 +193,7 @@ const handleUpdateComment = async () => {
 				:new-comment-text="form.comment.value"
 				:new-comment-parents="form.parentIds.value"
 				:editing-comment="editingComment"
-				:is-advanced="isAdvancedEditorOpen"
+				:is-advanced="isAternateEditorOpen"
 				@update:comment-text="form.comment.value = $event"
 				@update:comment-parents="form.parentIds.value = $event"
 				@post-comment="postComment"
