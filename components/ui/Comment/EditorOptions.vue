@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from "@nuxt/ui";
 
-const props = defineProps<{
-	onDelete: (e: Event) => void;
-	onEdit: (e: Event) => void;
-}>();
-
 const emit = defineEmits<{
 	(e: "toggle-editor"): void;
 }>();
