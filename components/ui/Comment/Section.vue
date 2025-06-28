@@ -129,10 +129,7 @@ const handleUpdateComment = async () => {
 // });
 </script>
 <template>
-	<div>
-        {{ isAdvanced }}
-        {{ isAlternateEditorOpen }}
-        
+	<div>        
 		<div class="mb-4 flex justify-between">
 			<h3 class="text-xl font-semibold mb-2">Discussion</h3>
 			<UButton
@@ -150,7 +147,6 @@ const handleUpdateComment = async () => {
 					:new-comment-text="form.comment.value"
 					:new-comment-parents="form.parentIds.value"
 					:node-map="nodeMap"
-					:is-alternate="isAlternateEditorOpen"
 					@cancel="
 						isTopLevelComment = false;
 						resetForm();
