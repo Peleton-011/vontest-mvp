@@ -7,7 +7,7 @@ const props = withDefaults(
 		isAlternate?: boolean;
 	}>(),
 	{
-		isAlternate: true,
+		isAlternate: false,
 	}
 );
 
@@ -41,7 +41,7 @@ const localCommentText = computed<string>({
 		<UiEditorAdvanced
 			v-if="isAdvanced"
 			:new-comment-text="localCommentText"
-			:new-comment-parents="newCommentParents"
+			:new-comment-parents="props.newCommentParents"
 			:parent-refs="
 				props.newCommentParents.map((id) => {
 					const node = props.nodeMap.get(id)!;
