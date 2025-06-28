@@ -6,18 +6,47 @@ const props = defineProps<{
 	onEdit: (e: Event) => void;
 }>();
 
-const items = ref<DropdownMenuItem[]>([
-	{
-		label: "Edit",
-		icon: "i-lucide-edit",
-		onSelect: (e) => props.onEdit(e),
-	},
-	{
-		label: "Delete",
-		icon: "i-lucide-trash",
-		onSelect: (e) => props.onDelete(e),
-	},
-]);
+const emit = defineEmits<{
+	(e: "toggle-editor"): void;
+}>();
+
+const { settings, fetchSettings, updateSettings } = useUserSettings();
+
+onMounted(fetchSettings);
+
+const isAdvanced = computed(() => {
+	return settings?.value?.defaultEditor === "advanced";
+});
+
+const items = computed<DropdownMenuItem[]>(() => {
+	const advanced = {
+		label: "Open Advanced Editor",
+		icon: "i-lucide-pen-tool",
+		onSelect: (e: Event) => emit("toggle-editor"),
+	};
+
+	const simple = {
+		label: "Open Simple Editor",
+		icon: "i-lucide-pen",
+		onSelect: (e: Event) => emit("toggle-editor"),
+	};
+
+	const toggleDefault = {
+		label: "Change Default Editor to " + isAdvanced ? "Simple" : "Advanced",
+		icon: "i-lucide-repeat",
+		onSelect: (e: Event) =>
+			updateSettings({
+				...settings.value,
+				defaultEditor: isAdvanced ? "simple" : "advanced",
+			}),
+	};
+
+	const options = [];
+	options.push(isAdvanced ? simple : advanced);
+	options.push(toggleDefault);
+
+	return options;
+});
 </script>
 
 <template>
@@ -32,10 +61,6 @@ const items = ref<DropdownMenuItem[]>([
 			content: 'w-12',
 		}"
 	>
-		<UButton
-			icon="i-lucide-menu"
-			color="neutral"
-			variant="ghost"
-		/>
+		<UButton icon="i-lucide-menu" color="neutral" variant="ghost" />
 	</UDropdownMenu>
 </template>
