@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import CommentItem from "~/components/ui/CommentItem.vue";
+import CommentItem from "~/components/ui/Comment/Item.vue";
 
 const props = defineProps<{
 	threadId: string;

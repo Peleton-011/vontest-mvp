@@ -237,10 +237,10 @@ const handleDeleteRef = (id: string) => {
 						:editing-comment="editingComment"
 						:is-advanced="isAdvanced"
 						@update:comment-text="
-							(payload) => emit('update:comment-text', payload)
+							emit('update:comment-text', $event)
 						"
 						@update:comment-parents="
-							(payload) => emit('update:comment-parents', payload)
+							emit('update:comment-parents', $event)
 						"
 						@post-comment="emit('post-comment')"
 						@delete-comment="emit('delete-comment', $event)"
