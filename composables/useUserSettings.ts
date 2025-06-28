@@ -13,10 +13,11 @@ type Profile = Database["public"]["Tables"]["profiles"]["Row"] & {
 	settings: UserSettings;
 };
 
+const settings = ref<UserSettings | null>(null);
+
 export const useUserSettings = () => {
 	const supabase = useSupabaseClient<Database>();
 	const user = useSupabaseUser();
-	const settings = ref<UserSettings | null>(null);
 
 	const fetchSettings = async () => {
 		if (!user.value) return;
