@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import type { Ref } from "./Refs.vue";
+import DOMPurify from "dompurify";
+
 const { reference, short } = defineProps<{
 	reference: Ref;
     short?: boolean
@@ -33,8 +35,8 @@ const { author, comment } = reference;
 					</div>
 				</div>
 
-				<p class="text-gray-300">
-					{{ comment.text }}
+				<p class="text-gray-300" v-html="DOMPurify.sanitize(comment.text)">
+					
 				</p>
 			</div>
 		</template>
