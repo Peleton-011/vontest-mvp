@@ -228,7 +228,6 @@ onMounted(() => {
 							"
 						/>
 					</div>
-					<div>ShowReplies: {{ node.showReplies }}</div>
 				</template>
 			</UCard>
 
