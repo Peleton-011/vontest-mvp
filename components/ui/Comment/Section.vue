@@ -20,9 +20,9 @@ const { settings, fetchSettings } = useUserSettings();
 onMounted(fetchSettings);
 
 const isAdvanced = computed(() => {
-    const defaultValue = settings?.value?.defaultEditor === "advanced"
-    //If the editor opened is the alternate one, the type will be the opposite
-    return isAlternateEditorOpen.value ? !defaultValue : defaultValue;
+	const defaultValue = settings?.value?.defaultEditor === "advanced";
+	//If the editor opened is the alternate one, the type will be the opposite
+	return isAlternateEditorOpen.value ? !defaultValue : defaultValue;
 });
 
 const editingComment = ref<string>("");
@@ -34,7 +34,11 @@ const commentsTree = ref<CommentNode[]>([]);
 const nodeMap = ref<Map<string, CommentNode>>(new Map());
 
 const isTopLevelCommentOpen = computed(() => {
-	return isTopLevelComment.value && !isAlternateEditorOpen.value;
+	return (
+		isTopLevelComment.value &&
+		!isAlternateEditorOpen.value &&
+		!form.parentIds.value.length
+	);
 });
 
 // Helper: build a flat map id → CommentNode from the nested tree
@@ -129,7 +133,7 @@ const handleUpdateComment = async () => {
 // });
 </script>
 <template>
-	<div>        
+	<div>
 		<div class="mb-4 flex justify-between">
 			<h3 class="text-xl font-semibold mb-2">Discussion</h3>
 			<UButton
