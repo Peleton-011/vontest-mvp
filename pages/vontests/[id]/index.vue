@@ -61,7 +61,7 @@ onMounted(() => {
 				<p
                     v-if="vontest.description"
 					class="text-gray-400 markdown-body ql-editor"
-					:v-html="DOMPurify.sanitize(vontest.description)"
+					v-html="DOMPurify.sanitize(vontest.description)"
 				/>
 				<template #footer>
 					<div class="flex justify-between items-center gap-2">
