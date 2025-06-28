@@ -7,7 +7,7 @@ export type Ref = {
 
 const { refs, direction } = defineProps<{
 	refs: Ref[];
-	direction: "forward" | "backward";
+	direction: "forward" | "backward" | "editor";
 }>();
 
 const emit = defineEmits<{
@@ -26,15 +26,14 @@ const toggleShowRefs = () => {
 			<div v-if="refs.length < 3" class="flex gap-2 items-center">
 				{{
 					direction === "forward"
-						? "Also replies to:"
-						: "Also referenced by:"
+						? "Also replies to:" : direction === "backward" ? "Also referenced by:" : ""
 				}}
 				<span v-for="(ref, idx) in refs" :key="ref.id" class="flex">
 					<UiCommentRef
 						:reference="ref"
 						@activate-reference="emit('activate-reference', $event)"
 					/>
-					<span v-if="idx < refs.length - 1">, </span>
+					<span v-if="idx < refs.length - 1" class="flex items-center">, </span>
 				</span>
 			</div>
 			<div v-else>

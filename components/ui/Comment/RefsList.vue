@@ -10,9 +10,17 @@ const emit = defineEmits<{
 }>();
 </script>
 <template>
-	<ul class="list-disc list-inside text-gray-400">
-		<li v-for="ref in props.refs" :key="ref.id" class="my-1 flex justify-between align-center">
-			<UiCommentRef :reference="ref" @activate-reference="emit('activate-reference', $event)"/>
+	<ul class="text-gray-400 relative flex flex-col ml-4">
+		<li
+			v-for="ref in props.refs"
+			:key="ref.id"
+			class="my-1 list-disc flex justify-between items-center"
+		>
+			<UiCommentRef
+            class="ml-1"
+				:reference="ref"
+				@activate-reference="emit('activate-reference', $event)"
+			/>
 			<UButton
 				variant="ghost"
 				icon="i-lucide-x"
@@ -21,3 +29,14 @@ const emit = defineEmits<{
 		</li>
 	</ul>
 </template>
+
+<style scoped>
+li::before {
+	content: "•";
+	position: absolute;
+    display: inline-block;
+    height: 100%;
+	left: 0;
+	color: #9ca3af; /* Tailwind gray-400 */
+}
+</style>
