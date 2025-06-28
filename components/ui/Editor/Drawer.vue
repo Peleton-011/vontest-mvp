@@ -1,15 +1,9 @@
 <script lang="ts" setup>
-const props = withDefaults(
-	defineProps<{
-		newCommentText: string;
-		newCommentParents: string[];
-		nodeMap: Map<string, CommentNode>;
-		isAdvanced?: boolean;
-	}>(),
-	{
-		isAdvanced: true,
-	}
-);
+const props = defineProps<{
+	newCommentText: string;
+	newCommentParents: string[];
+	nodeMap: Map<string, CommentNode>;
+}>();
 
 const emit = defineEmits<{
 	(e: "update:comment-text", payload: string): void;
@@ -35,7 +29,6 @@ watch(open, () => {
 		document.body.style.pointerEvents = "auto";
 	}, 250);
 });
-
 </script>
 
 <template>
@@ -49,16 +42,16 @@ watch(open, () => {
 		inset
 	>
 		<template #content>
-            <UiEditorGeneral 
-                :new-comment-text="newCommentText"
-                :new-comment-parents="newCommentParents"
-                :node-map="nodeMap"
-                :is-advanced="isAdvanced"
-                @cancel="handleCancel"
-                @post-comment="handlePostComment"
-                @update:comment-text="emit('update:comment-text', $event)"
-                @update:comment-parents="emit('update:comment-parents', $event)"
-            />
+			<UiEditorGeneral
+				:new-comment-text="props.newCommentText"
+				:new-comment-parents="props.newCommentParents"
+				:node-map="props.nodeMap"
+				:is-alternate="true"
+				@cancel="handleCancel"
+				@post-comment="handlePostComment"
+				@update:comment-text="emit('update:comment-text', $event)"
+				@update:comment-parents="emit('update:comment-parents', $event)"
+			/>
 		</template>
 	</UDrawer>
 </template>
