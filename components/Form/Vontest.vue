@@ -274,7 +274,7 @@ const handleStepperClick = (index: number | string | undefined) => {
 							<template #content>
 								<UFormField name="anonymity" label="Anonymity">
 									<URadioGroup
-										v-model="anonymityValue as RadioGroupValue"
+										v-model="anonymityValue"
 										:items="anonymityOptions"
 									/>
 								</UFormField>
