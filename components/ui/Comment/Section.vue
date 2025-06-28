@@ -26,13 +26,13 @@ const isAdvanced = computed(() => {
 const editingComment = ref<string>("");
 const isTopLevelComment = ref(false);
 
-const isAternateEditorOpen = ref(false);
+const isAlternateEditorOpen = ref(false);
 
 const commentsTree = ref<CommentNode[]>([]);
 const nodeMap = ref<Map<string, CommentNode>>(new Map());
 
 const isTopLevelCommentOpen = computed(() => {
-	return isTopLevelComment.value && !isAternateEditorOpen.value;
+	return isTopLevelComment.value && !isAlternateEditorOpen.value;
 });
 
 // Helper: build a flat map id → CommentNode from the nested tree
@@ -157,22 +157,22 @@ const handleUpdateComment = async () => {
 					@update:comment-text="form.comment.value = $event"
 					@update:comment-parents="form.parentIds.value = $event"
 					@toggle-editor="
-						isAternateEditorOpen = !isAternateEditorOpen
+						isAlternateEditorOpen = !isAlternateEditorOpen
 					"
 				/>
 			</template>
 		</UCollapsible>
 
 		<UButton
-			:label="isAternateEditorOpen ? 'Close Editor' : 'Advanced Editor'"
+			:label="isAlternateEditorOpen ? 'Close Editor' : 'Advanced Editor'"
 			color="neutral"
 			variant="subtle"
 			trailing-icon="i-lucide-chevron-up"
-			@click="isAternateEditorOpen = !isAternateEditorOpen"
+			@click="isAlternateEditorOpen = !isAlternateEditorOpen"
 		/>
 
 		<UiEditorDrawer
-			v-model:open="isAternateEditorOpen"
+			v-model:open="isAlternateEditorOpen"
 			:new-comment-text="form.comment.value"
 			:new-comment-parents="form.parentIds.value"
 			:node-map="nodeMap"
@@ -194,7 +194,7 @@ const handleUpdateComment = async () => {
 				:new-comment-text="form.comment.value"
 				:new-comment-parents="form.parentIds.value"
 				:editing-comment="editingComment"
-				:is-alternate="isAternateEditorOpen"
+				:is-alternate="isAlternateEditorOpen"
 				@update:comment-text="form.comment.value = $event"
 				@update:comment-parents="form.parentIds.value = $event"
 				@post-comment="postComment"
@@ -205,7 +205,7 @@ const handleUpdateComment = async () => {
 					editingComment = '';
 					resetForm();
 				"
-				@toggle-editor="() => {isAternateEditorOpen = !isAternateEditorOpen; console.log('toogle editor')}"
+				@toggle-editor="() => {isAlternateEditorOpen = !isAlternateEditorOpen; console.log('toogle editor')}"
 			/>
 		</div>
 	</div>
