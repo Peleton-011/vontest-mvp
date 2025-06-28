@@ -20,7 +20,9 @@ const { settings, fetchSettings } = useUserSettings();
 onMounted(fetchSettings);
 
 const isAdvanced = computed(() => {
-	return settings?.value?.defaultEditor === "advanced";
+    const defaultValue = settings?.value?.defaultEditor === "advanced"
+    //If the editor opened is the alternate one, the type will be the opposite
+    return isAlternateEditorOpen.value ? !defaultValue : defaultValue;
 });
 
 const editingComment = ref<string>("");
@@ -128,6 +130,9 @@ const handleUpdateComment = async () => {
 </script>
 <template>
 	<div>
+        {{ isAdvanced }}
+        {{ isAlternateEditorOpen }}
+        
 		<div class="mb-4 flex justify-between">
 			<h3 class="text-xl font-semibold mb-2">Discussion</h3>
 			<UButton
