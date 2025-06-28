@@ -43,36 +43,39 @@ const handleDeleteRef = (id: string) => {
 					/>
 				</ClientOnly>
 			</div>
-			<div class="p-2 w-1/3 flex flex-col">
-				<div class="mb-4 flex justify-between">
-					<h2 class="text-lg font-semibold mb-2">Replying To:</h2>
-					<UiCommentEditorOptions
-                        :is-advanced="true"
-						@toggle-editor="emit('toggle-editor')"
-					/>
-				</div>
+			<div class="p-2 w-1/3 flex flex-col justify-between">
 				<div>
-					<UiCommentRefsList
-						:refs="parentRefs"
-						@remove-ref="handleDeleteRef"
+					<div class="flex justify-between">
+						<h2 class="text-lg font-semibold mb-2">Replying To:</h2>
+						<UiCommentEditorOptions
+							:is-advanced="true"
+							@toggle-editor="emit('toggle-editor')"
+						/>
+					</div>
+					<div>
+						<UiCommentRefsList
+							:refs="parentRefs"
+							@remove-ref="handleDeleteRef"
+						/>
+					</div>
+				</div>
+				<div class="flex justify-around gap-2">
+					<UButton
+						class="w-1/2 justify-between"
+						label="Post"
+						trailing-icon="i-lucide-upload"
+						:disabled="!localCommentText.trim()"
+						@click="emit('post-comment')"
+					/>
+					<UButton
+						class="w-1/2 justify-between"
+						label="Cancel"
+						trailing-icon="i-lucide-x"
+						variant="subtle"
+						@click="emit('cancel')"
 					/>
 				</div>
 			</div>
-		</div>
-		<!-- Footer -->
-		<div class="flex justify-around mt-4">
-			<UButton
-				class="w-1/6 text-center"
-				label="Post"
-				:disabled="!localCommentText.trim()"
-				@click="emit('post-comment')"
-			/>
-			<UButton
-				class="w-1/6 text-center"
-				label="Cancel"
-				variant="subtle"
-				@click="emit('cancel')"
-			/>
 		</div>
 	</div>
 </template>
