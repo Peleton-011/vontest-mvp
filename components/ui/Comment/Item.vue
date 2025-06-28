@@ -157,6 +157,16 @@ onMounted(() => {
 					<div class="flex flex-col gap-2">
 						<!-- Secondary parents/ Forward refs (“Also replies to”) -->
 
+						<!-- Reply button / collapsible -->
+						<div v-if="!isEditing">
+							<UButton
+								:label="renderReplyButtonLabel()"
+								variant="subtle"
+								size="xs"
+								icon="i-lucide-message-circle"
+								@click="handleReplyButtonClick"
+							/>
+						</div>
 						<UiCommentRefs
 							:refs="
 								node.secondaryParentIds.map((id) => {
@@ -177,17 +187,6 @@ onMounted(() => {
 								emit('activate-reference', $event)
 							"
 						/>
-
-						<!-- Reply button / collapsible -->
-						<div v-if="!isEditing">
-							<UButton
-								:label="renderReplyButtonLabel()"
-								variant="subtle"
-								size="xs"
-								icon="i-lucide-message-circle"
-								@click="handleReplyButtonClick"
-							/>
-						</div>
 
 						<!-- Secondary children/ Backward refs (“Also referenced by”) -->
 						<UiCommentRefs
@@ -216,7 +215,7 @@ onMounted(() => {
 						<UButton
 							variant="ghost"
 							color="neutral"
-                            size="xs"
+							size="xs"
 							class="text-sm text-gray-400 hover:text-primary-400"
 							@click="
 								emit('toggle-replies', node.id);
