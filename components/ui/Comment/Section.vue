@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import CommentItem from "~/components/ui/Comment/Item.vue";
-
 const props = defineProps<{
 	threadId: string;
 }>();
@@ -158,6 +156,9 @@ const handleUpdateComment = async () => {
 					"
 					@update:comment-text="form.comment.value = $event"
 					@update:comment-parents="form.parentIds.value = $event"
+					@toggle-editor="
+						isAternateEditorOpen = !isAternateEditorOpen
+					"
 				/>
 			</template>
 		</UCollapsible>
@@ -184,7 +185,7 @@ const handleUpdateComment = async () => {
 
 		<!-- Recursive Comments Tree -->
 		<div class="space-y-4">
-			<CommentItem
+			<UiCommentItem
 				v-for="node in commentsTree"
 				:key="node.id"
 				:node="node"
@@ -193,7 +194,7 @@ const handleUpdateComment = async () => {
 				:new-comment-text="form.comment.value"
 				:new-comment-parents="form.parentIds.value"
 				:editing-comment="editingComment"
-				:is-advanced="isAternateEditorOpen"
+				:is-alternate="isAternateEditorOpen"
 				@update:comment-text="form.comment.value = $event"
 				@update:comment-parents="form.parentIds.value = $event"
 				@post-comment="postComment"
@@ -204,6 +205,7 @@ const handleUpdateComment = async () => {
 					editingComment = '';
 					resetForm();
 				"
+				@toggle-editor="() => {isAternateEditorOpen = !isAternateEditorOpen; console.log('toogle editor')}"
 			/>
 		</div>
 	</div>

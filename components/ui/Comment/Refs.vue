@@ -50,7 +50,7 @@ const emit = defineEmits<{
 						other comments
 					</button>
 				</small>
-				<UiRefsList v-if="showRefs" :refs="refs" @remove-ref="emit('remove-ref', $event)"/>
+				<UiCommentRefsList v-if="showRefs" :refs="refs" @remove-ref="emit('remove-ref', $event)"/>
 			</div>
 		</small>
 	</div>

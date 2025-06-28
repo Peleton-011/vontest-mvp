@@ -4,17 +4,24 @@ const props = withDefaults(
 		newCommentText: string;
 		newCommentParents: string[];
 		nodeMap: Map<string, CommentNode>;
-		isAdvanced?: boolean;
+		isAlternate?: boolean;
 	}>(),
 	{
-		isAdvanced: true,
+		isAlternate: true,
 	}
 );
+
+const { settings, fetchSettings } = useUserSettings();
+onMounted(fetchSettings);
+
+const isAdvanced = computed(() => {
+	return settings?.value?.defaultEditor === "advanced" && !props.isAlternate;
+});
 
 const emit = defineEmits<{
 	(e: "update:comment-text", payload: string): void;
 	(e: "update:comment-parents", parents: string[]): void;
-	(e: "post-comment" | "cancel"): void;
+	(e: "post-comment" | "cancel" | "toggle-editor"): void;
 }>();
 
 // Computed getter/setter for this node’s comment text
@@ -50,6 +57,7 @@ const localCommentText = computed<string>({
 			@post-comment="emit('post-comment')"
 			@update:comment-text="localCommentText = $event"
 			@update:comment-parents="emit('update:comment-parents', $event)"
+			@toggle-editor="emit('toggle-editor')"
 		/>
 		<UiEditorSimple
 			v-else
@@ -57,8 +65,7 @@ const localCommentText = computed<string>({
 			@cancel="emit('cancel')"
 			@post-comment="emit('post-comment')"
 			@update:comment-text="localCommentText = $event"
+			@toggle-editor="emit('toggle-editor')"
 		/>
 	</div>
 </template>
-
-

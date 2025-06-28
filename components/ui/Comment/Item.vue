@@ -9,7 +9,7 @@ const props = defineProps<{
 	newCommentParents: string[];
 	newCommentText: string;
 	editingComment?: string;
-	isAdvanced?: boolean;
+	isAlternate?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -18,7 +18,9 @@ const emit = defineEmits<{
 		payload: string
 	): void;
 	(e: "update:comment-parents", parents: string[]): void;
-	(e: "post-comment" | "post-update" | "cancel-update"): void;
+	(
+		e: "post-comment" | "post-update" | "cancel-update" | "toggle-editor"
+	): void;
 }>();
 
 const user = useSupabaseUser();
@@ -118,7 +120,7 @@ const handleDeleteRef = (id: string) => {
 						:new-comment-text="localCommentText"
 						:new-comment-parents="newCommentParents"
 						:node-map="nodeMap"
-						:is-advanced="isAdvanced"
+						:is-alternate="isAlternate"
 						@cancel="emit('cancel-update')"
 						@post-comment="emit('post-update')"
 						@update:comment-text="
@@ -127,6 +129,7 @@ const handleDeleteRef = (id: string) => {
 						@update:comment-parents="
 							emit('update:comment-parents', $event)
 						"
+						@toggle-editor="emit('toggle-editor')"
 					/>
 				</Transition>
 
@@ -205,18 +208,19 @@ const handleDeleteRef = (id: string) => {
 						newCommentParents[0] === node.id &&
 						!isEditing &&
 						!editingComment &&
-						!props.isAdvanced
+						!props.isAlternate
 					"
 					:new-comment-text="localCommentText"
 					:new-comment-parents="newCommentParents"
 					:node-map="nodeMap"
-					:is-advanced="isAdvanced"
+					:is-alternate="isAlternate"
 					@cancel="emit('cancel-update')"
 					@post-comment="emit('post-comment')"
 					@update:comment-text="emit('update:comment-text', $event)"
 					@update:comment-parents="
 						emit('update:comment-parents', $event)
 					"
+					@toggle-editor="emit('toggle-editor')"
 				/>
 			</Transition>
 
@@ -226,7 +230,7 @@ const handleDeleteRef = (id: string) => {
 					v-if="node.children.length && showReplies"
 					class="space-y-4 mt-4"
 				>
-					<CommentItem
+					<UiCommentItem
 						v-for="child in node.children"
 						:key="child.id"
 						:node="child"
@@ -235,7 +239,7 @@ const handleDeleteRef = (id: string) => {
 						:new-comment-text="localCommentText"
 						:new-comment-parents="newCommentParents"
 						:editing-comment="editingComment"
-						:is-advanced="isAdvanced"
+						:is-alternate="isAlternate"
 						@update:comment-text="
 							emit('update:comment-text', $event)
 						"
@@ -247,6 +251,7 @@ const handleDeleteRef = (id: string) => {
 						@edit-comment="emit('edit-comment', $event)"
 						@post-update="emit('post-update')"
 						@cancel-update="emit('cancel-update')"
+						@toggle-editor="emit('toggle-editor')"
 					/>
 				</div>
 			</Transition>

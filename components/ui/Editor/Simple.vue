@@ -28,7 +28,7 @@ const emit = defineEmits<{
 				placeholder="Write your reply..."
 			/>
 			<UiCommentEditorOptions
-            class="absolute top-2 right-2 z-10"
+				class="absolute top-2 right-2 z-10"
 				:is-advanced="false"
 				@toggle-editor="emit('toggle-editor')"
 			/>

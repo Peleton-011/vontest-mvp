@@ -52,7 +52,7 @@ const handleDeleteRef = (id: string) => {
 					/>
 				</div>
 				<div>
-					<UiRefsList
+					<UiCommentRefsList
 						:refs="parentRefs"
 						@remove-ref="handleDeleteRef"
 					/>
