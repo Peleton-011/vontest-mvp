@@ -131,7 +131,7 @@ onMounted(() => {
 				<span
 					v-if="!isEditing"
 					ref="text"
-					class="prose dark:prose-inverted markdown-body ql-editor pt-0 text-sm text-gray-400 border-neutral-700"
+					class="prose dark:prose-inverted markdown-body pt-0 text-sm text-gray-400 border-neutral-700"
 					v-html="DOMPurify.sanitize(node.comment)"
 				/>
 
@@ -189,23 +189,6 @@ onMounted(() => {
 							/>
 						</div>
 
-						<!-- Toggle seeing responses -->
-						<div class="ml-4 mt-2">
-							<button
-								v-if="node.children.length"
-								class="text-sm text-gray-400 hover:text-primary-400"
-								@click="
-									emit('toggle-replies', node.id);
-									console.log(node.showReplies);
-								"
-							>
-								{{ node.showReplies ? "Hide" : "Show" }}
-								{{ node.children.length }} repl{{
-									node.children.length === 1 ? "y" : "ies"
-								}}
-							</button>
-						</div>
-
 						<!-- Secondary children/ Backward refs (“Also referenced by”) -->
 						<UiCommentRefs
 							:refs="
@@ -228,6 +211,24 @@ onMounted(() => {
 							"
 						/>
 					</div>
+					<!-- Toggle seeing responses -->
+					<div v-if="node.children.length">
+						<UButton
+							variant="ghost"
+							color="neutral"
+                            size="xs"
+							class="text-sm text-gray-400 hover:text-primary-400"
+							@click="
+								emit('toggle-replies', node.id);
+								console.log(node.showReplies);
+							"
+						>
+							{{ node.showReplies ? "Hide" : "Show" }}
+							{{ node.children.length }} repl{{
+								node.children.length === 1 ? "y" : "ies"
+							}}
+						</UButton>
+					</div>
 				</template>
 			</UCard>
 
@@ -249,7 +250,7 @@ onMounted(() => {
 						emit('update:comment-parents', $event)
 					"
 					@toggle-editor="emit('toggle-editor')"
-                    @activate-reference="emit('activate-reference', $event)"
+					@activate-reference="emit('activate-reference', $event)"
 				/>
 			</Transition>
 
@@ -288,6 +289,7 @@ onMounted(() => {
 						@activate-reference="emit('activate-reference', $event)"
 					/>
 				</div>
+				<div v-else-if="!node.showReplies" class="text-2xl">· · ·</div>
 			</Transition>
 		</div>
 	</div>
