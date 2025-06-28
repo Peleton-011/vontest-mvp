@@ -2,6 +2,7 @@
 import { UiCommentSection } from "#components";
 import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
 import StaticCard from "~/components/ui/StaticCard.vue";
+import DOMPurify from "dompurify";
 import type { Database } from "~/types/supabase";
 
 type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
@@ -37,14 +38,6 @@ onMounted(() => {
 	fetchProposals();
 	fetchThread(vontestId, "vontest");
 });
-
-watch(proposals, () => {
-	console.log(proposals.value);
-});
-watch(paginatedProposals, () => {
-	console.log(paginatedProposals.value);
-	console.log(paginatedProposals.value.length);
-});
 </script>
 
 <template>
@@ -66,9 +59,10 @@ watch(paginatedProposals, () => {
 					</div>
 				</template>
 				<p
+                    v-if="vontest.description"
 					class="text-gray-400 markdown-body ql-editor"
-					v-html="vontest.description"
-				></p>
+					:v-html="DOMPurify.sanitize(vontest.description)"
+				/>
 				<template #footer>
 					<div class="flex justify-between items-center gap-2">
 						<small class="text-gray-500"
@@ -92,7 +86,12 @@ watch(paginatedProposals, () => {
 		<section class="p-6 max-w-4xl mx-auto text-white">
 			<UiCommentSection v-if="thread" :thread-id="thread?.id" />
 		</section>
-		<section class="p-6 max-w-4xl mx-auto text-white">
+
+		<!-- Proposals -->
+		<section
+			v-if="vontest && vontest.type === 'solution'"
+			class="p-6 max-w-4xl mx-auto text-white"
+		>
 			<div v-if="proposals.length > 0" class="space-y-4">
 				<div class="flex items-center justify-between">
 					<h2 class="text-2xl font-semibold">Browse Proposals</h2>
@@ -155,6 +154,15 @@ watch(paginatedProposals, () => {
 			<div v-else class="text-gray-500 text-center p-4">
 				No proposals yet. Be the first to suggest something.
 			</div>
+		</section>
+		<section
+			v-else-if="vontest?.type === 'choice'"
+			class="p-6 max-w-4xl mx-auto text-white"
+		>
+			<UiMultipleChoiceProposals
+				:proposals="proposals"
+				:vontest-id="vontestId"
+			/>
 		</section>
 	</div>
 </template>

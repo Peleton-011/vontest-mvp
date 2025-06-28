@@ -343,7 +343,7 @@ export const useComments = (threadId: string) => {
 
 	return {
 		comments,
-		form,
+		form: { ...toRefs(form) },
 		loading,
 		error,
 		fetchComments,

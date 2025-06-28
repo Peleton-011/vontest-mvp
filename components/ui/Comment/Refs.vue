@@ -11,7 +11,7 @@ const { refs, direction } = defineProps<{
 }>();
 
 const emit = defineEmits<{
-	(e: "activate-reference", payload: string): void;
+	(e: "activate-reference" | "remove-ref", payload: string): void;
 }>();
 
 const showRefs = ref(false);
@@ -52,16 +52,12 @@ const toggleShowRefs = () => {
 						other comments
 					</button>
 				</small>
-				<ul v-if="showRefs" class="list-disc list-inside text-gray-400">
-					<li v-for="ref in refs" :key="ref.id" class="my-1">
-						<UiCommentRef
-							:reference="ref"
-							@activate-reference="
-								emit('activate-reference', $event)
-							"
-						/>
-					</li>
-				</ul>
+				<UiCommentRefsList
+					v-if="showRefs"
+					:refs="refs"
+					@remove-ref="emit('remove-ref', $event)"
+					@activate-reference="emit('activate-reference', $event)"
+				/>
 			</div>
 		</small>
 	</div>

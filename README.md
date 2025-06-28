@@ -78,4 +78,10 @@ yarn preview
 bun run preview
 ```
 
+Generate types with:
+
+```bash
+npx supabase gen types typescript --project-id "tawensvvfjiaspqzqzqi" --schema public > ./types/supabase.ts
+```
+
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.

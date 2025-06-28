@@ -7,7 +7,7 @@ export default defineNuxtConfig({
 	css: ["~/assets/css/main.css"],
 
 	modules: [
-        '@nuxt/content',
+		"@nuxt/content",
 		"@nuxt/ui",
 		"@nuxt/icon",
 		"@nuxt/fonts",
@@ -28,6 +28,12 @@ export default defineNuxtConfig({
 			rollupOptions: {
 				external: ["#supabase/server"],
 			},
+		},
+	},
+
+	app: {
+		rootAttrs: {
+			"data-vaul-drawer-wrapper": "",
 		},
 	},
 });

@@ -18,18 +18,36 @@ export const useVontests = () => {
 		id: null as string | null,
 		title: "",
 		description: "",
+		proposalPermission: "creator" as "creator" | "all",
+		votingSettings: "",
+	});
+
+	const vontestType = computed({
+		get() {
+			if (form.proposalPermission === "creator") return "choice";
+			if (form.proposalPermission === "all") return "solution";
+			return "";
+		},
+		set(value) {
+			form.proposalPermission = value === "choice" ? "creator" : "all";
+		},
 	});
 
 	const resetForm = () => {
 		form.id = null;
 		form.title = "";
 		form.description = "";
+		form.proposalPermission = "all";
+		form.votingSettings = "";
 	};
 
 	const createVontest = async () => {
+		// console.log(form);
 		const newVontest: VontestInsert = {
 			title: form.title,
 			description: form.description,
+			type: vontestType.value,
+			voting_settings_id: form.votingSettings,
 		};
 
 		const { error, data } = await supabase
@@ -81,28 +99,30 @@ export const useVontests = () => {
 		form.id = vontest.id;
 		form.title = vontest.title ?? "";
 		form.description = vontest.description ?? "";
+		vontestType.value = vontest.type as "choice" | "solution";
+		form.votingSettings = vontest.voting_settings_id ?? "";
 	};
 
-    const fetchVontest = async (vontestId: string) => {
-        const { data } = await supabase
-            .from("vontests")
-            .select("*")
-            .eq("id", vontestId)
-            .single();
-    
-        if (data) return data;
-    };
+	const fetchVontest = async (vontestId: string) => {
+		const { data } = await supabase
+			.from("vontests")
+			.select("*")
+			.eq("id", vontestId)
+			.single();
+
+		if (data) return data;
+	};
 
 	return {
 		vontests: data,
 		loading: pending,
 		error,
 		refresh,
-		form,
+		form: { ...toRefs(form) },
 		createVontest,
 		updateVontest,
 		deleteVontest,
-        fetchVontest,
+		fetchVontest,
 		editVontest,
 		resetForm,
 	};

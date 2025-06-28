@@ -7,10 +7,10 @@ const user = useSupabaseUser();
 const supabase = useSupabaseClient<Database>();
 
 type ProposalSummary = {
-    id: string;
-    title: string | null;
-    description: string | null;
-    score?: number;
+	id: string;
+	title: string | null;
+	description: string | null;
+	score?: number;
 };
 
 export interface VotePayload {
@@ -54,23 +54,31 @@ const submitVotes = async () => {
 
 	loading.value = true;
 
+	if (!user.value) {
+		alert("You must be logged in to submit votes.");
+		console.error("User not logged in");
+		return;
+	}
+
+	const userId = user.value.id;
+
 	const payload: VotePayload[] = Object.entries(votes.value).map(
 		([proposal_id, points]) => ({
 			vontest_id: vontestId,
 			proposal_id,
-			user_id: user.value?.id!,
+			user_id: userId,
 			points,
 		})
 	);
 
-    const { error } = await supabase.from('votes').upsert(payload, {
-    onConflict: 'user_id,proposal_id',
-  })
+	const { error } = await supabase.from("votes").upsert(payload, {
+		onConflict: "user_id,proposal_id",
+	});
 
 	if (error) alert(error.message);
 	else alert("Votes submitted!");
 
-    navigateTo('/vontests/' + vontestId + '/results');
+	navigateTo("/vontests/" + vontestId + "/results");
 
 	loading.value = false;
 };
@@ -102,21 +110,21 @@ onMounted(fetchProposals);
 					>Points: {{ votes[proposal.id] }}</label
 				>
 				<input
+					v-model="votes[proposal.id]"
 					type="range"
 					min="0"
 					:max="totalPoints"
-					v-model="votes[proposal.id]"
 					class="w-full mt-2 accent-primary-500"
-				/>
+				>
 			</template>
 		</UCard>
 
 		<UButton
 			:disabled="remainingPoints !== 0 || loading"
-			@click="submitVotes"
 			:loading="loading"
 			trailing-icon="i-lucide-check-circle"
 			class="font-bold"
+			@click="submitVotes"
 		>
 			Submit Votes
 		</UButton>

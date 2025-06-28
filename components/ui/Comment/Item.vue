@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
-import type { FullCommentNode } from "./CommentSection.vue";
+import DOMPurify from "dompurify";
+import type { FullCommentNode } from "./Section.vue";
 
 const props = defineProps<{
 	node: FullCommentNode;
@@ -9,9 +10,13 @@ const props = defineProps<{
 	newCommentParents: string[];
 	newCommentText: string;
 	editingComment?: string;
+	isAlternate?: boolean;
 }>();
 
 const emit = defineEmits<{
+	(
+		e: "post-comment" | "post-update" | "cancel-update" | "toggle-editor"
+	): void;
 	(
 		e:
 			| "update:comment-text"
@@ -23,7 +28,6 @@ const emit = defineEmits<{
 	): void;
 	(e: "update:comment-parents", parents: string[]): void;
 	(e: "update:show-replies", payload: { id: string; show: boolean }): void;
-	(e: "post-comment" | "post-update" | "cancel-update"): void;
 }>();
 
 const user = useSupabaseUser();
@@ -64,6 +68,12 @@ const renderReplyButtonLabel = () => {
 	return "Stop Replying To";
 };
 
+const handleDeleteRef = (id: string) => {
+	const newCommentParents = props.newCommentParents.filter(
+		(toRemove) => id !== toRemove
+	);
+	emit("update:comment-parents", newCommentParents);
+};
 onMounted(() => {
 	if (typeof props.node.showReplies === "undefined") {
 		// Show replies if comment is less than 5 minutes old
@@ -118,29 +128,30 @@ onMounted(() => {
 					</div>
 				</template>
 
-				<p v-if="!isEditing" class="text-gray-300">
-					{{ node.comment }}
-				</p>
-				<div v-else class="mb-4">
-					<textarea
-						v-model="localCommentText"
-						class="w-full p-2 rounded bg-gray-800"
-						rows="3"
-						placeholder="Write your reply..."
+				<span
+					v-if="!isEditing"
+					ref="text"
+					class="prose dark:prose-inverted markdown-body ql-editor pt-0 text-sm text-gray-400 border-neutral-700"
+					v-html="DOMPurify.sanitize(node.comment)"
+				/>
+
+				<Transition name="fade">
+					<UiEditorGeneral
+						v-if="isEditing"
+						:new-comment-text="localCommentText"
+						:new-comment-parents="newCommentParents"
+						:node-map="nodeMap"
+						@cancel="emit('cancel-update')"
+						@post-comment="emit('post-update')"
+						@update:comment-text="
+							emit('update:comment-text', $event)
+						"
+						@update:comment-parents="
+							emit('update:comment-parents', $event)
+						"
+						@toggle-editor="emit('toggle-editor')"
 					/>
-					<div class="text-right mt-2">
-						<UButton
-							label="Update Comment"
-							:disabled="!localCommentText?.trim()"
-							@click="emit('post-update')"
-						/>
-						<UButton
-							label="Cancel"
-							variant="subtle"
-							@click="emit('cancel-update')"
-						/>
-					</div>
-				</div>
+				</Transition>
 
 				<template #footer>
 					<div class="flex flex-col gap-2">
@@ -149,15 +160,19 @@ onMounted(() => {
 						<UiCommentRefs
 							:refs="
 								node.secondaryParentIds.map((id) => {
-                                    const node = nodeMap.get(id)!;
+									const node = nodeMap.get(id)!;
 									return {
 										id,
 										author: node.author!,
-                                        comment: {text: node.comment, createdAt: node.createdAt}
+										comment: {
+											text: node.comment,
+											createdAt: node.createdAt,
+										},
 									};
 								})
 							"
 							direction="forward"
+							@remove-ref="handleDeleteRef"
 							@activate-reference="
 								emit('activate-reference', $event)
 							"
@@ -193,15 +208,21 @@ onMounted(() => {
 
 						<!-- Secondary children/ Backward refs (“Also referenced by”) -->
 						<UiCommentRefs
-							:refs="node.backChildrenIds.map((id) => {
-                                const node = nodeMap.get(id)!;
+							:refs="
+								node.backChildrenIds.map((id) => {
+									const node = nodeMap.get(id)!;
 									return {
 										id,
 										author: node.author!,
-                                        comment: {text: node.comment, createdAt: node.createdAt}
+										comment: {
+											text: node.comment,
+											createdAt: node.createdAt,
+										},
 									};
-								})"
+								})
+							"
 							direction="backward"
+							@remove-ref="handleDeleteRef"
 							@activate-reference="
 								emit('activate-reference', $event)
 							"
@@ -211,28 +232,26 @@ onMounted(() => {
 				</template>
 			</UCard>
 
-			<div
-				v-if="
-					newCommentParents[0] === node.id &&
-					!isEditing &&
-					!editingComment
-				"
-				class="mb-4"
-			>
-				<textarea
-					v-model="localCommentText"
-					class="w-full p-2 rounded bg-gray-800"
-					rows="3"
-					placeholder="Write your reply..."
+			<Transition name="fade">
+				<UiEditorGeneral
+					v-if="
+						newCommentParents[0] === node.id &&
+						!isEditing &&
+						!editingComment &&
+						!props.isAlternate
+					"
+					:new-comment-text="localCommentText"
+					:new-comment-parents="newCommentParents"
+					:node-map="nodeMap"
+					@cancel="emit('cancel-update')"
+					@post-comment="emit('post-comment')"
+					@update:comment-text="emit('update:comment-text', $event)"
+					@update:comment-parents="
+						emit('update:comment-parents', $event)
+					"
+					@toggle-editor="emit('toggle-editor')"
 				/>
-				<div class="text-right mt-2">
-					<UButton
-						label="Post Comment"
-						:disabled="!localCommentText?.trim()"
-						@click="emit('post-comment')"
-					/>
-				</div>
-			</div>
+			</Transition>
 
 			<!-- Recursive rendering of primary‐nested children -->
 			<Transition name="fade">
@@ -240,7 +259,7 @@ onMounted(() => {
 					v-if="node.children.length && node.showReplies"
 					class="space-y-4 mt-4"
 				>
-					<CommentItem
+					<UiCommentItem
 						v-for="child in node.children"
 						:key="child.id"
 						:node="child"
@@ -249,17 +268,19 @@ onMounted(() => {
 						:new-comment-text="localCommentText"
 						:new-comment-parents="newCommentParents"
 						:editing-comment="editingComment"
+						:is-alternate="isAlternate"
 						@update:comment-text="
-							(payload) => emit('update:comment-text', payload)
+							emit('update:comment-text', $event)
 						"
 						@update:comment-parents="
-							(payload) => emit('update:comment-parents', payload)
+							emit('update:comment-parents', $event)
 						"
 						@post-comment="emit('post-comment')"
 						@delete-comment="emit('delete-comment', $event)"
 						@edit-comment="emit('edit-comment', $event)"
 						@post-update="emit('post-update')"
 						@cancel-update="emit('cancel-update')"
+						@toggle-editor="emit('toggle-editor')"
 						@toggle-replies="emit('toggle-replies', $event)"
 						@update:show-replies="
 							emit('update:show-replies', $event)

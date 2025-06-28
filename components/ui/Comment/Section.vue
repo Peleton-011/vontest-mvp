@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import CommentItem from "~/components/ui/CommentItem.vue";
+import CommentItem from "./Item.vue";
 
 export type FullCommentNode = CommentNode & {
 	showReplies: boolean | undefined;
@@ -23,13 +23,31 @@ const {
 	resetForm,
 } = useComments(props.threadId);
 
+const { settings, fetchSettings } = useUserSettings();
+onMounted(fetchSettings);
+
+const isAdvanced = computed(() => {
+	const defaultValue = settings?.value?.defaultEditor === "advanced";
+	//If the editor opened is the alternate one, the type will be the opposite
+	return isAlternateEditorOpen.value ? !defaultValue : defaultValue;
+});
 const router = useRouter();
 
 const editingComment = ref<string>("");
-const isTopLevelCommentOpen = ref(false);
+const isTopLevelComment = ref(false);
+
+const isAlternateEditorOpen = ref(false);
 
 const commentsTree = ref<FullCommentNode[]>([]);
 const nodeMap = ref<Map<string, FullCommentNode>>(new Map());
+
+const isTopLevelCommentOpen = computed(() => {
+	return (
+		isTopLevelComment.value &&
+		!isAlternateEditorOpen.value &&
+		!form.parentIds.value.length
+	);
+});
 
 // Helper: build a flat map id → CommentNode from the nested tree
 const buildNodeMap = (roots: FullCommentNode[]) => {
@@ -75,7 +93,7 @@ onMounted(loadComments);
 
 // Handler: post a new comment
 const postComment = async () => {
-	if (!form.comment.trim()) return;
+	if (!form.comment.value.trim()) return;
 	try {
 		await submitComment();
 		resetForm();
@@ -119,14 +137,16 @@ const handleCancelUpdate = () => {
 
 // Handler: update a comment
 const handleUpdateComment = async () => {
-	if (!form.id) return;
-	const node = nodeMap.value.get(form.id);
+	if (!form.id.value) return;
+	const node = nodeMap.value.get(form.id.value);
 	if (!node) return;
 
 	const oldParentIds = new Set(node.parentIds);
-	const newParentIds = new Set(form.parentIds);
+	const newParentIds = new Set(form.parentIds.value);
 
-	const replyInserts = form.parentIds.filter((id) => !oldParentIds.has(id));
+	const replyInserts = form.parentIds.value.filter(
+		(id) => !oldParentIds.has(id)
+	);
 	const replyDeletes = node.parentIds.filter((id) => !newParentIds.has(id));
 
 	await Promise.all(replyInserts.map((id) => submitCommentLink(id, node.id)));
@@ -151,7 +171,7 @@ const handleToggleReplies = (commentId: string) => {
 		if (!child) return;
 		child.showReplies = node.showReplies;
 	});
-	console.log(nodeMap);
+	// console.log(nodeMap);
 };
 
 const handleUpdateShowReplies = (payload: { id: string; show: boolean }) => {
@@ -161,7 +181,7 @@ const handleUpdateShowReplies = (payload: { id: string; show: boolean }) => {
 };
 
 const handleActivateReference = (commentId: string) => {
-	console.log("Activating reference:", commentId);
+	// console.log("Activating reference:", commentId);
 	router.push({ hash: `#${commentId}` });
 	const node = nodeMap.value.get(commentId);
 	if (!node) return;
@@ -174,10 +194,10 @@ const handleActivateReference = (commentId: string) => {
 	}
 };
 
-watch(commentsTree, () => {
-	console.log("Comments updated:", commentsTree.value);
-	console.log(buildNodeMap(commentsTree.value));
-});
+// watch(commentsTree, () => {
+// 	console.log("Comments updated:", commentsTree.value);
+// 	console.log(buildNodeMap(commentsTree.value));
+// });
 </script>
 <template>
 	<div>
@@ -187,59 +207,66 @@ watch(commentsTree, () => {
 				label="Join the Discussion"
 				variant="subtle"
 				trailing-icon="i-lucide-chevron-down"
-				@click="isTopLevelCommentOpen = !isTopLevelCommentOpen"
+				@click="isTopLevelComment = !isTopLevelComment"
 			/>
 		</div>
 
 		<!-- New top-level comment box -->
 		<UCollapsible v-model:open="isTopLevelCommentOpen" class="mb-4">
 			<template #content>
-				<div class="mb-4">
-					<textarea
-						v-model="form.comment"
-						class="w-full p-2 rounded bg-gray-800"
-						rows="3"
-						placeholder="Write your reply..."
-					/>
-					<div class="text-right mt-2">
-						<UButton
-							label="Post Comment"
-							:disabled="!form.comment?.trim()"
-							@click="
-								postComment();
-								isTopLevelCommentOpen = false;
-							"
-						/>
-						<UButton
-							label="Cancel"
-							variant="subtle"
-							@click="
-								resetForm();
-								isTopLevelCommentOpen = false;
-							"
-						/>
-					</div>
-				</div>
+				<UiEditorGeneral
+					:new-comment-text="form.comment.value"
+					:new-comment-parents="form.parentIds.value"
+					:node-map="nodeMap"
+					@cancel="
+						isTopLevelComment = false;
+						resetForm();
+					"
+					@post-comment="
+						isTopLevelComment = false;
+						postComment();
+					"
+					@update:comment-text="form.comment.value = $event"
+					@update:comment-parents="form.parentIds.value = $event"
+					@toggle-editor="
+						isAlternateEditorOpen = !isAlternateEditorOpen
+					"
+				/>
 			</template>
 		</UCollapsible>
 
+        <!-- Alternate comment editor -->
+		<UiEditorDrawer
+			v-model:open="isAlternateEditorOpen"
+			:new-comment-text="form.comment.value"
+			:new-comment-parents="form.parentIds.value"
+			:node-map="nodeMap"
+			:is-advanced="isAdvanced"
+			@update:comment-text="form.comment.value = $event"
+			@update:comment-parents="form.parentIds.value = $event"
+			@post-comment="postComment"
+			@cancel="resetForm"
+		/>
+
 		<!-- Recursive Comments Tree -->
 		<div class="space-y-4">
-			<CommentItem
+			<UiCommentItem
 				v-for="node in commentsTree"
 				:key="node.id"
 				:node="node"
 				:depth="0"
 				:node-map="nodeMap"
-				:new-comment-text="form.comment"
-				:new-comment-parents="form.parentIds"
+				:new-comment-text="form.comment.value"
+				:new-comment-parents="form.parentIds.value"
 				:editing-comment="editingComment"
-				@update:comment-text="form.comment = $event"
-				@update:comment-parents="form.parentIds = $event"
+				:is-alternate="isAlternateEditorOpen"
+				@update:comment-text="form.comment.value = $event"
+				@update:comment-parents="form.parentIds.value = $event"
 				@post-comment="postComment"
 				@delete-comment="handleDeleteComment"
 				@edit-comment="handleEditComment"
 				@post-update="handleUpdateComment"
+				@toggle-editor="isAlternateEditorOpen = !isAlternateEditorOpen"
 				@cancel-update="handleCancelUpdate"
 				@toggle-replies="handleToggleReplies"
 				@update:show-replies="handleUpdateShowReplies"

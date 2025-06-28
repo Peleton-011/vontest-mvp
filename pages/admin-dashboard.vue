@@ -1,12 +1,14 @@
 <script setup lang="ts">
 // Ensure this page is protected
+import type { User } from "@supabase/supabase-js";
+
 definePageMeta({
 	middleware: "admin",
 });
 
 const currentUser = useSupabaseUser();
 const supabase = useSupabaseClient();
-const users = ref<any[]>([]);
+const users = ref<User[]>([]);
 const loading = ref(false);
 const error = ref("");
 
@@ -14,70 +16,26 @@ onMounted(async () => {
 	await fetchUsers();
 });
 
-const upgradeUser = async (role: string) => {
-
-    const user = useSupabaseUser();
-
-	if (!user.value?.id) return;
-
-	try {
-		const response: { body: { data: any } } = await $fetch("/api/admin/promote", {
-			method: "POST",
-			body: {
-				userId: user.value.id,
-				role, // Pass the role (e.g., 'admin') in the body
-			},
-		});
-
-		if ("data" in response.body) {
-			return response.body.data;
-		} else {
-			return response.body;
-		}
-	} catch (err: any) {
-		error.value = err?.message || "Something went wrong";
-	}
-};
-
-const demoteUser = async (userId: string) => {
-  try {
-    const response: { body: { data: any}, error: any } = await $fetch('/api/demote', {
-      method: 'POST',
-      body: { userId },
-    })
-
-    if (response.error) {
-      alert('Failed to demote user: ' + response.error)
-    } else {
-      alert('User demoted successfully')
-      // Optionally, refresh the user list or update the UI
-    }
-  } catch (err: any) {
-    error.value = err?.message || "Something went wrong";
-  }
-}
-
-
 const fetchUsers = async () => {
 	try {
 		const response = await fetch("/api/admin/users");
 		const { body: result } = await response.json();
 		if (response.ok) {
 			// Sort users so the current user is first
-			users.value = result.users.sort((userA: any, userB: any) => {
+			users.value = result.users.sort((userA: User) => {
 				return userA.id === currentUser.value?.id ? -1 : 1;
 			});
 		} else {
 			error.value = result.error;
 		}
 	} catch (err) {
-		error.value = "Failed to fetch users";
+		error.value = "Failed to fetch users: " + err;
 	} finally {
 		loading.value = false;
 	}
 };
 
-const toggleAdminRole = async (user: any) => {
+const toggleAdminRole = async (user: User) => {
 	const newRole = user.app_metadata?.role === "admin" ? "user" : "admin";
 	const { error: updateError } = await supabase.auth.admin.updateUserById(
 		user.id,
@@ -136,9 +94,9 @@ const toggleAdminRole = async (user: any) => {
 								<UButton
 									v-else
 									size="sm"
-									@click="toggleAdminRole(user)"
 									variant="outline"
 									color="primary"
+									@click="toggleAdminRole(user)"
 								>
 									{{
 										user.app_metadata?.role === "admin"
