@@ -168,14 +168,7 @@ const handleUpdateComment = async () => {
 			</template>
 		</UCollapsible>
 
-		<UButton
-			:label="isAlternateEditorOpen ? 'Close Editor' : 'Advanced Editor'"
-			color="neutral"
-			variant="subtle"
-			trailing-icon="i-lucide-chevron-up"
-			@click="isAlternateEditorOpen = !isAlternateEditorOpen"
-		/>
-
+        <!-- Alternate comment editor -->
 		<UiEditorDrawer
 			v-model:open="isAlternateEditorOpen"
 			:new-comment-text="form.comment.value"
