@@ -93,18 +93,21 @@ export type Database = {
           avatar_url: string
           created_at: string | null
           id: string
+          settings: Json | null
           username: string | null
         }
         Insert: {
           avatar_url?: string
           created_at?: string | null
           id: string
+          settings?: Json | null
           username?: string | null
         }
         Update: {
           avatar_url?: string
           created_at?: string | null
           id?: string
+          settings?: Json | null
           username?: string | null
         }
         Relationships: []
@@ -177,7 +180,7 @@ export type Database = {
           id: string
           title: string | null
           type: string
-          voting_settings_id: string | null
+          voting_settings_id: string
         }
         Insert: {
           created_at?: string | null
@@ -186,7 +189,7 @@ export type Database = {
           id?: string
           title?: string | null
           type?: string
-          voting_settings_id?: string | null
+          voting_settings_id: string
         }
         Update: {
           created_at?: string | null
@@ -195,7 +198,7 @@ export type Database = {
           id?: string
           title?: string | null
           type?: string
-          voting_settings_id?: string | null
+          voting_settings_id?: string
         }
         Relationships: [
           {
@@ -265,6 +268,7 @@ export type Database = {
           allow_revoting: boolean
           anonymous: boolean
           created_at: string
+          created_by: string
           id: string
           max_votes: number | null
           min_votes: number | null
@@ -279,6 +283,7 @@ export type Database = {
           allow_revoting?: boolean
           anonymous?: boolean
           created_at?: string
+          created_by?: string
           id?: string
           max_votes?: number | null
           min_votes?: number | null
@@ -293,6 +298,7 @@ export type Database = {
           allow_revoting?: boolean
           anonymous?: boolean
           created_at?: string
+          created_by?: string
           id?: string
           max_votes?: number | null
           min_votes?: number | null
@@ -303,7 +309,15 @@ export type Database = {
           voting_start_at?: string | null
           voting_type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "voting_settings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
