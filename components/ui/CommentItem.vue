@@ -112,15 +112,23 @@ const handleDeleteRef = (id: string) => {
 					{{ node.comment }}
 				</p>
 
-                <Transition name="fade">
-                    <UiSimpleEditor
-                        v-if="isEditing"
-                        :new-comment-text="localCommentText"
-                        @cancel="emit('cancel-update')"
-                        @post-comment="emit('post-update')"
-                        @update:comment-text="emit('update:comment-text', $event)"
-                    />
-                </Transition>
+				<Transition name="fade">
+					<UiEditorGeneral
+						v-if="isEditing"
+						:new-comment-text="localCommentText"
+						:new-comment-parents="newCommentParents"
+						:node-map="nodeMap"
+						:is-advanced="isAdvanced"
+						@cancel="emit('cancel-update')"
+						@post-comment="emit('post-update')"
+						@update:comment-text="
+							emit('update:comment-text', $event)
+						"
+						@update:comment-parents="
+							emit('update:comment-parents', $event)
+						"
+					/>
+				</Transition>
 
 				<template #footer>
 					<div class="flex flex-col gap-2">
@@ -192,7 +200,7 @@ const handleDeleteRef = (id: string) => {
 			</UCard>
 
 			<Transition name="fade">
-				<UiSimpleEditor
+				<UiEditorGeneral
 					v-if="
 						newCommentParents[0] === node.id &&
 						!isEditing &&
@@ -200,11 +208,16 @@ const handleDeleteRef = (id: string) => {
 						!props.isAdvanced
 					"
 					:new-comment-text="localCommentText"
+					:new-comment-parents="newCommentParents"
+					:node-map="nodeMap"
+					:is-advanced="isAdvanced"
 					@cancel="emit('cancel-update')"
 					@post-comment="emit('post-comment')"
 					@update:comment-text="emit('update:comment-text', $event)"
-				>
-				</UiSimpleEditor>
+					@update:comment-parents="
+						emit('update:comment-parents', $event)
+					"
+				/>
 			</Transition>
 
 			<!-- Recursive rendering of primary‐nested children -->
