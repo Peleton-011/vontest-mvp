@@ -15,7 +15,9 @@ const { settings, fetchSettings } = useUserSettings();
 onMounted(fetchSettings);
 
 const isAdvanced = computed(() => {
-	return settings?.value?.defaultEditor === "advanced" && !props.isAlternate;
+	const defaultValue = settings?.value?.defaultEditor === "advanced";
+	//If the editor opened is the alternate one, the type will be the opposite
+	return props.isAlternate ? !defaultValue : defaultValue;
 });
 
 const emit = defineEmits<{
