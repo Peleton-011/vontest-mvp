@@ -32,7 +32,7 @@ const handleDeleteRef = (id: string) => {
 </script>
 <template>
 	<div class="flex flex-col p-4">
-		<div v-if="parentRefs.length" class="flex align-center mb-2">
+		<div v-if="parentRefs.length" class="flex align-center mb-2 gap-2">
 			<h2
 				class="text-lg font-semibold mb-0 leading-none flex items-center"
 			>

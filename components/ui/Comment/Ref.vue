@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import type { Ref } from "./Refs.vue";
-const { reference } = defineProps<{
+const { reference, short } = defineProps<{
 	reference: Ref;
+    short?: boolean
 }>();
 
 const emit = defineEmits<{
@@ -18,7 +19,7 @@ const { author, comment } = reference;
 			class="underline !hover:text-gray-200 inline-block align-middle cursor-pointer"
 			@click="emit('activate-reference', reference.id)"
 		>
-			<UiUserTag :author="reference.author" />
+			<UiUserTag :author="short ? {...author, username: ''} : author" />
 		</UButton>
 
 		<template #content>

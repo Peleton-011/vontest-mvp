@@ -23,20 +23,34 @@ const toggleShowRefs = () => {
 <template>
 	<div v-if="refs.length">
 		<small class="flex text-sm text-gray-400 gap-2">
-			<div v-if="refs.length < 3" class="flex gap-2 items-center">
+			<div
+				v-if="
+					(refs.length < 4 && direction !== 'editor') ||
+					refs.length < 6
+				"
+				class="flex gap-2 items-center"
+			>
 				{{
 					direction === "forward"
-						? "Also replies to:" : direction === "backward" ? "Also referenced by:" : ""
+						? "Also replies to:"
+						: direction === "backward"
+							? "Also referenced by:"
+							: ""
 				}}
 				<span v-for="(ref, idx) in refs" :key="ref.id" class="flex">
 					<UiCommentRef
 						:reference="ref"
+						:short="direction === 'editor'"
 						@activate-reference="emit('activate-reference', $event)"
 					/>
-					<span v-if="idx < refs.length - 1" class="flex items-center">, </span>
+					<span
+						v-if="idx < refs.length - 1"
+						class="flex items-center -mx-2"
+						>,
+					</span>
 				</span>
 			</div>
-			<div v-else>
+			<div v-else-if="direction !== 'editor'">
 				<small class="text-sm text-gray-400">
 					<button
 						class="underline cursor-pointer"
@@ -57,6 +71,29 @@ const toggleShowRefs = () => {
 					@remove-ref="emit('remove-ref', $event)"
 					@activate-reference="emit('activate-reference', $event)"
 				/>
+			</div>
+			<div v-else class="flex gap-2 items-center">
+                <span v-for="(ref, idx) in refs.slice(0, 5)" :key="ref.id" class="flex">
+					<UiCommentRef
+						:reference="ref"
+						:short="direction === 'editor'"
+						@activate-reference="emit('activate-reference', $event)"
+					/>
+					<span
+						v-if="idx < refs.length - 1"
+						class="flex items-center -mx-2"
+						>,
+					</span>
+				</span>
+				<UiCommentRefsDropdown
+					:refs="refs"
+					@remove-ref="emit('remove-ref', $event)"
+					@activate-reference="emit('activate-reference', $event)"
+				>
+					<button class="underline cursor-pointer ml-4 ">
+						And {{ refs.length - 5 }} more . . . 
+					</button>
+				</UiCommentRefsDropdown>
 			</div>
 		</small>
 	</div>

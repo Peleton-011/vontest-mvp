@@ -35,7 +35,6 @@ li::before {
 	content: "•";
 	position: absolute;
     display: inline-block;
-    height: 100%;
 	left: 0;
 	color: #9ca3af; /* Tailwind gray-400 */
 }
