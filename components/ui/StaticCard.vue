@@ -34,7 +34,7 @@ onMounted(() => {
 					<span
 						ref="text"
 						class="prose dark:prose-inverted markdown-body ql-editor pt-0 text-sm text-gray-400 border-neutral-700"
-						:v-html="DOMPurify.sanitize(description)"
+						v-html="DOMPurify.sanitize(description)"
 					/>
 				</div>
 			</div>
