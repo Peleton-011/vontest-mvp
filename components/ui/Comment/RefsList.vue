@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { Ref } from "./Comment/CommentRefs.vue";
+import type { Ref } from "./Refs.vue";
 
 const props = defineProps<{
 	refs: Ref[];
