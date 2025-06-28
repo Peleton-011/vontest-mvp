@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CommentNode } from "~/composables/useComments";
 import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
+import DOMPurify from "dompurify";
 
 const props = defineProps<{
 	node: CommentNode;
@@ -110,9 +111,12 @@ const handleDeleteRef = (id: string) => {
 					</div>
 				</template>
 
-				<p v-if="!isEditing" class="text-gray-300">
-					{{ node.comment }}
-				</p>
+				<span
+					v-if="!isEditing"
+					ref="text"
+					class="prose dark:prose-inverted markdown-body ql-editor pt-0 text-sm text-gray-400 border-neutral-700"
+					v-html="DOMPurify.sanitize(node.comment)"
+				/>
 
 				<Transition name="fade">
 					<UiEditorGeneral
