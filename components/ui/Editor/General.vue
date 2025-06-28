@@ -29,7 +29,7 @@ const localCommentText = computed<string>({
 </script>
 <template>
 	<div>
-		<UiAdvancedEditor
+		<UiEditorAdvanced
 			v-if="isAdvanced"
 			:new-comment-text="localCommentText"
 			:new-comment-parents="newCommentParents"
@@ -51,7 +51,7 @@ const localCommentText = computed<string>({
 			@update:comment-text="localCommentText = $event"
 			@update:comment-parents="emit('update:comment-parents', $event)"
 		/>
-		<UiSimpleEditor
+		<UiEditorSimple
 			v-else
 			:new-comment-text="localCommentText"
 			@cancel="emit('cancel')"
