@@ -289,7 +289,7 @@ onMounted(() => {
 					/>
 				</div>
 			</Transition>
-			<div v-if="!node.showReplies" class="text-2xl">· · ·</div>
+			<div v-if="node.children.length && !node.showReplies" class="text-2xl">· · ·</div>
 		</div>
 	</div>
 </template>
