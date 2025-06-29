@@ -215,7 +215,7 @@ const handleActivateReference = (commentId: string) => {
 		<UCollapsible v-model:open="isTopLevelCommentOpen" class="mb-4">
 			<template #content>
 				<UiEditorGeneral
-					:new-comment-text="form.comment.value"
+					v-model:new-comment-text="form.comment.value"
 					:new-comment-parents="form.parentIds.value"
 					:node-map="nodeMap"
 					@cancel="
@@ -226,7 +226,6 @@ const handleActivateReference = (commentId: string) => {
 						isTopLevelComment = false;
 						postComment();
 					"
-					@update:comment-text="form.comment.value = $event"
 					@update:comment-parents="form.parentIds.value = $event"
 					@toggle-editor="
 						isAlternateEditorOpen = !isAlternateEditorOpen
@@ -238,11 +237,10 @@ const handleActivateReference = (commentId: string) => {
         <!-- Alternate comment editor -->
 		<UiEditorDrawer
 			v-model:open="isAlternateEditorOpen"
-			:new-comment-text="form.comment.value"
+			v-model:new-comment-text="form.comment.value"
 			:new-comment-parents="form.parentIds.value"
 			:node-map="nodeMap"
 			:is-advanced="isAdvanced"
-			@update:comment-text="form.comment.value = $event"
 			@update:comment-parents="form.parentIds.value = $event"
 			@post-comment="postComment"
 			@cancel="resetForm"
@@ -256,11 +254,10 @@ const handleActivateReference = (commentId: string) => {
 				:node="node"
 				:depth="0"
 				:node-map="nodeMap"
-				:new-comment-text="form.comment.value"
+				v-model:new-comment-text="form.comment.value"
 				:new-comment-parents="form.parentIds.value"
 				:editing-comment="editingComment"
 				:is-alternate="isAlternateEditorOpen"
-				@update:comment-text="form.comment.value = $event"
 				@update:comment-parents="form.parentIds.value = $event"
 				@post-comment="postComment"
 				@delete-comment="handleDeleteComment"

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 const props = withDefaults(
 	defineProps<{
-		newCommentText: string;
 		newCommentParents: string[];
 		nodeMap: Map<string, CommentNode>;
 		isAlternate?: boolean;
@@ -21,26 +20,21 @@ const isAdvanced = computed(() => {
 });
 
 const emit = defineEmits<{
-	(e: "update:comment-text" | "activate-reference", payload: string): void;
+	(e:  "activate-reference", payload: string): void;
 	(e: "update:comment-parents", parents: string[]): void;
 	(e: "post-comment" | "cancel" | "toggle-editor"): void;
 }>();
 
-// Computed getter/setter for this node’s comment text
-const localCommentText = computed<string>({
-	get: () => {
-		return props.newCommentText || "";
-	},
-	set: (val: string) => {
-		emit("update:comment-text", val);
-	},
+const localCommentText = defineModel("newCommentText", {
+	type: String,
+	required: true,
 });
 </script>
 <template>
 	<div>
 		<UiEditorAdvanced
 			v-if="isAdvanced"
-			:new-comment-text="localCommentText"
+			v-model:new-comment-text="localCommentText"
 			:new-comment-parents="props.newCommentParents"
 			:parent-refs="
 				props.newCommentParents.map((id) => {
@@ -57,14 +51,13 @@ const localCommentText = computed<string>({
 			"
 			@cancel="emit('cancel')"
 			@post-comment="emit('post-comment')"
-			@update:comment-text="localCommentText = $event"
 			@update:comment-parents="emit('update:comment-parents', $event)"
 			@toggle-editor="emit('toggle-editor')"
             @activate-reference="emit('activate-reference', $event)"
 		/>
 		<UiEditorSimple
 			v-else
-			:new-comment-text="localCommentText"
+			v-model:new-comment-text="localCommentText"
 			:new-comment-parents="props.newCommentParents"
 			:parent-refs="
 				props.newCommentParents.map((id) => {
@@ -81,7 +74,6 @@ const localCommentText = computed<string>({
 			"
 			@cancel="emit('cancel')"
 			@post-comment="emit('post-comment')"
-			@update:comment-text="localCommentText = $event"
 			@update:comment-parents="emit('update:comment-parents', $event)"
 			@toggle-editor="emit('toggle-editor')"
             @activate-reference="emit('activate-reference', $event)"

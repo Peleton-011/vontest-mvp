@@ -1,23 +1,18 @@
 <script lang="ts" setup>
 import type { Ref } from "../Comment/Refs.vue";
 const props = defineProps<{
-	newCommentText: string;
+
 	newCommentParents: string[];
 	parentRefs: Ref[];
 }>();
 
-// Computed getter/setter for this node’s comment text
-const localCommentText = computed<string>({
-	get: () => {
-		return props.newCommentText || "";
-	},
-	set: (val: string) => {
-		emit("update:comment-text", val);
-	},
+const localCommentText = defineModel("newCommentText", {
+	type: String,
+	required: true,
 });
 
 const emit = defineEmits<{
-	(e: "update:comment-text" | "activate-reference", payload: string): void;
+	(e:  "activate-reference", payload: string): void;
 	(e: "update:comment-parents", parents: string[]): void;
 	(e: "post-comment" | "cancel" | "toggle-editor"): void;
 }>();

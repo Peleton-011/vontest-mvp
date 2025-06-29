@@ -8,7 +8,6 @@ const props = defineProps<{
 	depth?: number;
 	nodeMap: Map<string, FullCommentNode>;
 	newCommentParents: string[];
-	newCommentText: string;
 	editingComment?: string;
 	isAlternate?: boolean;
 }>();
@@ -19,7 +18,6 @@ const emit = defineEmits<{
 	): void;
 	(
 		e:
-			| "update:comment-text"
 			| "delete-comment"
 			| "edit-comment"
 			| "toggle-replies"
@@ -34,14 +32,9 @@ const user = useSupabaseUser();
 
 const isEditing = computed(() => props.editingComment === props.node.id);
 
-// Computed getter/setter for this node’s comment text
-const localCommentText = computed<string>({
-	get: () => {
-		return props.newCommentText || "";
-	},
-	set: (val: string) => {
-		emit("update:comment-text", val);
-	},
+const localCommentText = defineModel("newCommentText", {
+	type: String,
+	required: true,
 });
 
 const invertedShowReplies = computed({
@@ -159,14 +152,11 @@ onMounted(() => {
 				<Transition name="fade">
 					<UiEditorGeneral
 						v-if="isEditing"
-						:new-comment-text="localCommentText"
+						v-model:new-comment-text="localCommentText"
 						:new-comment-parents="newCommentParents"
 						:node-map="nodeMap"
 						@cancel="emit('cancel-update')"
 						@post-comment="emit('post-update')"
-						@update:comment-text="
-							emit('update:comment-text', $event)
-						"
 						@update:comment-parents="
 							emit('update:comment-parents', $event)
 						"
@@ -252,14 +242,11 @@ onMounted(() => {
 			<UCollapsible v-model:open="isDefaultReplyEditorOpen">
 				<template #content>
 					<UiEditorGeneral
-						:new-comment-text="localCommentText"
+						v-model:new-comment-text="localCommentText"
 						:new-comment-parents="newCommentParents"
 						:node-map="nodeMap"
 						@cancel="emit('cancel-update')"
 						@post-comment="emit('post-comment')"
-						@update:comment-text="
-							emit('update:comment-text', $event)
-						"
 						@update:comment-parents="
 							emit('update:comment-parents', $event)
 						"
@@ -282,13 +269,10 @@ onMounted(() => {
 						:node="child"
 						:depth="(depth || 0) + 1"
 						:node-map="nodeMap"
-						:new-comment-text="localCommentText"
+						v-model:new-comment-text="localCommentText"
 						:new-comment-parents="newCommentParents"
 						:editing-comment="editingComment"
 						:is-alternate="isAlternate"
-						@update:comment-text="
-							emit('update:comment-text', $event)
-						"
 						@update:comment-parents="
 							emit('update:comment-parents', $event)
 						"
