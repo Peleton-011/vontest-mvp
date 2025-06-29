@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 const props = withDefaults(
 	defineProps<{
-		newCommentParents: string[];
 		nodeMap: Map<string, CommentNode>;
 		isAlternate?: boolean;
 	}>(),
@@ -9,6 +8,16 @@ const props = withDefaults(
 		isAlternate: false,
 	}
 );
+
+const localCommentText = defineModel("newCommentText", {
+	type: String,
+	required: true,
+});
+
+const localCommentParents = defineModel("newCommentParents", {
+    type: Array<string>,
+    required: true,
+});
 
 const { settings, fetchSettings } = useUserSettings();
 onMounted(fetchSettings);
@@ -21,23 +30,19 @@ const isAdvanced = computed(() => {
 
 const emit = defineEmits<{
 	(e:  "activate-reference", payload: string): void;
-	(e: "update:comment-parents", parents: string[]): void;
 	(e: "post-comment" | "cancel" | "toggle-editor"): void;
 }>();
 
-const localCommentText = defineModel("newCommentText", {
-	type: String,
-	required: true,
-});
+
 </script>
 <template>
 	<div>
 		<UiEditorAdvanced
 			v-if="isAdvanced"
 			v-model:new-comment-text="localCommentText"
-			:new-comment-parents="props.newCommentParents"
+			v-model:new-comment-parents="localCommentParents"
 			:parent-refs="
-				props.newCommentParents.map((id) => {
+				localCommentParents.map((id) => {
 					const node = props.nodeMap.get(id)!;
 					return {
 						id,
@@ -51,16 +56,15 @@ const localCommentText = defineModel("newCommentText", {
 			"
 			@cancel="emit('cancel')"
 			@post-comment="emit('post-comment')"
-			@update:comment-parents="emit('update:comment-parents', $event)"
 			@toggle-editor="emit('toggle-editor')"
             @activate-reference="emit('activate-reference', $event)"
 		/>
 		<UiEditorSimple
 			v-else
 			v-model:new-comment-text="localCommentText"
-			:new-comment-parents="props.newCommentParents"
+			v-model:new-comment-parents="localCommentParents"
 			:parent-refs="
-				props.newCommentParents.map((id) => {
+				localCommentParents.map((id) => {
 					const node = props.nodeMap.get(id)!;
 					return {
 						id,
@@ -74,7 +78,6 @@ const localCommentText = defineModel("newCommentText", {
 			"
 			@cancel="emit('cancel')"
 			@post-comment="emit('post-comment')"
-			@update:comment-parents="emit('update:comment-parents', $event)"
 			@toggle-editor="emit('toggle-editor')"
             @activate-reference="emit('activate-reference', $event)"
 		/>

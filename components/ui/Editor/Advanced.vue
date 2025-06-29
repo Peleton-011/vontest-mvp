@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { Ref } from "../Comment/Refs.vue";
 const props = defineProps<{
-
-	newCommentParents: string[];
 	parentRefs: Ref[];
 }>();
 
@@ -11,17 +9,20 @@ const localCommentText = defineModel("newCommentText", {
 	required: true,
 });
 
+const localCommentParents = defineModel("newCommentParents", {
+    type: Array<string>,
+    required: true,
+});
+
 const emit = defineEmits<{
 	(e:  "activate-reference", payload: string): void;
-	(e: "update:comment-parents", parents: string[]): void;
 	(e: "post-comment" | "cancel" | "toggle-editor"): void;
 }>();
 
 const handleDeleteRef = (id: string) => {
-	const newCommentParents = props.newCommentParents.filter(
+	localCommentParents.value = localCommentParents.value.filter(
 		(toRemove) => id !== toRemove
 	);
-	emit("update:comment-parents", newCommentParents);
 };
 </script>
 <template>

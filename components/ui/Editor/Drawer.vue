@@ -1,12 +1,16 @@
 <script lang="ts" setup>
 const props = defineProps<{
-	newCommentParents: string[];
 	nodeMap: Map<string, CommentNode>;
 }>();
 
 const localCommentText = defineModel("newCommentText", {
 	type: String,
 	required: true,
+});
+
+const localCommentParents = defineModel("newCommentParents", {
+    type: Array<string>,
+    required: true,
 });
 
 const emit = defineEmits<{
@@ -47,12 +51,11 @@ watch(open, () => {
 		<template #content>
 			<UiEditorGeneral
 				v-model:new-comment-text="localCommentText"
-				:new-comment-parents="props.newCommentParents"
+				v-model:new-comment-parents="localCommentParents"
 				:node-map="props.nodeMap"
 				:is-alternate="true"
 				@cancel="handleCancel"
 				@post-comment="handlePostComment"
-				@update:comment-parents="emit('update:comment-parents', $event)"
 			/>
 		</template>
 	</UDrawer>

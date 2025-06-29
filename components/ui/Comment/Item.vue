@@ -7,14 +7,28 @@ const props = defineProps<{
 	node: FullCommentNode;
 	depth?: number;
 	nodeMap: Map<string, FullCommentNode>;
-	newCommentParents: string[];
 	editingComment?: string;
-	isAlternate?: boolean;
 }>();
+
+const localCommentText = defineModel("newCommentText", {
+	type: String,
+	required: true,
+});
+
+const localCommentParents = defineModel("newCommentParents", {
+	type: Array<string>,
+	required: true,
+});
+
+const isAlternate = defineModel("isAlternate", {
+	type: Boolean,
+	required: true,
+	default: false,
+});
 
 const emit = defineEmits<{
 	(
-		e: "post-comment" | "post-update" | "cancel-update" | "toggle-editor"
+		e: "post-comment" | "post-update" | "cancel-update" 
 	): void;
 	(
 		e:
@@ -24,18 +38,12 @@ const emit = defineEmits<{
 			| "activate-reference",
 		payload: string
 	): void;
-	(e: "update:comment-parents", parents: string[]): void;
 	(e: "update:show-replies", payload: { id: string; show: boolean }): void;
 }>();
 
 const user = useSupabaseUser();
 
 const isEditing = computed(() => props.editingComment === props.node.id);
-
-const localCommentText = defineModel("newCommentText", {
-	type: String,
-	required: true,
-});
 
 const invertedShowReplies = computed({
 	get: () => !props.node.showReplies,
@@ -47,9 +55,9 @@ const invertedShowReplies = computed({
 const isDefaultReplyEditorOpen = computed({
 	get: () => {
 		return (
-			props.newCommentParents[0] === props.node.id &&
+			localCommentParents.value[0] === props.node.id &&
 			!props.editingComment &&
-			!props.isAlternate
+			!isAlternate
 		);
 	},
 	set: (val: boolean) => {
@@ -59,33 +67,33 @@ const isDefaultReplyEditorOpen = computed({
 
 const handleReplyButtonClick = () => {
 	if (
-		!props.newCommentParents.length ||
-		!props.newCommentParents.includes(props.node.id)
+		!localCommentParents.value.length ||
+		!localCommentParents.value.includes(props.node.id)
 	) {
-		const newCommentParents = [...props.newCommentParents];
-		newCommentParents.push(props.node.id);
-		emit("update:comment-parents", newCommentParents);
+		localCommentParents.value.push(props.node.id);
 	} else {
-		const newCommentParents = props.newCommentParents.filter(
+		localCommentParents.value = localCommentParents.value.filter(
 			(id) => id !== props.node.id
 		);
-		emit("update:comment-parents", newCommentParents);
 	}
 };
 
+const handleToggleEditor = () => {
+	isAlternate.value = !isAlternate.value;
+};
+
 const renderReplyButtonLabel = () => {
-	if (!props.newCommentParents.length) return "Reply";
-	if (!props.newCommentParents.includes(props.node.id))
+	if (!localCommentParents.value.length) return "Reply";
+	if (!localCommentParents.value.includes(props.node.id))
 		return "Also Reply To";
-	if (props.newCommentParents[0] === props.node.id) return "Cancel";
+	if (localCommentParents.value[0] === props.node.id) return "Cancel";
 	return "Stop Replying To";
 };
 
 const handleDeleteRef = (id: string) => {
-	const newCommentParents = props.newCommentParents.filter(
+	localCommentParents.value = localCommentParents.value.filter(
 		(toRemove) => id !== toRemove
 	);
-	emit("update:comment-parents", newCommentParents);
 };
 
 onMounted(() => {
@@ -115,7 +123,7 @@ onMounted(() => {
 		<div :id="node.id" class="flex-1 space-y-2">
 			<UCard
 				:class="
-					props.newCommentParents.includes(props.node.id)
+					localCommentParents.includes(props.node.id)
 						? '!bg-neutral-700'
 						: ''
 				"
@@ -153,14 +161,11 @@ onMounted(() => {
 					<UiEditorGeneral
 						v-if="isEditing"
 						v-model:new-comment-text="localCommentText"
-						:new-comment-parents="newCommentParents"
+						v-model:new-comment-parents="newCommentParents"
 						:node-map="nodeMap"
 						@cancel="emit('cancel-update')"
 						@post-comment="emit('post-update')"
-						@update:comment-parents="
-							emit('update:comment-parents', $event)
-						"
-						@toggle-editor="emit('toggle-editor')"
+						@toggle-editor="handleToggleEditor"
 					/>
 				</Transition>
 
@@ -243,14 +248,11 @@ onMounted(() => {
 				<template #content>
 					<UiEditorGeneral
 						v-model:new-comment-text="localCommentText"
-						:new-comment-parents="newCommentParents"
+						v-model:new-comment-parents="newCommentParents"
 						:node-map="nodeMap"
 						@cancel="emit('cancel-update')"
 						@post-comment="emit('post-comment')"
-						@update:comment-parents="
-							emit('update:comment-parents', $event)
-						"
-						@toggle-editor="emit('toggle-editor')"
+						@toggle-editor="handleToggleEditor"
 						@activate-reference="emit('activate-reference', $event)"
 					/>
 				</template>
@@ -266,22 +268,18 @@ onMounted(() => {
 						v-for="child in node.children"
 						class="space-y-4 mt-4"
 						:key="child.id"
+						v-model:new-comment-text="localCommentText"
+						v-model:new-comment-parents="localCommentParents"
+						v-model:is-alternate="isAlternate"
 						:node="child"
 						:depth="(depth || 0) + 1"
 						:node-map="nodeMap"
-						v-model:new-comment-text="localCommentText"
-						:new-comment-parents="newCommentParents"
 						:editing-comment="editingComment"
-						:is-alternate="isAlternate"
-						@update:comment-parents="
-							emit('update:comment-parents', $event)
-						"
 						@post-comment="emit('post-comment')"
 						@delete-comment="emit('delete-comment', $event)"
 						@edit-comment="emit('edit-comment', $event)"
 						@post-update="emit('post-update')"
 						@cancel-update="emit('cancel-update')"
-						@toggle-editor="emit('toggle-editor')"
 						@toggle-replies="emit('toggle-replies', $event)"
 						@update:show-replies="
 							emit('update:show-replies', $event)
