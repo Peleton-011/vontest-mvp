@@ -288,8 +288,8 @@ onMounted(() => {
 						@activate-reference="emit('activate-reference', $event)"
 					/>
 				</div>
-				<div v-else-if="!node.showReplies" class="text-2xl">· · ·</div>
 			</Transition>
+			<div v-if="!node.showReplies" class="text-2xl">· · ·</div>
 		</div>
 	</div>
 </template>

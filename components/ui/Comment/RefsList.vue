@@ -17,7 +17,7 @@ const emit = defineEmits<{
 			class="my-1 list-disc flex justify-between items-center"
 		>
 			<UiCommentRef
-            class="ml-1"
+            class="ml-3 mr-10"
 				:reference="ref"
 				@activate-reference="emit('activate-reference', $event)"
 			/>

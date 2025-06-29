@@ -18,7 +18,7 @@ const { author, comment } = reference;
 	<UPopover mode="hover">
 		<UButton
 			variant="link"
-			class="underline !hover:text-gray-200 inline-block align-middle cursor-pointer"
+			class="underline !hover:text-gray-200 inline-block align-middle cursor-pointer p-0"
 			@click="emit('activate-reference', reference.id)"
 		>
 			<UiUserTag :author="short ? {...author, username: ''} : author" />

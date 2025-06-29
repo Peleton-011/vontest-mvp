@@ -45,7 +45,7 @@ const toggleShowRefs = () => {
 					/>
 					<span
 						v-if="idx < refs.length - 1"
-						class="flex items-center -mx-2"
+						class="flex items-center ml-1"
 						>,
 					</span>
 				</span>
@@ -61,8 +61,9 @@ const toggleShowRefs = () => {
 								? "Also responding to"
 								: "Also referenced by"
 						}}
-						{{ refs.length }}
-						other comments
+						{{ showRefs ? ":" : refs.length + 
+						" other comments"
+                        }}
 					</button>
 				</small>
 				<UiCommentRefsList
