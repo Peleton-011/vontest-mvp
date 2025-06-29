@@ -44,6 +44,26 @@ const localCommentText = computed<string>({
 	},
 });
 
+const invertedShowReplies = computed({
+	get: () => !props.node.showReplies,
+	set: (val: boolean) => {
+		emit("update:show-replies", { id: props.node.id, show: !val });
+	},
+});
+
+const isDefaultReplyEditorOpen = computed({
+	get: () => {
+		return (
+			props.newCommentParents[0] === props.node.id &&
+			!props.editingComment &&
+			!props.isAlternate
+		);
+	},
+	set: (val: boolean) => {
+		return val;
+	},
+});
+
 const handleReplyButtonClick = () => {
 	if (
 		!props.newCommentParents.length ||
@@ -74,6 +94,7 @@ const handleDeleteRef = (id: string) => {
 	);
 	emit("update:comment-parents", newCommentParents);
 };
+
 onMounted(() => {
 	if (typeof props.node.showReplies === "undefined") {
 		// Show replies if comment is less than 5 minutes old
@@ -217,10 +238,7 @@ onMounted(() => {
 							color="neutral"
 							size="xs"
 							class="text-sm text-gray-400 hover:text-primary-400"
-							@click="
-								emit('toggle-replies', node.id);
-								console.log(node.showReplies);
-							"
+							@click="emit('toggle-replies', node.id)"
 						>
 							{{ node.showReplies ? "Hide" : "Show" }}
 							{{ node.children.length }} repl{{
@@ -231,36 +249,35 @@ onMounted(() => {
 				</template>
 			</UCard>
 
-			<Transition name="fade">
-				<UiEditorGeneral
-					v-if="
-						newCommentParents[0] === node.id &&
-						!isEditing &&
-						!editingComment &&
-						!props.isAlternate
-					"
-					:new-comment-text="localCommentText"
-					:new-comment-parents="newCommentParents"
-					:node-map="nodeMap"
-					@cancel="emit('cancel-update')"
-					@post-comment="emit('post-comment')"
-					@update:comment-text="emit('update:comment-text', $event)"
-					@update:comment-parents="
-						emit('update:comment-parents', $event)
-					"
-					@toggle-editor="emit('toggle-editor')"
-					@activate-reference="emit('activate-reference', $event)"
-				/>
-			</Transition>
+			<UCollapsible v-model:open="isDefaultReplyEditorOpen">
+				<template #content>
+					<UiEditorGeneral
+						:new-comment-text="localCommentText"
+						:new-comment-parents="newCommentParents"
+						:node-map="nodeMap"
+						@cancel="emit('cancel-update')"
+						@post-comment="emit('post-comment')"
+						@update:comment-text="
+							emit('update:comment-text', $event)
+						"
+						@update:comment-parents="
+							emit('update:comment-parents', $event)
+						"
+						@toggle-editor="emit('toggle-editor')"
+						@activate-reference="emit('activate-reference', $event)"
+					/>
+				</template>
+			</UCollapsible>
 
 			<!-- Recursive rendering of primary‐nested children -->
-			<Transition name="fade">
-				<div
-					v-if="node.children.length && node.showReplies"
-					class="space-y-4 mt-4"
-				>
+			<UCollapsible
+				v-if="node.children.length"
+				v-model:open="node.showReplies"
+			>
+				<template #content>
 					<UiCommentItem
 						v-for="child in node.children"
+						class="space-y-4 mt-4"
 						:key="child.id"
 						:node="child"
 						:depth="(depth || 0) + 1"
@@ -287,20 +304,15 @@ onMounted(() => {
 						"
 						@activate-reference="emit('activate-reference', $event)"
 					/>
-				</div>
-			</Transition>
-			<div v-if="node.children.length && !node.showReplies" class="text-2xl">· · ·</div>
+				</template>
+			</UCollapsible>
+			<UCollapsible
+				v-if="node.children.length"
+				v-model:open="invertedShowReplies"
+				class="text-2xl"
+			>
+				<template #content> · · · </template>
+			</UCollapsible>
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-	transition: opacity 0.2s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-	opacity: 0;
-}
-</style>
