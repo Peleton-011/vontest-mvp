@@ -58,8 +58,8 @@ const buildNodeMap = (roots: FullCommentNode[]) => {
 
 		return commentNode;
 	};
-	console.log(roots);
-	console.log(nodeMap.value);
+	// console.log(roots);
+	// console.log(nodeMap.value);
 	roots.forEach((root) => recurse(root));
 };
 
