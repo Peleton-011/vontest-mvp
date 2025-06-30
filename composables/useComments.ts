@@ -52,33 +52,35 @@ export type FullCommentNode = CommentNode & {
 };
 
 const comments = ref<CommentNode[]>([]);
-const nodeMap = ref<Map<string, FullCommentNode>>(new Map());
 const commentsTree = ref<FullCommentNode[]>([]);
-const supabase = useSupabaseClient<Database>();
 const threadId = ref<string>("");
 
 export const useComments = (threadIdArg?: string) => {
+	const supabase = useSupabaseClient<Database>();
 	if (threadIdArg) threadId.value = threadIdArg;
+ 
+    const nodeMap = computed(() => buildNodeMap(commentsTree.value));
 
 	const loading = ref(false);
 	const error = ref<Error | null>(null);
-
+    
 	const form = reactive({
 		id: null as string | null,
 		comment: "",
 		parentIds: [] as string[],
 	});
-
+    
 	// Helper: build a flat map id → CommentNode from the nested tree
 	const buildNodeMap = (roots: FullCommentNode[]) => {
-		nodeMap.value.clear();
+		const nodeMap = new Map<string, FullCommentNode>();
 		const recurse = (commentNode: FullCommentNode) => {
-			commentNode.children = commentNode.children.map(recurse);
-			nodeMap.value.set(commentNode.id, commentNode);
-
+            commentNode.children = commentNode.children.map(recurse);
+			nodeMap.set(commentNode.id, commentNode);
+            
 			return commentNode;
 		};
 		roots.forEach((root) => recurse(root));
+		return nodeMap;
 	};
 
 	const resetForm = () => {
@@ -423,6 +425,6 @@ export const useComments = (threadIdArg?: string) => {
 		buildNodeMap,
 		loadComments,
 		commentsTree,
-        commentIdsToRefs,
+		commentIdsToRefs,
 	};
 };
