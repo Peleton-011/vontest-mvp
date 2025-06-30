@@ -160,7 +160,7 @@ onMounted(() => {
 					<UiEditorGeneral
 						v-if="isEditing"
 						v-model:new-comment-text="localCommentText"
-						v-model:new-comment-parents="newCommentParents"
+						v-model:new-comment-parents="localCommentParents"
 						@cancel="emit('cancel-update')"
 						@post-comment="emit('post-update')"
 						@toggle-editor="handleToggleEditor"
