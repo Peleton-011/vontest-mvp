@@ -56,11 +56,12 @@ const isDefaultReplyEditorOpen = computed({
 		return (
 			localCommentParents.value[0] === props.node.id &&
 			!props.editingComment &&
-			!isAlternate
+			!isAlternate.value
 		);
 	},
 	set: (val: boolean) => {
-		return val;
+		if (val) localCommentParents.value.push(props.node.id);
+		else handleDeleteRef(props.node.id);
 	},
 });
 
@@ -141,7 +142,7 @@ onMounted(() => {
 						<OptionsDropdown
 							v-if="node.author.id === user?.id"
 							@edit="
-								emit('edit-comment', node.id);
+								emit('edit-comment', node.id)
 								// console.log(node);
 							"
 							@delete="emit('delete-comment', node.id)"
