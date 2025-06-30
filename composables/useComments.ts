@@ -46,10 +46,20 @@ export interface CommentNode {
 	backChildrenIds: string[];
 }
 
-export const useComments = (threadId: string) => {
-	const supabase = useSupabaseClient<Database>();
+export type FullCommentNode = CommentNode & {
+	showReplies: boolean | undefined;
+	children: FullCommentNode[];
+};
 
-	const comments = ref<CommentNode[]>([]);
+const comments = ref<CommentNode[]>([]);
+const nodeMap = ref<Map<string, FullCommentNode>>(new Map());
+const commentsTree = ref<FullCommentNode[]>([]);
+const supabase = useSupabaseClient<Database>();
+const threadId = ref<string>("");
+
+export const useComments = (threadIdArg?: string) => {
+	if (threadIdArg) threadId.value = threadIdArg;
+
 	const loading = ref(false);
 	const error = ref<Error | null>(null);
 
@@ -58,6 +68,18 @@ export const useComments = (threadId: string) => {
 		comment: "",
 		parentIds: [] as string[],
 	});
+
+	// Helper: build a flat map id → CommentNode from the nested tree
+	const buildNodeMap = (roots: FullCommentNode[]) => {
+		nodeMap.value.clear();
+		const recurse = (commentNode: FullCommentNode) => {
+			commentNode.children = commentNode.children.map(recurse);
+			nodeMap.value.set(commentNode.id, commentNode);
+
+			return commentNode;
+		};
+		roots.forEach((root) => recurse(root));
+	};
 
 	const resetForm = () => {
 		form.id = null;
@@ -86,7 +108,7 @@ export const useComments = (threadId: string) => {
         )
       `
 			)
-			.eq("thread_id", threadId)
+			.eq("thread_id", threadId.value)
 			.order("created_at", { ascending: true })) as {
 			data: RawComment[];
 			error: PostgrestError | null;
@@ -101,7 +123,7 @@ export const useComments = (threadId: string) => {
 		const { data: rawLinks, error: linksError } = await supabase
 			.from("comment_links")
 			.select("parent_id, child_id")
-			.eq("thread_id", threadId);
+			.eq("thread_id", threadId.value);
 
 		if (linksError) {
 			console.error("Error fetching comment links:", linksError);
@@ -227,6 +249,48 @@ export const useComments = (threadId: string) => {
 		comments.value = roots;
 	};
 
+	// Load comments on mount (and whenever needed)
+	const loadComments = async () => {
+		try {
+			await fetchComments();
+			const oldNodeMap = nodeMap.value;
+
+			const recurse = (commentNode: CommentNode | FullCommentNode) => {
+				const node: FullCommentNode = {
+					...commentNode,
+					showReplies:
+						oldNodeMap.get(commentNode.id)?.showReplies ||
+						undefined,
+					children: [],
+				};
+				node.children = commentNode.children.map(recurse);
+
+				return node;
+			};
+
+			commentsTree.value = comments.value.map(recurse);
+
+			buildNodeMap(commentsTree.value);
+		} catch (e) {
+			console.error("Error loading comments:", e);
+		}
+	};
+
+	// Turn an array of ids into refs
+	const commentIdsToRefs = (ids: string[]) => {
+		return ids.map((id) => {
+			const node = nodeMap.value.get(id)!;
+			return {
+				id,
+				author: node.author!,
+				comment: {
+					text: node.comment,
+					createdAt: node.createdAt,
+				},
+			};
+		});
+	};
+
 	const fetchComment = async (commentId: string) => {
 		return comments.value.filter((comment) => comment.id === commentId);
 	};
@@ -242,7 +306,7 @@ export const useComments = (threadId: string) => {
 			"create-comment-with-links",
 			{
 				body: {
-					thread_id: threadId,
+					thread_id: threadId.value,
 					comment: form.comment,
 					parent_ids: form.parentIds,
 				},
@@ -308,7 +372,7 @@ export const useComments = (threadId: string) => {
 
 	const submitCommentLink = async (parentId: string, childId: string) => {
 		const newLink: CommentLinkInsert = {
-			thread_id: threadId,
+			thread_id: threadId.value,
 			parent_id: parentId,
 			child_id: childId,
 		};
@@ -332,7 +396,7 @@ export const useComments = (threadId: string) => {
 			.delete()
 			.eq("parent_id", parentId)
 			.eq("child_id", childId)
-			.eq("thread_id", threadId);
+			.eq("thread_id", threadId.value);
 
 		if (!deleteError) {
 			await fetchComments();
@@ -355,5 +419,10 @@ export const useComments = (threadId: string) => {
 		submitCommentLink,
 		deleteCommentLink,
 		resetForm,
+		nodeMap,
+		buildNodeMap,
+		loadComments,
+		commentsTree,
+        commentIdsToRefs,
 	};
 };

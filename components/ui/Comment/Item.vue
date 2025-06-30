@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import OptionsDropdown from "~/components/ui/OptionsDropdown.vue";
 import DOMPurify from "dompurify";
-import type { FullCommentNode } from "./Section.vue";
+import type { FullCommentNode } from "~/composables/useComments";
 
 const props = defineProps<{
 	node: FullCommentNode;
 	depth?: number;
-	nodeMap: Map<string, FullCommentNode>;
 	editingComment?: string;
 }>();
 
@@ -27,9 +26,7 @@ const isAlternate = defineModel("isAlternate", {
 });
 
 const emit = defineEmits<{
-	(
-		e: "post-comment" | "post-update" | "cancel-update" 
-	): void;
+	(e: "post-comment" | "post-update" | "cancel-update"): void;
 	(
 		e:
 			| "delete-comment"
@@ -40,6 +37,8 @@ const emit = defineEmits<{
 	): void;
 	(e: "update:show-replies", payload: { id: string; show: boolean }): void;
 }>();
+
+const { commentIdsToRefs } = useComments();
 
 const user = useSupabaseUser();
 
@@ -162,7 +161,6 @@ onMounted(() => {
 						v-if="isEditing"
 						v-model:new-comment-text="localCommentText"
 						v-model:new-comment-parents="newCommentParents"
-						:node-map="nodeMap"
 						@cancel="emit('cancel-update')"
 						@post-comment="emit('post-update')"
 						@toggle-editor="handleToggleEditor"
@@ -184,19 +182,7 @@ onMounted(() => {
 							/>
 						</div>
 						<UiCommentRefs
-							:refs="
-								node.secondaryParentIds.map((id) => {
-									const node = nodeMap.get(id)!;
-									return {
-										id,
-										author: node.author!,
-										comment: {
-											text: node.comment,
-											createdAt: node.createdAt,
-										},
-									};
-								})
-							"
+							:refs="commentIdsToRefs(node.secondaryParentIds)"
 							direction="forward"
 							@remove-ref="handleDeleteRef"
 							@activate-reference="
@@ -206,19 +192,7 @@ onMounted(() => {
 
 						<!-- Secondary children/ Backward refs (“Also referenced by”) -->
 						<UiCommentRefs
-							:refs="
-								node.backChildrenIds.map((id) => {
-									const node = nodeMap.get(id)!;
-									return {
-										id,
-										author: node.author!,
-										comment: {
-											text: node.comment,
-											createdAt: node.createdAt,
-										},
-									};
-								})
-							"
+							:refs="commentIdsToRefs(node.backChildrenIds)"
 							direction="backward"
 							@remove-ref="handleDeleteRef"
 							@activate-reference="
@@ -248,8 +222,7 @@ onMounted(() => {
 				<template #content>
 					<UiEditorGeneral
 						v-model:new-comment-text="localCommentText"
-						v-model:new-comment-parents="newCommentParents"
-						:node-map="nodeMap"
+						v-model:new-comment-parents="localCommentParents"
 						@cancel="emit('cancel-update')"
 						@post-comment="emit('post-comment')"
 						@toggle-editor="handleToggleEditor"
@@ -273,7 +246,6 @@ onMounted(() => {
 						v-model:is-alternate="isAlternate"
 						:node="child"
 						:depth="(depth || 0) + 1"
-						:node-map="nodeMap"
 						:editing-comment="editingComment"
 						@post-comment="emit('post-comment')"
 						@delete-comment="emit('delete-comment', $event)"
