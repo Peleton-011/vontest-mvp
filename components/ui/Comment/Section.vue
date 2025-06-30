@@ -14,9 +14,8 @@ const {
 	deleteCommentLink,
 	form,
 	resetForm,
-    nodeMap,
-    loadComments,
-    commentsTree
+	nodeMap,
+	loadComments,
 } = useComments(props.threadId);
 
 const router = useRouter();
@@ -33,7 +32,6 @@ const isTopLevelCommentOpen = computed(() => {
 		!form.parentIds.value.length
 	);
 });
-
 
 onMounted(loadComments);
 
@@ -139,7 +137,6 @@ const handleActivateReference = (commentId: string) => {
 		parent = nodeMap.value.get(parent.parentIds[0]);
 	}
 };
-
 </script>
 <template>
 	<div>
@@ -175,7 +172,7 @@ const handleActivateReference = (commentId: string) => {
 			</template>
 		</UCollapsible>
 
-        <!-- Alternate comment editor -->
+		<!-- Alternate comment editor -->
 		<UiEditorDrawer
 			v-model:open="isAlternateEditorOpen"
 			v-model:new-comment-text="form.comment.value"
@@ -184,10 +181,12 @@ const handleActivateReference = (commentId: string) => {
 			@cancel="resetForm"
 		/>
 
-		<!-- Recursive Comments Tree -->
+		<!-- Recursive Comments Tree, starting with all the root comments -->
 		<div class="space-y-4">
 			<UiCommentItem
-				v-for="node in commentsTree"
+				v-for="node in Array.from(nodeMap.values()).filter(
+					(node) => !node.parentIds.length
+				)"
 				:key="node.id"
 				v-model:new-comment-text="form.comment.value"
 				v-model:new-comment-parents="form.parentIds.value"

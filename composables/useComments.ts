@@ -1,5 +1,6 @@
 import type { PostgrestError } from "@supabase/supabase-js";
 import type { Database } from "~/types/supabase";
+import { buildCommentTree, flattenCommentNode, buildNodeMap } from "~/utils/commentTreeUtils";
 
 type CommentInsert = Database["public"]["Tables"]["comments"]["Insert"];
 type CommentUpdate = Partial<CommentInsert>;
@@ -7,7 +8,7 @@ type CommentUpdate = Partial<CommentInsert>;
 type CommentLinkInsert =
 	Database["public"]["Tables"]["comment_links"]["Insert"];
 
-interface RawComment {
+export interface RawComment {
 	id: string;
 	comment: string;
 	created_at: string;
@@ -18,7 +19,7 @@ interface RawComment {
 	};
 }
 
-interface CommentLink {
+export interface CommentLink {
 	parent_id: string;
 	child_id: string;
 }
@@ -51,15 +52,18 @@ export type FullCommentNode = CommentNode & {
 	children: FullCommentNode[];
 };
 
+export type FlatCommentNode = FullCommentNode & {
+    children: string[];
+};
+
 const comments = ref<CommentNode[]>([]);
-const nodeMap = ref<Map<string, FullCommentNode>>(new Map());
-const commentsTree = ref<FullCommentNode[]>([]);
-const supabase = useSupabaseClient<Database>();
+const nodeMap = ref<Map<string, FlatCommentNode>>(new Map());
 const threadId = ref<string>("");
 
 export const useComments = (threadIdArg?: string) => {
-	if (threadIdArg) threadId.value = threadIdArg;
-
+    const supabase = useSupabaseClient<Database>();
+    if (threadIdArg) threadId.value = threadIdArg;
+    
 	const loading = ref(false);
 	const error = ref<Error | null>(null);
 
@@ -68,18 +72,6 @@ export const useComments = (threadIdArg?: string) => {
 		comment: "",
 		parentIds: [] as string[],
 	});
-
-	// Helper: build a flat map id → CommentNode from the nested tree
-	const buildNodeMap = (roots: FullCommentNode[]) => {
-		nodeMap.value.clear();
-		const recurse = (commentNode: FullCommentNode) => {
-			commentNode.children = commentNode.children.map(recurse);
-			nodeMap.value.set(commentNode.id, commentNode);
-
-			return commentNode;
-		};
-		roots.forEach((root) => recurse(root));
-	};
 
 	const resetForm = () => {
 		form.id = null;
@@ -130,123 +122,7 @@ export const useComments = (threadIdArg?: string) => {
 			throw linksError;
 		}
 
-		// 3) Build maps for easy lookups
-		const commentMap = new Map<string, RawComment>();
-		rawComments!.forEach((c: RawComment) => commentMap.set(c.id, c));
-
-		// Build a map: commentId → all parentIds
-		const parentsMap = new Map<string, string[]>();
-		rawComments!.forEach((c: RawComment) => parentsMap.set(c.id, []));
-		rawLinks!.forEach((link: CommentLink) => {
-			if (!parentsMap.has(link.child_id)) {
-				parentsMap.set(link.child_id, []);
-			}
-			parentsMap.get(link.child_id)!.push(link.parent_id);
-		});
-
-		// 4) Initialize a node map to build CommentNode objects
-		const nodeMap = new Map<string, CommentNode>();
-
-		// Preliminary pass: create a CommentNode for each raw comment, but don't assign children yet
-		for (const raw of rawComments!) {
-			const parentIds = parentsMap.get(raw.id) || [];
-
-			nodeMap.set(raw.id, {
-				id: raw.id,
-				comment: raw.comment,
-				createdAt: new Date(raw.created_at),
-				author: {
-					id: raw.user_id,
-					username: raw.profiles.username,
-					avatarUrl: raw.profiles.avatar_url,
-				},
-				parentIds,
-				primaryParentId: null,
-				secondaryParentIds: [],
-				children: [],
-				backChildrenCount: 0,
-				backChildrenIds: [],
-			});
-		}
-
-		// 5) Determine primary vs. secondary parents for each node
-		//    Strategy: If a comment has multiple parents, choose as primary the parent
-		//    with the earliest creation date. The rest become secondary.
-		for (const node of nodeMap.values()) {
-			if (node.parentIds.length === 0) {
-				node.primaryParentId = null; // root
-				node.secondaryParentIds = [];
-				continue;
-			}
-
-			// Map parent IDs to their RawComment creation times
-			const parentTuples: Array<{ id: string; createdAt: Date }> =
-				node.parentIds
-					.map((pid) => {
-						const parentRaw = commentMap.get(pid);
-						if (!parentRaw) {
-							// This should not happen if referential integrity holds
-							return null;
-						}
-						return {
-							id: pid,
-							createdAt: new Date(parentRaw.created_at),
-						};
-					})
-					.filter(
-						(x): x is { id: string; createdAt: Date } => x !== null
-					);
-
-			// Sort parents by creation date ascending → earliest first
-			parentTuples.sort(
-				(a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-			);
-
-			// The first in the list is primary; the rest are secondary
-			node.primaryParentId = parentTuples[0].id;
-			node.secondaryParentIds = parentTuples.slice(1).map((t) => t.id);
-		}
-
-		// 6) Build children arrays under the chosen primary parents
-		for (const node of nodeMap.values()) {
-			if (node.primaryParentId) {
-				const parentNode = nodeMap.get(node.primaryParentId);
-				if (parentNode) {
-					parentNode.children.push(node);
-				}
-			}
-		}
-
-		// 7) Compute back‐references: for each node, gather counts of nodes that list
-		//    this node as a secondary parent
-		for (const node of nodeMap.values()) {
-			for (const secId of node.secondaryParentIds) {
-				const secParentNode = nodeMap.get(secId);
-				if (secParentNode) {
-					secParentNode.backChildrenCount += 1;
-					secParentNode.backChildrenIds.push(node.id);
-				}
-			}
-		}
-
-		// 8) Collect only the “root” nodes (those without a primary parent), sorted by creation date
-		const roots = Array.from(nodeMap.values()).filter(
-			(n) => n.primaryParentId === null
-		);
-		roots.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
-
-		// Optionally, sort each subtree’s children recursively by createdAt
-		const sortSubtree = (nodes: CommentNode[]) => {
-			nodes.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
-			nodes.forEach((child) => {
-				if (child.children.length > 0) {
-					sortSubtree(child.children);
-				}
-			});
-		};
-		sortSubtree(roots);
-
-		comments.value = roots;
+		comments.value = buildCommentTree(rawComments!, rawLinks!);
 	};
 
 	// Load comments on mount (and whenever needed)
@@ -268,9 +144,7 @@ export const useComments = (threadIdArg?: string) => {
 				return node;
 			};
 
-			commentsTree.value = comments.value.map(recurse);
-
-			buildNodeMap(commentsTree.value);
+			nodeMap.value = buildNodeMap(comments.value.map(recurse));
 		} catch (e) {
 			console.error("Error loading comments:", e);
 		}
@@ -419,10 +293,9 @@ export const useComments = (threadIdArg?: string) => {
 		submitCommentLink,
 		deleteCommentLink,
 		resetForm,
-		nodeMap,
+		nodeMap: toRef(nodeMap),
 		buildNodeMap,
 		loadComments,
-		commentsTree,
-        commentIdsToRefs,
+		commentIdsToRefs,
 	};
 };

@@ -4,7 +4,7 @@ import DOMPurify from "dompurify";
 import type { FullCommentNode } from "~/composables/useComments";
 
 const props = defineProps<{
-	node: FullCommentNode;
+	node: FlatCommentNode;
 	depth?: number;
 	editingComment?: string;
 }>();
@@ -38,7 +38,7 @@ const emit = defineEmits<{
 	(e: "update:show-replies", payload: { id: string; show: boolean }): void;
 }>();
 
-const { commentIdsToRefs } = useComments();
+const { commentIdsToRefs, nodeMap } = useComments();
 
 const user = useSupabaseUser();
 
@@ -142,7 +142,7 @@ onMounted(() => {
 							v-if="node.author.id === user?.id"
 							@edit="
 								emit('edit-comment', node.id);
-								console.log(node);
+								// console.log(node);
 							"
 							@delete="emit('delete-comment', node.id)"
 						/>
@@ -240,11 +240,11 @@ onMounted(() => {
 					<UiCommentItem
 						v-for="child in node.children"
 						class="space-y-4 mt-4"
-						:key="child.id"
+						:key="child"
 						v-model:new-comment-text="localCommentText"
 						v-model:new-comment-parents="localCommentParents"
 						v-model:is-alternate="isAlternate"
-						:node="child"
+						:node="nodeMap.get(child)!"
 						:depth="(depth || 0) + 1"
 						:editing-comment="editingComment"
 						@post-comment="emit('post-comment')"
