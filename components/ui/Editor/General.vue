@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 const props = withDefaults(
 	defineProps<{
-		nodeMap: Map<string, CommentNode>;
 		isAlternate?: boolean;
 	}>(),
 	{
@@ -41,19 +40,6 @@ const emit = defineEmits<{
 			v-if="isAdvanced"
 			v-model:new-comment-text="localCommentText"
 			v-model:new-comment-parents="localCommentParents"
-			:parent-refs="
-				localCommentParents.map((id) => {
-					const node = props.nodeMap.get(id)!;
-					return {
-						id,
-						author: node.author!,
-						comment: {
-							text: node.comment,
-							createdAt: node.createdAt,
-						},
-					};
-				})
-			"
 			@cancel="emit('cancel')"
 			@post-comment="emit('post-comment')"
 			@toggle-editor="emit('toggle-editor')"
@@ -63,19 +49,6 @@ const emit = defineEmits<{
 			v-else
 			v-model:new-comment-text="localCommentText"
 			v-model:new-comment-parents="localCommentParents"
-			:parent-refs="
-				localCommentParents.map((id) => {
-					const node = props.nodeMap.get(id)!;
-					return {
-						id,
-						author: node.author!,
-						comment: {
-							text: node.comment,
-							createdAt: node.createdAt,
-						},
-					};
-				})
-			"
 			@cancel="emit('cancel')"
 			@post-comment="emit('post-comment')"
 			@toggle-editor="emit('toggle-editor')"

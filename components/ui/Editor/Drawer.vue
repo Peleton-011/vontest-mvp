@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-const props = defineProps<{
-	nodeMap: Map<string, CommentNode>;
-}>();
-
 const localCommentText = defineModel("newCommentText", {
 	type: String,
 	required: true,
@@ -52,7 +48,6 @@ watch(open, () => {
 			<UiEditorGeneral
 				v-model:new-comment-text="localCommentText"
 				v-model:new-comment-parents="localCommentParents"
-				:node-map="props.nodeMap"
 				:is-alternate="true"
 				@cancel="handleCancel"
 				@post-comment="handlePostComment"

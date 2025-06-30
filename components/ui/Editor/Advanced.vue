@@ -1,9 +1,4 @@
 <script lang="ts" setup>
-import type { Ref } from "../Comment/Refs.vue";
-const props = defineProps<{
-	parentRefs: Ref[];
-}>();
-
 const localCommentText = defineModel("newCommentText", {
 	type: String,
 	required: true,
@@ -18,6 +13,12 @@ const emit = defineEmits<{
 	(e:  "activate-reference", payload: string): void;
 	(e: "post-comment" | "cancel" | "toggle-editor"): void;
 }>();
+
+const { commentIdsToRefs } = useComments();
+
+const parentRefs = computed(() => {
+    return commentIdsToRefs(localCommentParents.value);
+});
 
 const handleDeleteRef = (id: string) => {
 	localCommentParents.value = localCommentParents.value.filter(
