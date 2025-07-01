@@ -117,11 +117,52 @@ export const useVoting = () => {
 		return ballotId;
 	};
 
+	const fetchProposalResults = async (vontestId: string) => {
+		// Fetch proposals
+		const { data: proposals, error: proposalsError } = await supabase
+			.from("proposals")
+			.select("id, title, description")
+			.eq("vontest_id", vontestId);
+
+		if (proposalsError) {
+			console.error(proposalsError);
+			return [];
+		}
+
+		// Fetch votes grouped by proposal_id with summed points
+		const { data: aggregated, error: aggError } = await supabase
+			.from("votes")
+			.select("proposal_id, value")
+			.in("proposal_id", proposals.map((p) => p.id)); // get all proposal_ids' votes
+
+		if (aggError) {
+			console.error(aggError);
+			return [];
+		}
+
+		// Calculate totals per proposal_id
+		const totals = new Map<string, number>();
+		aggregated.forEach((v) => {
+			const prev = totals.get(v.proposal_id) || 0;
+			totals.set(v.proposal_id, prev + v.value);
+		});
+
+
+		// Combine with totals
+		return proposals
+			.map((p) => ({
+				...p,
+				score: totals.get(p.id) || 0,
+			}))
+			.sort((a, b) => b.score - a.score);
+	};
+
 	return {
 		form: { ...toRefs(form) },
 		resetForm,
 		fetchBallots,
 		fetchVotes,
 		submitBallot,
+		fetchProposalResults,
 	};
 };
