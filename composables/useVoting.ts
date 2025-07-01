@@ -34,6 +34,39 @@ export const useVoting = (vontestId: string) => {
 		return data as Ballot[];
 	};
 
+	const fetchBallot = async (ballotId: string) => {
+		const { data, error } = await supabase
+			.from("ballots")
+			.select("*")
+			.eq("id", ballotId)
+			.single();
+
+		if (error) {
+			alert(error.message);
+			return null;
+		}
+
+		return data as Ballot;
+	};
+
+	const fetchUserBallot = async () => {
+		if (!user.value) return null;
+
+		const { data, error } = await supabase
+			.from("ballots")
+			.select("*")
+			.eq("user_id", user.value.id)
+			.eq("vontest_id", vontestId)
+			.single();
+
+		if (error) {
+			console.error(error);
+			return null;
+		}
+
+		return data as Ballot;
+	};
+
 	// Fetch votes for a ballot
 	const fetchVotes = async (ballotId: string) => {
 		const { data, error } = await supabase
@@ -131,6 +164,43 @@ export const useVoting = (vontestId: string) => {
 		return ballotId;
 	};
 
+	const updateVotes = async (
+		ballotId: string,
+		votes: { proposalId: string; value: number }[]
+	) => {
+		const updates = votes.map((v) =>
+			supabase
+				.from("votes")
+				.update({ value: v.value })
+				.eq("ballot_id", ballotId)
+				.eq("proposal_id", v.proposalId)
+		);
+
+		const results = await Promise.all(updates);
+		const errors = results.filter((r) => r.error);
+
+		if (errors.length) {
+			alert("Some votes failed to update.");
+			return false;
+		}
+
+		return true;
+	};
+
+	const deleteBallot = async (ballotId: string) => {
+		const { error } = await supabase
+			.from("ballots")
+			.delete()
+			.eq("id", ballotId);
+
+		if (error) {
+			alert(error.message);
+			return false;
+		}
+
+		return true;
+	};
+
 	const submitVote = async (proposalId: string, value: number) => {
 		if (!user.value) {
 			alert("You must be logged in to submit votes.");
@@ -164,6 +234,40 @@ export const useVoting = (vontestId: string) => {
 		}
 
 		return existingVote;
+	};
+
+	const updateVote = async (
+		ballotId: string,
+		proposalId: string,
+		newValue: number
+	) => {
+		const { error } = await supabase
+			.from("votes")
+			.update({ value: newValue })
+			.eq("ballot_id", ballotId)
+			.eq("proposal_id", proposalId);
+
+		if (error) {
+			alert(error.message);
+			return false;
+		}
+
+		return true;
+	};
+
+	const deleteVote = async (ballotId: string, proposalId: string) => {
+		const { error } = await supabase
+			.from("votes")
+			.delete()
+			.eq("ballot_id", ballotId)
+			.eq("proposal_id", proposalId);
+
+		if (error) {
+			alert(error.message);
+			return false;
+		}
+
+		return true;
 	};
 
 	const fetchProposalResults = async (vontestId: string) => {
@@ -216,5 +320,11 @@ export const useVoting = (vontestId: string) => {
 		fetchBallots,
 		submitBallot,
 		fetchProposalResults,
+		deleteBallot,
+		deleteVote,
+		updateVote,
+		updateVotes,
+		fetchBallot,
+		fetchUserBallot,
 	};
 };
