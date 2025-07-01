@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ballots: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+          vontest_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id?: string
+          vontest_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+          vontest_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ballots_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ballots_vontest_id_fkey"
+            columns: ["vontest_id"]
+            isOneToOne: false
+            referencedRelation: "vontests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comment_links: {
         Row: {
           child_id: string
@@ -219,32 +255,26 @@ export type Database = {
       }
       votes: {
         Row: {
-          id: string
-          points: number | null
-          proposal_id: string | null
-          user_id: string | null
-          vontest_id: string | null
+          ballot_id: string
+          proposal_id: string
+          value: number
         }
         Insert: {
-          id?: string
-          points?: number | null
-          proposal_id?: string | null
-          user_id?: string | null
-          vontest_id?: string | null
+          ballot_id: string
+          proposal_id: string
+          value?: number
         }
         Update: {
-          id?: string
-          points?: number | null
-          proposal_id?: string | null
-          user_id?: string | null
-          vontest_id?: string | null
+          ballot_id?: string
+          proposal_id?: string
+          value?: number
         }
         Relationships: [
           {
-            foreignKeyName: "user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "votes_ballot_id_fkey"
+            columns: ["ballot_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "ballots"
             referencedColumns: ["id"]
           },
           {
@@ -252,13 +282,6 @@ export type Database = {
             columns: ["proposal_id"]
             isOneToOne: false
             referencedRelation: "proposals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "votes_vontest_id_fkey"
-            columns: ["vontest_id"]
-            isOneToOne: false
-            referencedRelation: "vontests"
             referencedColumns: ["id"]
           },
         ]
