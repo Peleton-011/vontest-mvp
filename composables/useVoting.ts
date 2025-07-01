@@ -7,6 +7,7 @@ type VoteInsert = Database["public"]["Tables"]["votes"]["Insert"];
 
 export const useVoting = () => {
 	const supabase = useSupabaseClient<Database>();
+	const user = useSupabaseUser();
 
 	// Form state for creating a ballot with votes
 	const form = reactive({
@@ -53,42 +54,67 @@ export const useVoting = () => {
 	// Create ballot + votes atomically
 	const submitBallot = async () => {
 		if (!form.vontestId || form.votes.length === 0) {
-			alert("Please select proposals and assign values before submitting.");
+			alert(
+				"Please select proposals and assign values before submitting."
+			);
 			return;
 		}
 
-		// Start transaction (simulate since Supabase doesn't support multi-table transactions natively)
-		const { data: ballot, error: ballotError } = await supabase
+		if (!user.value) {
+			alert("You must be logged in to submit votes.");
+			return;
+		}
+
+		// Check if ballot exists
+		const { data: existingBallot, error: ballotFetchError } = await supabase
 			.from("ballots")
-			.insert({
-				vontest_id: form.vontestId,
-			} as BallotInsert)
-			.select()
+			.select("*")
+			.eq("user_id", user.value.id)
+			.eq("vontest_id", form.vontestId)
 			.single();
 
-		if (ballotError) {
-			alert(ballotError.message);
-			return;
+		let ballotId = existingBallot?.id;
+
+		// If no existing ballot, create one
+		if (!ballotId) {
+			const { data: newBallot, error: ballotInsertError } = await supabase
+				.from("ballots")
+				.insert({
+					user_id: user.value.id,
+					vontest_id: form.vontestId,
+				})
+				.select()
+				.single();
+
+			if (ballotInsertError) {
+				alert(ballotInsertError.message);
+				return;
+			}
+			ballotId = newBallot.id;
 		}
 
-		const votesToInsert: VoteInsert[] = form.votes.map((v) => ({
-			ballot_id: ballot.id,
+		// Prepare votes insert payload
+		const votesToInsert = form.votes.map((v) => ({
+			ballot_id: ballotId,
 			proposal_id: v.proposalId,
 			value: v.value,
 		}));
 
+		// Upsert votes (insert or update existing)
 		const { error: votesError } = await supabase
 			.from("votes")
-			.insert(votesToInsert);
+			.upsert(votesToInsert, {
+				onConflict: "ballot_id,proposal_id",
+			});
 
 		if (votesError) {
 			alert(votesError.message);
-			// Optionally delete ballot here to revert if votes insertion fails
 			return;
 		}
 
 		resetForm();
-		return ballot;
+		alert("Votes submitted!");
+		return ballotId;
 	};
 
 	return {

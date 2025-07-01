@@ -1,50 +1,30 @@
 <script setup lang="ts">
-import type { PostgrestResponse } from "@supabase/supabase-js";
-import type { Database } from "~/types/supabase";
+import { useVoting } from "~/composables/useVoting";
 
 const route = useRoute();
 const user = useSupabaseUser();
-const supabase = useSupabaseClient<Database>();
+const navigateTo = useRouter().push;
 
-type ProposalSummary = {
-	id: string;
-	title: string | null;
-	description: string | null;
-	score?: number;
-};
-
-export interface VotePayload {
-	vontest_id: string;
-	proposal_id: string;
-	user_id: string;
-	points: number;
-}
+const { form, submitBallot, resetForm } = useVoting();
 
 const vontestId = route.params.id as string;
-const proposals = ref<ProposalSummary[]>([]);
-const votes = ref<Record<string, number>>({});
 const totalPoints = ref(10);
-
 const loading = ref(false);
 
-const fetchProposals = async () => {
-	const { data, error }: PostgrestResponse<ProposalSummary> = await supabase
-		.from("proposals")
-		.select("id, title, description")
-		.eq("vontest_id", vontestId);
-	if (!error) {
-		console.log(data);
-		proposals.value = data;
-		// Init votes with 0
-		data.forEach((p) => (votes.value[p.id] = 0));
-	}
-};
+const { proposals, fetchProposals } = useProposals(vontestId);
 
-const remainingPoints = computed(
-	() =>
+// Initialize form vontestId
+form.vontestId.value = vontestId;
+
+// votesMap for easier UI binding
+const votesMap = ref<Record<string, number>>({});
+
+const remainingPoints = computed(() => {
+	return (
 		totalPoints.value -
-		Object.values(votes.value).reduce((sum, val) => sum + Number(val), 0)
-);
+		Object.values(votesMap.value).reduce((sum, val) => sum + Number(val), 0)
+	);
+});
 
 const submitVotes = async () => {
 	if (remainingPoints.value !== 0) {
@@ -52,38 +32,45 @@ const submitVotes = async () => {
 		return;
 	}
 
-	loading.value = true;
-
 	if (!user.value) {
 		alert("You must be logged in to submit votes.");
-		console.error("User not logged in");
 		return;
 	}
 
-	const userId = user.value.id;
+	loading.value = true;
 
-	const payload: VotePayload[] = Object.entries(votes.value).map(
-		([proposal_id, points]) => ({
-			vontest_id: vontestId,
-			proposal_id,
-			user_id: userId,
-			points,
-		})
-	);
+	// Update form.votes values before submitting
 
-	const { error } = await supabase.from("votes").upsert(payload, {
-		onConflict: "user_id,proposal_id",
-	});
+	for (const [proposal, value] of Object.entries(votesMap.value)) {
+		if (value === 0) {
+			continue;
+		}
 
-	if (error) alert(error.message);
-	else alert("Votes submitted!");
+		form.votes.value.push({
+			proposalId: proposal,
+			value: value,
+		});
+	}
 
-	navigateTo("/vontests/" + vontestId + "/results");
+	const ballot = await submitBallot();
+
+	if (ballot) {
+		alert("Votes submitted!");
+		resetForm();
+		navigateTo("/vontests/" + vontestId + "/results");
+	} else {
+		alert("There was an error submitting your votes.");
+	}
 
 	loading.value = false;
 };
 
-onMounted(fetchProposals);
+onMounted(async () => {
+	await fetchProposals();
+	proposals.value.forEach((proposal) => {
+		votesMap.value[proposal.id] = 0;
+	});
+});
 </script>
 
 <template>
@@ -107,15 +94,15 @@ onMounted(fetchProposals);
 
 			<template #footer>
 				<label class="text-sm text-gray-300"
-					>Points: {{ votes[proposal.id] }}</label
+					>Points: {{ votesMap[proposal.id] }}</label
 				>
 				<input
-					v-model="votes[proposal.id]"
+					v-model="votesMap[proposal.id]"
 					type="range"
 					min="0"
 					:max="totalPoints"
 					class="w-full mt-2 accent-primary-500"
-				>
+				/>
 			</template>
 		</UCard>
 
