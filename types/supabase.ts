@@ -154,7 +154,7 @@ export type Database = {
           created_by: string | null
           description: string | null
           id: string
-          title: string | null
+          title: string
           vontest_id: string | null
         }
         Insert: {
@@ -162,7 +162,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           id?: string
-          title?: string | null
+          title: string
           vontest_id?: string | null
         }
         Update: {
@@ -170,7 +170,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           id?: string
-          title?: string | null
+          title?: string
           vontest_id?: string | null
         }
         Relationships: [
