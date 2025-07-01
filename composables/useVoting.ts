@@ -5,24 +5,22 @@ type BallotInsert = Database["public"]["Tables"]["ballots"]["Insert"];
 type Vote = Database["public"]["Tables"]["votes"]["Row"];
 type VoteInsert = Database["public"]["Tables"]["votes"]["Insert"];
 
-export const useVoting = () => {
+export const useVoting = (vontestId: string) => {
 	const supabase = useSupabaseClient<Database>();
 	const user = useSupabaseUser();
 
 	// Form state for creating a ballot with votes
 	const form = reactive({
-		vontestId: "" as string,
 		votes: [] as { proposalId: string; value: number }[],
 	});
 
 	// Reset form
 	const resetForm = () => {
-		form.vontestId = "";
 		form.votes = [];
 	};
 
 	// Fetch ballots for a vontest
-	const fetchBallots = async (vontestId: string) => {
+	const fetchBallots = async () => {
 		const { data, error } = await supabase
 			.from("ballots")
 			.select("*")
@@ -51,9 +49,46 @@ export const useVoting = () => {
 		return data as Vote[];
 	};
 
+	const getBallotId = async () => {
+		if (!user.value) {
+			alert("You must be logged in to submit votes.");
+			return;
+		}
+
+		// Check if ballot exists
+		const { data: existingBallot, error: ballotFetchError } = await supabase
+			.from("ballots")
+			.select("*")
+			.eq("user_id", user.value.id)
+			.eq("vontest_id", vontestId)
+			.single();
+
+		let ballotId = existingBallot?.id;
+
+		// If no existing ballot, create one
+		if (!ballotId) {
+			const { data: newBallot, error: ballotInsertError } = await supabase
+				.from("ballots")
+				.insert({
+					user_id: user.value.id,
+					vontest_id: vontestId,
+				})
+				.select()
+				.single();
+
+			if (ballotInsertError) {
+				alert(ballotInsertError.message);
+				return;
+			}
+			ballotId = newBallot.id;
+		}
+
+		return ballotId;
+	};
+
 	// Create ballot + votes atomically
 	const submitBallot = async () => {
-		if (!form.vontestId || form.votes.length === 0) {
+		if (!vontestId || form.votes.length === 0) {
 			alert(
 				"Please select proposals and assign values before submitting."
 			);
@@ -65,32 +100,11 @@ export const useVoting = () => {
 			return;
 		}
 
-		// Check if ballot exists
-		const { data: existingBallot, error: ballotFetchError } = await supabase
-			.from("ballots")
-			.select("*")
-			.eq("user_id", user.value.id)
-			.eq("vontest_id", form.vontestId)
-			.single();
+		const ballotId = await getBallotId();
 
-		let ballotId = existingBallot?.id;
-
-		// If no existing ballot, create one
 		if (!ballotId) {
-			const { data: newBallot, error: ballotInsertError } = await supabase
-				.from("ballots")
-				.insert({
-					user_id: user.value.id,
-					vontest_id: form.vontestId,
-				})
-				.select()
-				.single();
-
-			if (ballotInsertError) {
-				alert(ballotInsertError.message);
-				return;
-			}
-			ballotId = newBallot.id;
+			alert("Error creating or fetching ballot.");
+			return;
 		}
 
 		// Prepare votes insert payload
@@ -117,6 +131,41 @@ export const useVoting = () => {
 		return ballotId;
 	};
 
+	const submitVote = async (proposalId: string, value: number) => {
+		if (!user.value) {
+			alert("You must be logged in to submit votes.");
+			return;
+		}
+
+		const ballotId = await getBallotId();
+
+		if (!ballotId) {
+			alert("Error creating or fetching ballot.");
+			return;
+		}
+
+		const { data: existingVote, error: voteFetchError } = await supabase
+			.from("votes")
+			.upsert(
+				{
+					ballot_id: ballotId,
+					proposal_id: proposalId,
+					value: value,
+				},
+				{ onConflict: "ballot_id,proposal_id" }
+			)
+			.select()
+			.single();
+
+		if (voteFetchError) {
+			console.error("Vote submission error:", voteFetchError);
+			alert("Failed to submit vote. Please try again.");
+			return;
+		}
+
+		return existingVote;
+	};
+
 	const fetchProposalResults = async (vontestId: string) => {
 		// Fetch proposals
 		const { data: proposals, error: proposalsError } = await supabase
@@ -133,7 +182,10 @@ export const useVoting = () => {
 		const { data: aggregated, error: aggError } = await supabase
 			.from("votes")
 			.select("proposal_id, value")
-			.in("proposal_id", proposals.map((p) => p.id)); // get all proposal_ids' votes
+			.in(
+				"proposal_id",
+				proposals.map((p) => p.id)
+			); // get all proposal_ids' votes
 
 		if (aggError) {
 			console.error(aggError);
@@ -147,7 +199,6 @@ export const useVoting = () => {
 			totals.set(v.proposal_id, prev + v.value);
 		});
 
-
 		// Combine with totals
 		return proposals
 			.map((p) => ({
@@ -160,8 +211,9 @@ export const useVoting = () => {
 	return {
 		form: { ...toRefs(form) },
 		resetForm,
-		fetchBallots,
 		fetchVotes,
+		submitVote,
+		fetchBallots,
 		submitBallot,
 		fetchProposalResults,
 	};

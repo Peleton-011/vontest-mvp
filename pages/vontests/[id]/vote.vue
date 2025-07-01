@@ -5,16 +5,13 @@ const route = useRoute();
 const user = useSupabaseUser();
 const navigateTo = useRouter().push;
 
-const { form, submitBallot, resetForm } = useVoting();
 
 const vontestId = route.params.id as string;
 const totalPoints = ref(10);
 const loading = ref(false);
 
+const { form, submitBallot, resetForm } = useVoting(vontestId);
 const { proposals, fetchProposals } = useProposals(vontestId);
-
-// Initialize form vontestId
-form.vontestId.value = vontestId;
 
 // votesMap for easier UI binding
 const votesMap = ref<Record<string, number>>({});

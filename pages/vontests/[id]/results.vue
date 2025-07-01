@@ -11,10 +11,11 @@ type Result = {
 }
 
 const route = useRoute();
-const { fetchProposalResults } = useVoting();
 
 const vontestId = route.params.id as string;
 const results = ref<Result[]>([]);
+
+const { fetchProposalResults } = useVoting(vontestId);
 
 const fetchResults = async () => {
 	const proposalResults = await fetchProposalResults(vontestId);
