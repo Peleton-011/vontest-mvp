@@ -155,7 +155,7 @@ const handleActivateReference = (commentId: string) => {
 			<template #content>
 				<UiEditorGeneral
 					v-model:new-comment-text="form.comment.value"
-					:new-comment-parents="form.parentIds.value"
+					v-model:new-comment-parents="form.parentIds.value"
 					@cancel="
 						isTopLevelComment = false;
 						resetForm();
@@ -164,7 +164,6 @@ const handleActivateReference = (commentId: string) => {
 						isTopLevelComment = false;
 						postComment();
 					"
-					@update:comment-parents="form.parentIds.value = $event"
 					@toggle-editor="
 						isAlternateEditorOpen = !isAlternateEditorOpen
 					"
