@@ -32,6 +32,25 @@ export const useVotingSettings = () => {
 		return data;
 	};
 
+    const fetchSettingFromVontestId = async (vontestId: string) => {
+        const { data, error } = (await supabase
+            .from("vontests")
+            .select("voting_settings_id")
+            .eq("id", vontestId)
+            .single()) as {
+            data: { voting_settings_id: string };
+            error: PostgrestError | null;
+        };
+        if (error) {
+            console.error("Error fetching voting settings: ", error);
+            throw error;
+        }
+        const settingsId = data?.voting_settings_id;
+        if (settingsId) {
+            return fetchVotingSetting(settingsId);
+        }
+    }  
+
 	const form = reactive({
 		id: null as string | null,
 		votingType: "single",
@@ -146,6 +165,7 @@ export const useVotingSettings = () => {
 		deleteVotingSetting,
 		editVotingSetting,
 		fetchVotingSetting,
+        fetchSettingFromVontestId,
 		resetForm,
 	};
 };

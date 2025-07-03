@@ -1,17 +1,22 @@
 <script setup lang="ts">
 import { useVoting } from "~/composables/useVoting";
+import type { Database } from "~/types/supabase";
+
+type VotingSettings = Database["public"]["Tables"]["voting_settings"]["Row"];
 
 const route = useRoute();
 const user = useSupabaseUser();
 const navigateTo = useRouter().push;
 
-
 const vontestId = route.params.id as string;
 const totalPoints = ref(10);
 const loading = ref(false);
 
+const settings = ref<VotingSettings | null>(null);
+
 const { form, submitBallot, resetForm } = useVoting(vontestId);
 const { proposals, fetchProposals } = useProposals(vontestId);
+const { fetchSettingFromVontestId } = useVotingSettings();
 
 // votesMap for easier UI binding
 const votesMap = ref<Record<string, number>>({});
@@ -67,7 +72,14 @@ onMounted(async () => {
 	proposals.value.forEach((proposal) => {
 		votesMap.value[proposal.id] = 0;
 	});
+
+	const votingSetting = await fetchSettingFromVontestId(vontestId);
+
+	if (votingSetting) {
+		settings.value = votingSetting;
+	}
 });
+
 </script>
 
 <template>
