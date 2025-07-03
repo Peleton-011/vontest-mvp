@@ -32,7 +32,7 @@ const submit = async () => {
 						>
 						<UInput
 							id="title"
-							v-model="form.title"
+							v-model="form.title.value"
 							required
 							class="w-full"
 						/>
@@ -43,7 +43,7 @@ const submit = async () => {
 						>
 						<UTextarea
 							id="desc"
-							v-model="form.description"
+							v-model="form.description.value"
 							:rows="3"
 							class="w-full"
 						/>
