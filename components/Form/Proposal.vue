@@ -55,7 +55,7 @@ const submit = async () => {
 
 				<UInput
 					id="title"
-					v-model="form.title"
+					v-model="form.title.value"
 					placeholder="I think that this is the best way to..."
 					required
 					class="w-full"
@@ -70,7 +70,7 @@ const submit = async () => {
 				</label>
 				<ClientOnly>
 					<!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
-					<MdEditor v-model="form.description" id="description" />
+					<MdEditor v-model="form.description.value" id="description" />
 				</ClientOnly>
 			</div>
 			<UButton type="submit" :loading="loading" class="font-bold" to="">
