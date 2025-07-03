@@ -197,7 +197,7 @@ export type Database = {
           type: string
         }
         Insert: {
-          id: string
+          id?: string
           reference_id: string
           type: string
         }
