@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { Database } from "~/types/supabase";
+import DOMPurify from "dompurify";
 
 type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 
@@ -27,7 +28,10 @@ const emit = defineEmits<{
 				<div class="text-lg font-semibold">{{ proposal.title }}</div>
 			</template>
 
-			<p class="text-sm text-gray-400">{{ proposal.description }}</p>
+			<p
+				class="text-sm text-gray-400"
+				v-html="DOMPurify.sanitize(proposal.description!)"
+			/>
 
 			<template #footer>
 				<label class="text-sm text-gray-300"
