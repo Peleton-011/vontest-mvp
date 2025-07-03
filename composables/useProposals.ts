@@ -4,9 +4,9 @@ type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 type ProposalInsert = Database["public"]["Tables"]["proposals"]["Insert"];
 type ProposalUpdate = Partial<ProposalInsert>;
 
-const { submitThread } = useThread();
 
 export const useProposals = (vontestId: string) => {
+    const { submitThread } = useThread();
 	const supabase = useSupabaseClient<Database>();
 
 	const proposals = ref<Proposal[]>([]);

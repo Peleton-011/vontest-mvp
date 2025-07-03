@@ -4,9 +4,9 @@ type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
 type VontestInsert = Database["public"]["Tables"]["vontests"]["Insert"];
 type VontestUpdate = Partial<VontestInsert>;
 
-const { submitThread } = useThread();
 
 export const useVontests = () => {
+    const { submitThread } = useThread();
 	const supabase = useSupabaseClient<Database>();
 	const { data, status, error, refresh } = useAsyncData<Vontest[]>(
 		"vontests",
