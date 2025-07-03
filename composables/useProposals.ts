@@ -4,6 +4,8 @@ type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 type ProposalInsert = Database["public"]["Tables"]["proposals"]["Insert"];
 type ProposalUpdate = Partial<ProposalInsert>;
 
+const { submitThread } = useThread();
+
 export const useProposals = (vontestId: string) => {
 	const supabase = useSupabaseClient<Database>();
 
@@ -37,15 +39,15 @@ export const useProposals = (vontestId: string) => {
 		}
 	};
 
-    const fetchProposal = async (proposalId: string) => {
-        const { data } = await supabase
-            .from("proposals")
-            .select("*")
-            .eq("id", proposalId)
-            .single();
-    
-        if (data) return data;
-    };
+	const fetchProposal = async (proposalId: string) => {
+		const { data } = await supabase
+			.from("proposals")
+			.select("*")
+			.eq("id", proposalId)
+			.single();
+
+		if (data) return data;
+	};
 
 	const submitProposal = async () => {
 		loading.value = true;
@@ -63,13 +65,20 @@ export const useProposals = (vontestId: string) => {
 
 		loading.value = false;
 
-		if (!insertError) {
-			resetForm();
-			await fetchProposals();
-			return data?.[0];
-		} else {
+		if (insertError) {
 			error.value = insertError;
+			throw insertError;
 		}
+		resetForm();
+		await fetchProposals();
+
+        //Make a thread for the proposal
+		submitThread({
+			type: "proposal",
+			referenceId: data?.[0].id ?? "",
+		});
+
+		return data?.[0];
 	};
 
 	const updateProposal = async () => {
@@ -122,7 +131,7 @@ export const useProposals = (vontestId: string) => {
 		loading,
 		error,
 		fetchProposals,
-        fetchProposal,
+		fetchProposal,
 		submitProposal,
 		updateProposal,
 		deleteProposal,

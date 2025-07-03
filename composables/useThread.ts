@@ -40,10 +40,30 @@ export const useThread = () => {
 		return data;
 	};
 
+	const submitThread = async ({
+		type,
+		referenceId,
+	}: {
+		type: "vontest" | "proposal";
+		referenceId: string;
+	}) => {
+		const { error: insertError } = await supabase
+			.from("threads")
+			.insert({ type, reference_id: referenceId })
+			.single();
+
+		if (!insertError) {
+			return fetchThread(referenceId, type);
+		} else {
+			error.value = insertError;
+		}
+	};
+
 	return {
 		thread,
 		loading,
 		error,
 		fetchThread,
+		submitThread,
 	};
 };

@@ -4,6 +4,8 @@ type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
 type VontestInsert = Database["public"]["Tables"]["vontests"]["Insert"];
 type VontestUpdate = Partial<VontestInsert>;
 
+const { submitThread } = useThread();
+
 export const useVontests = () => {
 	const supabase = useSupabaseClient<Database>();
 	const { data, status, error, refresh } = useAsyncData<Vontest[]>(
@@ -55,13 +57,20 @@ export const useVontests = () => {
 			.insert(newVontest)
 			.select();
 
-		if (!error) {
-			resetForm();
-			await refresh();
-			return data[0];
-		} else {
+		if (error) {
 			alert(error.message);
+			throw error;
 		}
+		resetForm();
+		await refresh();
+
+		//Make a thread for the vontest
+		submitThread({
+			type: "vontest",
+			referenceId: data[0].id,
+		});
+
+		return data[0];
 	};
 
 	const updateVontest = async () => {
