@@ -43,8 +43,16 @@ const navigateTo = (path: string) => router.push(path);
 					<h1 class="text-2xl font-bold">{{ proposal.title }}</h1>
 					<OptionsDropdown
 						v-if="proposal.created_by === user?.id"
-						@edit="navigateTo(`/proposals/${proposalId}/edit`)"
-						@delete="navigateTo(`/proposals/${proposalId}/delete`)"
+						@edit="
+							navigateTo(
+								`/proposals/${vontestId}/${proposalId}/edit`
+							)
+						"
+						@delete="
+							navigateTo(
+								`/proposals/${vontestId}/${proposalId}/delete`
+							)
+						"
 					/>
 				</div>
 			</template>
