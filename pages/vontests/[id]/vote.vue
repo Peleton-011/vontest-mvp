@@ -120,6 +120,9 @@ onMounted(async () => {
 			/>
 		</div>
 		<div v-else-if="votingType === 'quadratic'">Quadratic Voting</div>
+		<div v-else-if="votingType === 'single'">Runoff Voting</div>
+		<div v-else-if="votingType === 'likert'">Likert</div>
+
 		<h1 class="text-2xl font-bold mb-6">Distribute Your Points</h1>
 		<p class="mb-4 text-gray-400">
 			You have {{ totalPoints }} points. Assign them across the proposals
