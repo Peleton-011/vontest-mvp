@@ -88,6 +88,13 @@ onMounted(async () => {
 		<div v-if="votingType === 'updown'">Updown</div>
 		<div v-else-if="votingType === 'multiple'">
 			Multiple Choice (+ Approval Voting)
+			<UiVotingMultiple
+				:proposals="proposals"
+				:minimumChoices="3"
+				:maximumChoices="-1"
+				:loading="loading"
+				@submit="submitVotes"
+			/>
 		</div>
 		<div v-else-if="votingType === 'score'">
 			Score Voting (+ Likert)
@@ -105,7 +112,15 @@ onMounted(async () => {
 			<UiVotingRanked
 				:proposals="proposals"
 				:minimumChoices="3"
-                :maximumChoices="-1"
+				:maximumChoices="-1"
+				:loading="loading"
+				@submit="submitVotes"
+			/>
+			<hr />
+			<UiVotingMultiple
+				:proposals="proposals"
+				:minimumChoices="3"
+				:maximumChoices="-1"
 				:loading="loading"
 				@submit="submitVotes"
 			/>
@@ -116,7 +131,7 @@ onMounted(async () => {
 			<UiVotingRanked
 				:proposals="proposals"
 				:minimumChoices="3"
-                :maximumChoices="-1"
+				:maximumChoices="-1"
 				:loading="loading"
 				@submit="submitVotes"
 			/>
