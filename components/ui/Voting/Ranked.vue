@@ -64,9 +64,9 @@ watch(
 						<li
 							v-for="(element, index) in ranking"
 							:key="element.id"
-							class="list-decimal"
+							class="list-decimal marker:font-bold"
 						>
-							<UCard class="bg-neutral-800">
+							<UCard class="bg-neutral-800 ml-4">
 								<template #header>
 									<div
 										class="flex justify-between items-center"
