@@ -36,9 +36,9 @@ const removeFromRanking = (proposalId: string) => {
 };
 
 onMounted(() => {
-  if (props.minimumChoices <= props.proposals.length) {
-    ranking.value = [...props.proposals];
-  }
+	if (props.minimumChoices <= props.proposals.length) {
+		ranking.value = [...props.proposals];
+	}
 });
 </script>
 
@@ -56,24 +56,34 @@ onMounted(() => {
 					:animation="200"
 					class="space-y-2"
 				>
-					<UCard
-						v-for="(element, index) in ranking"
-						:key="element.id"
-						class="bg-neutral-800"
-					>
-						<template #header>
-							<div class="flex justify-between items-center">
-								<span class="font-semibold">
-									{{ index + 1 }}. {{ element.title }}
-								</span>
-							</div>
-						</template>
+					<ol>
+                        
+						<li
+							v-for="(element, index) in ranking"
+							:key="element.id"
+                            class="list-decimal"
+						>
+							<UCard class="bg-neutral-800">
+								<template #header>
+									<div
+										class="flex justify-between items-center"
+									>
+										<span class="font-semibold">
+											<!-- {{ index + 1 }}.  -->
+                                            {{ element.title }}
+										</span>
+									</div>
+								</template>
 
-						<p
-							class="text-sm text-gray-400"
-							v-html="DOMPurify.sanitize(element.description!)"
-						/>
-					</UCard>
+								<p
+									class="text-sm text-gray-400"
+									v-html="
+										DOMPurify.sanitize(element.description!)
+									"
+								/>
+							</UCard>
+						</li>
+					</ol>
 				</VueDraggable>
 			</ClientOnly>
 
