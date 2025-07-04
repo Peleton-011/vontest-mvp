@@ -55,17 +55,16 @@ watch(
 			</p>
 
 			<ClientOnly>
-				<VueDraggable
-					v-model="ranking"
-					:animation="200"
-					class="space-y-2"
-				>
-					<ol>
-                        
+				<ol>
+					<VueDraggable
+						v-model="ranking"
+						:animation="200"
+						class="space-y-2"
+					>
 						<li
 							v-for="(element, index) in ranking"
 							:key="element.id"
-                            class="list-decimal"
+							class="list-decimal"
 						>
 							<UCard class="bg-neutral-800">
 								<template #header>
@@ -74,7 +73,7 @@ watch(
 									>
 										<span class="font-semibold">
 											<!-- {{ index + 1 }}.  -->
-                                            {{ element.title }}
+											{{ element.title }}
 										</span>
 									</div>
 								</template>
@@ -87,8 +86,8 @@ watch(
 								/>
 							</UCard>
 						</li>
-					</ol>
-				</VueDraggable>
+					</VueDraggable>
+				</ol>
 			</ClientOnly>
 
 			<UButton
