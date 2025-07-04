@@ -12,6 +12,8 @@ const props = defineProps<{
 	loading: boolean;
 }>();
 
+const localProposals = ref<Proposal[]>([...props.proposals]);
+
 const emit = defineEmits<{
 	(e: "submit-ranking", ranking: Proposal[]): void;
 }>();
@@ -24,23 +26,39 @@ const remainingToAdd = computed(
 	() => props.minimumChoices - ranking.value.length
 );
 
+const isJustRank = computed(() => {
+	return (
+		props.minimumChoices >= props.proposals.length ||
+		props.minimumChoices === -1
+	);
+});
+
 // === Methods ===
 const addToRanking = (proposal: Proposal) => {
 	if (!ranking.value.find((p) => p.id === proposal.id)) {
 		ranking.value.push(proposal);
+
+		localProposals.value = localProposals.value.filter(
+			(p) => p.id !== proposal.id
+		);
 	}
 };
 
 const removeFromRanking = (proposalId: string) => {
+	localProposals.value.push(ranking.value.find((p) => p.id === proposalId)!!);
 	ranking.value = ranking.value.filter((p) => p.id !== proposalId);
 };
 
 watch(
 	() => props.proposals,
 	(newProposals) => {
-		if (props.minimumChoices <= newProposals.length) {
+        if (newProposals.length === 0) return;
+
+		if (isJustRank.value) {
 			ranking.value = [...newProposals];
 		}
+
+		localProposals.value = [...newProposals];
 	},
 	{ immediate: true }
 );
@@ -49,7 +67,8 @@ watch(
 <template>
 	<div>
 		<!-- CASE 1: minimumChoices <= proposals.length -->
-		<div v-if="props.minimumChoices <= props.proposals.length">
+         {{ isJustRank }}
+		<div v-if="isJustRank">
 			<p class="mb-2 text-gray-300">
 				Rank the proposals in your preferred order:
 			</p>
@@ -103,6 +122,57 @@ watch(
 
 		<!-- CASE 2: minimumChoices > proposals.length -->
 		<div v-else>
+			<div v-if="ranking.length > 0" class="mt-4">
+				<p class="mb-2 text-gray-300">Your Ranking:</p>
+
+				<ClientOnly>
+					<ol>
+						<VueDraggable
+							v-model="ranking"
+							:animation="200"
+							class="space-y-2"
+						>
+							<li
+								v-for="(element, index) in ranking"
+								:key="element.id"
+								class="list-decimal marker:font-bold"
+							>
+								<UCard class="bg-neutral-800 ml-4">
+									<template #header>
+										<div
+											class="flex justify-between items-center"
+										>
+											<span class="font-semibold">
+												<!-- {{ index + 1 }}. -->
+												{{ element.title }}</span
+											>
+											<UButton
+												size="xs"
+												variant="ghost"
+												icon="i-lucide-x"
+												@click="
+													removeFromRanking(
+														element.id
+													)
+												"
+											/>
+										</div>
+									</template>
+
+									<p
+										class="text-sm text-gray-400"
+										v-html="
+											DOMPurify.sanitize(
+												element.description!
+											)
+										"
+									/>
+								</UCard>
+							</li>
+						</VueDraggable>
+					</ol>
+				</ClientOnly>
+			</div>
 			<p class="mb-2 text-gray-300">
 				Select at least {{ props.minimumChoices }} proposals to rank ({{
 					remainingToAdd
@@ -111,7 +181,7 @@ watch(
 			</p>
 
 			<div
-				v-for="proposal in props.proposals"
+				v-for="proposal in localProposals"
 				:key="proposal.id"
 				class="mb-4"
 			>
@@ -141,49 +211,6 @@ watch(
 						</UButton>
 					</template>
 				</UCard>
-			</div>
-
-			<div v-if="ranking.length > 0" class="mt-4">
-				<p class="mb-2 text-gray-300">Your Ranking:</p>
-
-				<ClientOnly>
-					<VueDraggable
-						v-model="ranking"
-						item-key="id"
-						:animation="200"
-						class="space-y-2"
-					>
-						<template #item="{ element, index }">
-							<UCard class="bg-neutral-800">
-								<template #header>
-									<div
-										class="flex justify-between items-center"
-									>
-										<span class="font-semibold"
-											>{{ index + 1 }}.
-											{{ element.title }}</span
-										>
-										<UButton
-											size="xs"
-											variant="ghost"
-											icon="i-lucide-x"
-											@click="
-												removeFromRanking(element.id)
-											"
-										/>
-									</div>
-								</template>
-
-								<p
-									class="text-sm text-gray-400"
-									v-html="
-										DOMPurify.sanitize(element.description!)
-									"
-								/>
-							</UCard>
-						</template>
-					</VueDraggable>
-				</ClientOnly>
 			</div>
 
 			<UButton
