@@ -105,6 +105,7 @@ onMounted(async () => {
 			<UiVotingRanked
 				:proposals="proposals"
 				:minimumChoices="3"
+                :maximumChoices="-1"
 				:loading="loading"
 				@submit="submitVotes"
 			/>
@@ -115,6 +116,7 @@ onMounted(async () => {
 			<UiVotingRanked
 				:proposals="proposals"
 				:minimumChoices="3"
+                :maximumChoices="-1"
 				:loading="loading"
 				@submit="submitVotes"
 			/>

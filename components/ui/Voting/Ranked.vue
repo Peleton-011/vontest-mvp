@@ -6,11 +6,21 @@ import DOMPurify from "dompurify";
 
 type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 
-const props = defineProps<{
-	proposals: Proposal[];
-	minimumChoices: number;
-	loading: boolean;
-}>();
+const props = withDefaults(
+	defineProps<{
+		proposals: Proposal[];
+		minimumChoices: number;
+		maximumChoices: number;
+		loading: boolean;
+	}>(),
+	{
+		minimumChoices: -1,
+		maximumChoices: -1,
+	}
+);
+
+const localMinChoices = props.minimumChoices === -1 ? props.proposals.length : props.minimumChoices;
+const localMaxChoices = props.maximumChoices === -1 ? props.proposals.length : props.maximumChoices;
 
 const localProposals = ref<Proposal[]>([...props.proposals]);
 
@@ -23,18 +33,20 @@ const ranking = ref<Proposal[]>([]);
 
 // === Computed ===
 const remainingToAdd = computed(
-	() => props.minimumChoices - ranking.value.length
+	() => localMinChoices - ranking.value.length
 );
 
 const isJustRank = computed(() => {
 	return (
-		props.minimumChoices >= props.proposals.length ||
-		props.minimumChoices === -1
+		localMinChoices >= props.proposals.length 
 	);
 });
 
 // === Methods ===
 const addToRanking = (proposal: Proposal) => {
+	if (ranking.value.length >= localMaxChoices) {
+		alert("You have reached the maximum number of choices.");
+	}
 	if (!ranking.value.find((p) => p.id === proposal.id)) {
 		ranking.value.push(proposal);
 
@@ -52,7 +64,7 @@ const removeFromRanking = (proposalId: string) => {
 watch(
 	() => props.proposals,
 	(newProposals) => {
-        if (newProposals.length === 0) return;
+		if (newProposals.length === 0) return;
 
 		if (isJustRank.value) {
 			ranking.value = [...newProposals];
@@ -67,7 +79,7 @@ watch(
 <template>
 	<div>
 		<!-- CASE 1: minimumChoices <= proposals.length -->
-         {{ isJustRank }}
+		{{ isJustRank }}
 		<div v-if="isJustRank">
 			<p class="mb-2 text-gray-300">
 				Rank the proposals in your preferred order:
@@ -174,7 +186,7 @@ watch(
 				</ClientOnly>
 			</div>
 			<p class="mb-2 text-gray-300">
-				Select at least {{ props.minimumChoices }} proposals to rank ({{
+				Select at least {{ localMinChoices }} proposals to rank ({{
 					remainingToAdd
 				}}
 				remaining):
@@ -215,7 +227,7 @@ watch(
 
 			<UButton
 				:disabled="
-					props.loading || ranking.length < props.minimumChoices
+					props.loading || ranking.length < localMinChoices || ranking.length > localMaxChoices
 				"
 				:loading="props.loading"
 				trailing-icon="i-lucide-check-circle"
