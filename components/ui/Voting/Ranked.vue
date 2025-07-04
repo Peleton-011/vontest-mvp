@@ -35,15 +35,11 @@ const removeFromRanking = (proposalId: string) => {
 	ranking.value = ranking.value.filter((p) => p.id !== proposalId);
 };
 
-watch(
-	() => props.proposals,
-	(newProposals) => {
-		if (props.minimumChoices <= newProposals.length) {
-			ranking.value = [...newProposals];
-		}
-	},
-	{ immediate: true }
-);
+onMounted(() => {
+  if (props.minimumChoices <= props.proposals.length) {
+    ranking.value = [...props.proposals];
+  }
+});
 </script>
 
 <template>
