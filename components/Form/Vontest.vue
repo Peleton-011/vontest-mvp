@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { RadioGroupItem, RadioGroupValue, StepperItem } from "@nuxt/ui";
+import type {
+	RadioGroupItem,
+	RadioGroupValue,
+	StepperItem,
+	SelectItem,
+} from "@nuxt/ui";
 
 const props = defineProps<{
 	vontestId?: string;
@@ -15,7 +20,11 @@ const {
 	loading,
 } = useVontests();
 
-const { form: settingsForm, createVotingSetting, error: settingsError } = useVotingSettings();
+const {
+	form: settingsForm,
+	createVotingSetting,
+	error: settingsError,
+} = useVotingSettings();
 
 const form = computed({
 	get() {
@@ -112,6 +121,19 @@ const anonymityOptions = ref<RadioGroupItem[]>([
 	},
 ]);
 
+const votingMethods = ref<SelectItem[]>([
+	{ label: "Single choice", value: "single" },
+	{
+		label: "Multiple choice",
+		value: "multiple",
+	},
+	{ label: "Ranked choice", value: "ranked" },
+	{ label: "Score voting", value: "score" },
+	{ label: "Updown", value: "updown" },
+	{ label: "Likert", value: "likert" },
+	{ label: "Quadratic voting", value: "quadratic" },
+]);
+
 const options = ref<{ label: string }[]>([{ label: "" }]);
 
 const addOption = () => {
@@ -136,13 +158,13 @@ const publish = async () => {
 		return;
 	}
 
-    const settings = await createVotingSetting();
+	const settings = await createVotingSetting();
 
-    if(!settings) {
-        console.error("Error creating voting settings: ", settingsError)
-        return;
-    }
-    form.value.votingSettings.value = settings[0].id
+	if (!settings) {
+		console.error("Error creating voting settings: ", settingsError);
+		return;
+	}
+	form.value.votingSettings.value = settings[0].id;
 
 	//Handle submit of a new vontest
 	const newVontest = await createVontest();
@@ -166,7 +188,6 @@ const handleStepperClick = (index: number | string | undefined) => {
 		step.value = index;
 	}
 };
-
 </script>
 <template>
 	<div class="flex flex-col items-center">
@@ -212,7 +233,10 @@ const handleStepperClick = (index: number | string | undefined) => {
 							label="Who may add proposals?"
 						>
 							<URadioGroup
-								v-model="form.proposalPermission.value as RadioGroupValue"
+								v-model="
+									form.proposalPermission
+										.value as RadioGroupValue
+								"
 								:items="permissionOptions"
 								variant="card"
 							/>
@@ -255,15 +279,7 @@ const handleStepperClick = (index: number | string | undefined) => {
 						<UFormField name="votingMethod" label="Voting Method">
 							<USelect
 								v-model="form.votingType.value"
-								:items="[
-									{ label: 'Single choice', value: 'single' },
-									{
-										label: 'Multiple choice',
-										value: 'multiple',
-									},
-									{ label: 'Ranked choice', value: 'ranked' },
-									{ label: 'Score voting', value: 'score' },
-								]"
+								:items="votingMethods"
 							/>
 						</UFormField>
 
@@ -282,7 +298,9 @@ const handleStepperClick = (index: number | string | undefined) => {
 									name="allowUpdate"
 									label="Allow updates until close"
 								>
-									<UCheckbox v-model="form.allowRevoting.value" />
+									<UCheckbox
+										v-model="form.allowRevoting.value"
+									/>
 								</UFormField>
 								<!-- Add more custom controls as needed -->
 							</template>
@@ -330,7 +348,7 @@ const handleStepperClick = (index: number | string | undefined) => {
 							</p>
 							<p>
 								<strong>Anonymity:</strong>
-								{{ anonymityValue }}<br >
+								{{ anonymityValue }}<br />
 								<strong>Allow updates:</strong>
 								{{ form.allowRevoting ? "Yes" : "No" }}
 							</p>
