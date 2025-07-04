@@ -99,9 +99,25 @@ onMounted(async () => {
 				:loading="loading"
 				@submit="submitVotes"
 			/>
+
+			<!-- Testing vvv remove later -->
+			<hr />
+			<UiVotingRanked
+				:proposals="proposals"
+				:minimumChoices="3"
+				:loading="loading"
+				@submit="submitVotes"
+			/>
+			<!-- Testing ^^^ remove later -->
 		</div>
 		<div v-else-if="votingType === 'ranked'">
 			Ranked Choice (Like multiple choice but order matters)
+			<UiVotingRanked
+				:proposals="proposals"
+				:minimumChoices="3"
+				:loading="loading"
+				@submit="submitVotes"
+			/>
 		</div>
 		<div v-else-if="votingType === 'quadratic'">Quadratic Voting</div>
 		<h1 class="text-2xl font-bold mb-6">Distribute Your Points</h1>
