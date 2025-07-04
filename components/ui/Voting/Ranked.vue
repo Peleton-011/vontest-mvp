@@ -79,7 +79,6 @@ watch(
 <template>
 	<div>
 		<!-- CASE 1: minimumChoices <= proposals.length -->
-		{{ isJustRank }}
 		<div v-if="isJustRank">
 			<p class="mb-2 text-gray-300">
 				Rank the proposals in your preferred order:
