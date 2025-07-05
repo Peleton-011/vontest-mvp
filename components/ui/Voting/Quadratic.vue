@@ -13,7 +13,14 @@ const user = useSupabaseUser();
 const supabase = useSupabaseClient<Database>();
 
 const allocations = ref<Record<string, number>>({});
-props.proposals.forEach((p) => (allocations.value[p.id] = 0));
+
+watch(
+    () => props.proposals,
+    (newProposals) => {
+        if (newProposals.length === 0) return;
+
+        props.proposals.forEach((p) => allocations.value[p.id] || (allocations.value[p.id] = 0));
+    })
 
 const emit = defineEmits<{
 	(e: "submit-votes", allocations: Record<string, number>): void;
@@ -51,6 +58,7 @@ const submitVotes = async () => {
 		<div class="text-sm text-gray-300">
 			Total Cost: {{ totalCost }} / {{ props.totalCredits }}
 		</div>
+
 
 		<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 			<div
