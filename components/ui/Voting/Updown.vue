@@ -48,12 +48,12 @@ const handleDownVote = (id: string) => {
 			<template #footer>
 				<div>
 					<UButton
-						variant="ghost"
+						:variant="votesMap[proposal.id] === 1 ? 'solid' : 'ghost'"
 						icon="i-lucide-chevrons-up"
 						@click="handleUpVote(proposal.id)"
 					/>
 					<UButton
-						variant="ghost"
+						:variant="votesMap[proposal.id] === -1 ? 'solid' : 'ghost'"
 						icon="i-lucide-chevrons-down"
 						@click="handleDownVote(proposal.id)"
 					/>
