@@ -21,6 +21,8 @@ const choice = ref<Proposal>();
 
 // === Methods ===
 const addChoice = (proposal: Proposal) => {
+	if (choice.value) removeChoice();
+
 	choice.value = proposal;
 
 	localProposals.value = localProposals.value.filter(
@@ -46,34 +48,30 @@ watch(
 
 <template>
 	<div>
-		<div v-if="choice" class="mt-4">
-			<p class="mb-2 text-gray-300">Your Choices:</p>
+		<div v-if="choice" class="my-4">
+			<p class="mb-2 text-gray-300">Your Choice:</p>
 
-				<ol>
-					<li class="list-decimal marker:font-bold">
-						<UCard class="bg-neutral-800 ml-4">
-							<template #header>
-								<div class="flex justify-between items-center">
-									<span class="font-semibold">
-										<!-- {{ index + 1 }}. -->
-										{{ choice.title }}</span
-									>
-									<UButton
-										size="xs"
-										variant="ghost"
-										icon="i-lucide-x"
-										@click="removeChoice()"
-									/>
-								</div>
-							</template>
+			<UCard class="bg-neutral-800 ml-4">
+				<template #header>
+					<div class="flex justify-between items-center">
+						<span class="font-semibold">
+							<!-- {{ index + 1 }}. -->
+							{{ choice.title }}</span
+						>
+						<UButton
+							size="xs"
+							variant="ghost"
+							icon="i-lucide-x"
+							@click="removeChoice()"
+						/>
+					</div>
+				</template>
 
-							<p
-								class="text-sm text-gray-400"
-								v-html="DOMPurify.sanitize(choice.description!)"
-							/>
-						</UCard>
-					</li>
-				</ol>
+				<p
+					class="text-sm text-gray-400"
+					v-html="DOMPurify.sanitize(choice.description!)"
+				/>
+			</UCard>
 		</div>
 
 		<div v-for="proposal in localProposals" :key="proposal.id" class="mb-4">
@@ -92,7 +90,10 @@ watch(
 				<template #footer>
 					<UButton
 						size="sm"
-						:disabled="(choice && choice.id === proposal.id) || props.loading"
+						:disabled="
+							(choice && choice.id === proposal.id) ||
+							props.loading
+						"
 						@click="addChoice(proposal)"
 					>
 						Vote
