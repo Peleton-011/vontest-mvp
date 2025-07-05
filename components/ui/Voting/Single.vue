@@ -49,7 +49,6 @@ watch(
 		<div v-if="choice" class="mt-4">
 			<p class="mb-2 text-gray-300">Your Choices:</p>
 
-			<ClientOnly>
 				<ol>
 					<li class="list-decimal marker:font-bold">
 						<UCard class="bg-neutral-800 ml-4">
@@ -75,7 +74,6 @@ watch(
 						</UCard>
 					</li>
 				</ol>
-			</ClientOnly>
 		</div>
 
 		<div v-for="proposal in localProposals" :key="proposal.id" class="mb-4">
@@ -94,7 +92,7 @@ watch(
 				<template #footer>
 					<UButton
 						size="sm"
-						:disabled="choice!.id === proposal.id || props.loading"
+						:disabled="!choice || choice.id === proposal.id || props.loading"
 						@click="addChoice(proposal)"
 					>
 						Vote
