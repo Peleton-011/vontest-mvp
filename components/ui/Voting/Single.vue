@@ -92,7 +92,7 @@ watch(
 				<template #footer>
 					<UButton
 						size="sm"
-						:disabled="!choice || choice.id === proposal.id || props.loading"
+						:disabled="(choice && choice.id === proposal.id) || props.loading"
 						@click="addChoice(proposal)"
 					>
 						Vote
