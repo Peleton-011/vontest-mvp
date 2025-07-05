@@ -143,6 +143,11 @@ onMounted(async () => {
 				:loading="loading"
 				@submit="submitVotes"
 			/>
+			<UiVotingQuadratic
+				:proposals="proposals"
+				:vontestId="vontestId"
+				:totalCredits="5"
+			/>
 			<!-- Testing ^^^ remove later -->
 		</div>
 		<div v-else-if="votingType === 'ranked'">
@@ -155,7 +160,14 @@ onMounted(async () => {
 				@submit="submitVotes"
 			/>
 		</div>
-		<div v-else-if="votingType === 'quadratic'">Quadratic Voting</div>
+		<div v-else-if="votingType === 'quadratic'">
+			Quadratic Voting
+			<UiVotingQuadratic
+				:proposals="proposals"
+				:vontestId="vontestId"
+				:totalCredits="5"
+			/>
+		</div>
 		<div v-else-if="votingType === 'single'">
 			Single Voting
 			<UiVotingSingle
