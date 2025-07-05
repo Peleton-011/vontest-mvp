@@ -85,7 +85,15 @@ onMounted(async () => {
 
 <template>
 	<section class="max-w-3xl mx-auto p-6 text-white">
-		<div v-if="votingType === 'updown'">Updown</div>
+		<div v-if="votingType === 'updown'">
+			Updown
+			<UiVotingUpdown
+				:proposals="proposals"
+				:votesMap="votesMap"
+				:loading="loading"
+				@submit="submitVotes"
+			/>
+		</div>
 		<div v-else-if="votingType === 'multiple'">
 			Multiple Choice (+ Approval Voting)
 			<UiVotingMultiple
@@ -121,6 +129,12 @@ onMounted(async () => {
 				:proposals="proposals"
 				:minimumChoices="3"
 				:maximumChoices="-1"
+				:loading="loading"
+				@submit="submitVotes"
+			/>
+			<UiVotingUpdown
+				:proposals="proposals"
+				:votesMap="votesMap"
 				:loading="loading"
 				@submit="submitVotes"
 			/>
