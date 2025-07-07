@@ -9,37 +9,40 @@ type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 const props = withDefaults(
 	defineProps<{
 		proposals: Proposal[];
+		form: { votes: Ref<{ proposalId: string; value: number }[]> };
 		minimumChoices: number;
 		maximumChoices: number;
-		loading: boolean;
 	}>(),
 	{
-		minimumChoices: -1,
+		minimumChoices: 0,
 		maximumChoices: -1,
 	}
 );
 
-const localMinChoices = props.minimumChoices === -1 ? props.proposals.length : props.minimumChoices;
-const localMaxChoices = props.maximumChoices === -1 ? props.proposals.length : props.maximumChoices;
+const localMinChoices =
+	props.minimumChoices === -1 ? props.proposals.length : props.minimumChoices;
+const localMaxChoices =
+	props.maximumChoices === -1 ? props.proposals.length : props.maximumChoices;
 
-const localProposals = ref<Proposal[]>([...props.proposals]);
+const unRankedProposals = ref<Proposal[]>([...props.proposals]);
 
 const emit = defineEmits<{
-	(e: "submit-ranking", ranking: Proposal[]): void;
+	(e: "submit"): void;
 }>();
 
 // === State ===
+const votesMap = ref<Record<string, number>>({});
+
 const ranking = ref<Proposal[]>([]);
+const loading = ref(false);
+
+const user = useSupabaseUser();
 
 // === Computed ===
-const remainingToAdd = computed(
-	() => localMinChoices - ranking.value.length
-);
+const remainingToAdd = computed(() => localMinChoices - ranking.value.length);
 
 const isJustRank = computed(() => {
-	return (
-		localMinChoices >= props.proposals.length 
-	);
+	return localMinChoices >= props.proposals.length;
 });
 
 // === Methods ===
@@ -50,14 +53,16 @@ const addToRanking = (proposal: Proposal) => {
 	if (!ranking.value.find((p) => p.id === proposal.id)) {
 		ranking.value.push(proposal);
 
-		localProposals.value = localProposals.value.filter(
+		unRankedProposals.value = unRankedProposals.value.filter(
 			(p) => p.id !== proposal.id
 		);
 	}
 };
 
 const removeFromRanking = (proposalId: string) => {
-	localProposals.value.push(ranking.value.find((p) => p.id === proposalId)!!);
+	unRankedProposals.value.push(
+		ranking.value.find((p) => p.id === proposalId)!!
+	);
 	ranking.value = ranking.value.filter((p) => p.id !== proposalId);
 };
 
@@ -70,10 +75,58 @@ watch(
 			ranking.value = [...newProposals];
 		}
 
-		localProposals.value = [...newProposals];
+		unRankedProposals.value = [...newProposals];
 	},
 	{ immediate: true }
 );
+
+const submitVotes = async () => {
+	if (ranking.value.length < localMinChoices) {
+		alert(
+			"Please select at least the minimum number of choices before submitting. (" +
+				localMinChoices +
+				")"
+		);
+		return;
+	} else if (ranking.value.length > localMaxChoices) {
+		alert(
+			"Please select at most the maximum number of choices before submitting. (" +
+				localMaxChoices +
+				")"
+		);
+		return;
+	}
+
+	if (!user.value) {
+		alert("You must be logged in to submit votes.");
+		return;
+	}
+
+	loading.value = true;
+
+	// Update form.votes values before submitting
+
+	for (const [proposal, value] of Object.entries(votesMap.value)) {
+		if (value === 0) {
+			continue;
+		}
+
+		props.form.votes.value.push({
+			proposalId: proposal,
+			value: value,
+		});
+	}
+
+	emit("submit");
+
+	loading.value = false;
+};
+
+onMounted(() => {
+	props.proposals.forEach((proposal) => {
+		votesMap.value[proposal.id] = 0;
+	});
+});
 </script>
 
 <template>
@@ -121,11 +174,11 @@ watch(
 			</ClientOnly>
 
 			<UButton
-				:disabled="props.loading || ranking.length === 0"
-				:loading="props.loading"
+				:disabled="loading || ranking.length === 0"
+				:loading="loading"
 				trailing-icon="i-lucide-check-circle"
 				class="mt-4 font-bold"
-				@click="emit('submit-ranking', ranking)"
+				@click="submitVotes"
 			>
 				Submit Ranking
 			</UButton>
@@ -192,7 +245,7 @@ watch(
 			</p>
 
 			<div
-				v-for="proposal in localProposals"
+				v-for="proposal in unRankedProposals"
 				:key="proposal.id"
 				class="mb-4"
 			>
@@ -226,12 +279,14 @@ watch(
 
 			<UButton
 				:disabled="
-					props.loading || ranking.length < localMinChoices || ranking.length > localMaxChoices
+					loading ||
+					ranking.length < localMinChoices ||
+					ranking.length > localMaxChoices
 				"
-				:loading="props.loading"
+				:loading="loading"
 				trailing-icon="i-lucide-check-circle"
 				class="mt-4 font-bold"
-				@click="emit('submit-ranking', ranking)"
+				@click="submitVotes"
 			>
 				Submit Ranking
 			</UButton>
