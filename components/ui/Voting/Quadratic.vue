@@ -21,9 +21,6 @@ const emit = defineEmits<{
 	(e: "submit"): void;
 }>();
 
-// votesMap for easier UI binding
-const votesMap = ref<Record<string, number>>({});
-
 const loading = ref(false);
 const allocations = ref<Record<string, number>>({});
 
@@ -73,7 +70,7 @@ const submitVotes = async () => {
 
 	// Update form.votes values before submitting
 
-	for (const [proposal, value] of Object.entries(votesMap.value)) {
+	for (const [proposal, value] of Object.entries(allocations.value)) {
 		if (value === 0) {
 			continue;
 		}
@@ -104,6 +101,12 @@ watch(
 <template>
 	<div class="space-y-6">
 		<h2 class="text-2xl font-semibold">Quadratic Voting</h2>
+
+		<p class="text-sm text-gray-300">
+			Select the number of votes you want to award to each option. <br />
+			Successive votes increase point cost quadratically (1 vote = 1
+			point, 2 votes = 4 points, etc.)
+		</p>
 
 		<div class="text-sm text-gray-300">
 			Total Cost: {{ totalCost }} / {{ props.maxVotes }}
