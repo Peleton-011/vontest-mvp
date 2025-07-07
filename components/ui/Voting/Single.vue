@@ -16,8 +16,6 @@ const emit = defineEmits<{
 	(e: "submit"): void;
 }>();
 
-// votesMap for easier UI binding
-const votesMap = ref<Record<string, number>>({});
 const loading = ref(false);
 
 const user = useSupabaseUser();
@@ -51,11 +49,9 @@ watch(
 
 const submitVotes = async () => {
 	if (!choice.value) {
-		alert(
-			"Please select a proposal before submitting your vote."
-		);
+		alert("Please select a proposal before submitting your vote.");
 		return;
-	} 
+	}
 
 	if (!user.value) {
 		alert("You must be logged in to submit votes.");
@@ -66,27 +62,15 @@ const submitVotes = async () => {
 
 	// Update form.votes values before submitting
 
-	for (const [proposal, value] of Object.entries(votesMap.value)) {
-		if (value === 0) {
-			continue;
-		}
-
-		props.form.votes.value.push({
-			proposalId: proposal,
-			value: value,
-		});
-	}
+	props.form.votes.value.push({
+		proposalId: choice.value.id,
+		value: 1,
+	});
 
 	emit("submit");
 
 	loading.value = false;
 };
-
-onMounted(() => {
-	props.proposals.forEach((proposal) => {
-		votesMap.value[proposal.id] = 0;
-	});
-});
 </script>
 
 <template>
@@ -134,8 +118,7 @@ onMounted(() => {
 					<UButton
 						size="sm"
 						:disabled="
-							(choice && choice.id === proposal.id) ||
-							loading
+							(choice && choice.id === proposal.id) || loading
 						"
 						@click="addChoice(proposal)"
 					>
@@ -150,7 +133,7 @@ onMounted(() => {
 			:loading="loading"
 			trailing-icon="i-lucide-check-circle"
 			class="mt-4 font-bold"
-			@click="emit('submit')"
+			@click="submitVotes"
 		>
 			Submit Vote
 		</UButton>
