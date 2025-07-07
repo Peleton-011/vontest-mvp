@@ -31,8 +31,6 @@ const emit = defineEmits<{
 }>();
 
 // === State ===
-const votesMap = ref<Record<string, number>>({});
-
 const ranking = ref<Proposal[]>([]);
 const loading = ref(false);
 
@@ -106,27 +104,19 @@ const submitVotes = async () => {
 
 	// Update form.votes values before submitting
 
-	for (const [proposal, value] of Object.entries(votesMap.value)) {
-		if (value === 0) {
-			continue;
-		}
-
-		props.form.votes.value.push({
-			proposalId: proposal,
-			value: value,
-		});
-	}
+    ranking.value.forEach((proposal, index) => {
+        props.form.votes.value.push({
+            proposalId: proposal.id,
+            value: ranking.value.length - index,
+        });
+    });
 
 	emit("submit");
 
 	loading.value = false;
 };
 
-onMounted(() => {
-	props.proposals.forEach((proposal) => {
-		votesMap.value[proposal.id] = 0;
-	});
-});
+
 </script>
 
 <template>
