@@ -7,7 +7,7 @@ type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 const props = withDefaults(
 	defineProps<{
 		proposals: Proposal[];
-		form: { votes: { proposalId: string; value: number }[] };
+		form: Ref<{ votes: { proposalId: string; value: number }[] }>;
 		maxVotes: number;
 		minVotes?: number;
 	}>(),
@@ -64,7 +64,7 @@ const submitVotes = async () => {
 			continue;
 		}
 
-		props.form.votes.push({
+		props.form.value.votes.push({
 			proposalId: proposal,
 			value: value,
 		});
