@@ -17,7 +17,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-	(e: "ballot-cast"): void;
+	(e: "submit"): void;
 }>();
 
 // votesMap for easier UI binding
@@ -70,7 +70,7 @@ const submitVotes = async () => {
 		});
 	}
 
-	emit("ballot-cast");
+	emit("submit");
 
 	loading.value = false;
 };
