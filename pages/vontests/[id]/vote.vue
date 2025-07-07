@@ -47,19 +47,18 @@ onMounted(async () => {
 			Updown
 			<UiVotingUpdown
 				:proposals="proposals"
-				:votesMap="votesMap"
-				:loading="loading"
-				@submit="submitVotes"
+				:form="{ votes: form.votes }"
+				@submit="onBallotCast"
 			/>
 		</div>
 		<div v-else-if="votingType === 'multiple'">
 			Multiple Choice (+ Approval Voting)
 			<UiVotingMultiple
 				:proposals="proposals"
-				:minimumChoices="3"
-				:maximumChoices="-1"
-				:loading="loading"
-				@submit="submitVotes"
+				:form="{ votes: form.votes }"
+				:minimumChoices="settings?.min_votes ?? 3"
+				:maximumChoices="settings?.max_votes ?? -1"
+				@submit="onBallotCast"
 			/>
 		</div>
 		<div v-else-if="votingType === 'score'">
@@ -67,35 +66,37 @@ onMounted(async () => {
 			<UiVotingScore
 				:proposals="proposals"
 				:form="{ votes: form.votes }"
-                :maxVotes="settings?.max_votes ?? 10"
-                :minVotes="settings?.min_votes ?? 10"
-				@ballot-cast="onBallotCast"
+				:maxVotes="settings?.max_votes ?? 10"
+				:minVotes="settings?.min_votes ?? 10"
+				@submit="onBallotCast"
 			/>
 		</div>
 		<div v-else-if="votingType === 'ranked'">
 			Ranked Choice (Like multiple choice but order matters)
 			<UiVotingRanked
 				:proposals="proposals"
+				:form="{ votes: form.votes }"
 				:minimumChoices="3"
 				:maximumChoices="-1"
-				:loading="loading"
-				@submit="submitVotes"
+				@submit="onBallotCast"
 			/>
 		</div>
 		<div v-else-if="votingType === 'quadratic'">
 			Quadratic Voting
 			<UiVotingQuadratic
 				:proposals="proposals"
-				:vontestId="vontestId"
-				:totalCredits="5"
+				:form="{ votes: form.votes }"
+				:maxVotes="settings?.max_votes ?? 10"
+				:minVotes="settings?.min_votes ?? 1"
+                @submit="onBallotCast"
 			/>
 		</div>
 		<div v-else-if="votingType === 'single'">
 			Single Voting
 			<UiVotingSingle
 				:proposals="proposals"
-				:loading="loading"
-				@submit="submitVotes"
+				:form="{ votes: form.votes }"
+				@submit="onBallotCast"
 			/>
 		</div>
 		<div v-else-if="votingType === 'likert'">Likert</div>
