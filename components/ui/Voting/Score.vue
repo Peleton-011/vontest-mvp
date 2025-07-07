@@ -16,6 +16,11 @@ const props = withDefaults(
 	}
 );
 
+const localMinVotes =
+	props.minVotes === -1 ? props.proposals.length : props.minVotes;
+const localMaxVotes =
+	props.maxVotes === -1 ? props.proposals.length : props.maxVotes;
+
 const emit = defineEmits<{
 	(e: "submit"): void;
 }>();
@@ -34,17 +39,17 @@ const pointsCast = computed(() => {
 });
 
 const submitVotes = async () => {
-	if (props.minVotes && pointsCast.value < props.minVotes) {
+	if (localMinVotes && pointsCast.value < localMinVotes) {
 		alert(
 			"Please use at least the minimum number of points before submitting. (" +
-				props.minVotes +
+				localMinVotes +
 				")"
 		);
 		return;
-	} else if (props.maxVotes && pointsCast.value > props.maxVotes) {
+	} else if (localMaxVotes && pointsCast.value > localMaxVotes) {
 		alert(
 			"Please use at most the maximum number of points before submitting. (" +
-				props.maxVotes +
+				localMaxVotes +
 				")"
 		);
 		return;
@@ -85,13 +90,13 @@ onMounted(() => {
 <template>
 	<div>
 		<h1 class="text-2xl font-bold mb-6">Distribute Your Points</h1>
-		<p v-if="props.maxVotes" class="mb-4 text-gray-400">
-			You have {{ props.maxVotes }} points. Assign them across the
+		<p v-if="localMaxVotes" class="mb-4 text-gray-400">
+			You have {{ localMaxVotes }} points. Assign them across the
 			proposals below. Remaining:
-			<strong>{{ props.maxVotes - pointsCast }}</strong>
+			<strong>{{ localMaxVotes - pointsCast }}</strong>
 		</p>
-		<p v-if="props.minVotes" class="mb-4 text-gray-400">
-			You must assign at least {{ props.minVotes }} points to cast your
+		<p v-if="localMinVotes" class="mb-4 text-gray-400">
+			You must assign at least {{ localMinVotes }} points to cast your
 			ballot.
 		</p>
 		<UCard
@@ -117,7 +122,7 @@ onMounted(() => {
 					v-model="votesMap[proposal.id]"
 					type="range"
 					min="0"
-					:max="maxVotes"
+					:max="localMaxVotes"
 					class="w-full mt-2 accent-primary-500"
 				/>
 			</template>
@@ -125,7 +130,7 @@ onMounted(() => {
 
 		<UButton
 			:disabled="
-				loading || pointsCast < minVotes || pointsCast > maxVotes
+				loading || pointsCast < localMinVotes || pointsCast > localMaxVotes
 			"
 			:loading="loading"
 			trailing-icon="i-lucide-check-circle"
