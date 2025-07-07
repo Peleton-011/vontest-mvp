@@ -9,8 +9,6 @@ const user = useSupabaseUser();
 const navigateTo = useRouter().push;
 
 const vontestId = route.params.id as string;
-const totalPoints = ref(10);
-const loading = ref(false);
 
 const settings = ref<VotingSettings | null>(null);
 
@@ -18,44 +16,9 @@ const { form, submitBallot, resetForm } = useVoting(vontestId);
 const { proposals, fetchProposals } = useProposals(vontestId);
 const { fetchSettingFromVontestId } = useVotingSettings();
 
-// votesMap for easier UI binding
-const votesMap = ref<Record<string, number>>({});
-
 const votingType = computed(() => settings.value?.voting_type ?? "score");
 
-const remainingPoints = computed(() => {
-	return (
-		totalPoints.value -
-		Object.values(votesMap.value).reduce((sum, val) => sum + Number(val), 0)
-	);
-});
-
-const submitVotes = async () => {
-	if (remainingPoints.value !== 0) {
-		alert("Please use all points before submitting.");
-		return;
-	}
-
-	if (!user.value) {
-		alert("You must be logged in to submit votes.");
-		return;
-	}
-
-	loading.value = true;
-
-	// Update form.votes values before submitting
-
-	for (const [proposal, value] of Object.entries(votesMap.value)) {
-		if (value === 0) {
-			continue;
-		}
-
-		form.votes.value.push({
-			proposalId: proposal,
-			value: value,
-		});
-	}
-
+const onBallotCast = async () => {
 	const ballot = await submitBallot();
 
 	if (ballot) {
@@ -65,15 +28,10 @@ const submitVotes = async () => {
 	} else {
 		alert("There was an error submitting your votes.");
 	}
-
-	loading.value = false;
 };
 
 onMounted(async () => {
 	await fetchProposals();
-	proposals.value.forEach((proposal) => {
-		votesMap.value[proposal.id] = 0;
-	});
 
 	const votingSetting = await fetchSettingFromVontestId(vontestId);
 
@@ -108,11 +66,10 @@ onMounted(async () => {
 			Score Voting (+ Likert)
 			<UiVotingScore
 				:proposals="proposals"
-				v-model:votesMap="votesMap"
-				:totalPoints="totalPoints"
-				:remainingPoints="remainingPoints"
-				:loading="loading"
-				@submit="submitVotes"
+				:form="{ votes: form.votes }"
+                :maxVotes="settings?.max_votes ?? 10"
+                :minVotes="settings?.min_votes ?? 10"
+				@ballot-cast="onBallotCast"
 			/>
 		</div>
 		<div v-else-if="votingType === 'ranked'">
@@ -142,11 +99,5 @@ onMounted(async () => {
 			/>
 		</div>
 		<div v-else-if="votingType === 'likert'">Likert</div>
-
-		<h1 class="text-2xl font-bold mb-6">Distribute Your Points</h1>
-		<p class="mb-4 text-gray-400">
-			You have {{ totalPoints }} points. Assign them across the proposals
-			below. Remaining: <strong>{{ remainingPoints }}</strong>
-		</p>
 	</section>
 </template>
