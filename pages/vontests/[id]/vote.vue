@@ -108,7 +108,7 @@ onMounted(async () => {
 			Score Voting (+ Likert)
 			<UiVotingScore
 				:proposals="proposals"
-				:votesMap="votesMap"
+				v-model:votesMap="votesMap"
 				:totalPoints="totalPoints"
 				:remainingPoints="remainingPoints"
 				:loading="loading"

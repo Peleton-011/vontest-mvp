@@ -6,20 +6,23 @@ type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 
 const props = defineProps<{
 	proposals: Proposal[];
-	votesMap: Record<string, number>;
 	totalPoints: number;
 	remainingPoints: number;
 	loading: boolean;
 }>();
 
+const votesMap = defineModel<Record<string, number>>("votesMap");
+
 const emit = defineEmits<{
 	(e: "submit-votes"): void;
 }>();
+console.log(votesMap.value)
 </script>
 
 <template>
 	<div>
 		<UCard
+			v-if="votesMap"
 			v-for="proposal in proposals"
 			:key="proposal.id"
 			class="mb-4 bg-neutral-800"
