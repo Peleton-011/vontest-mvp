@@ -3,35 +3,38 @@ import { ref, computed } from "vue";
 import { useSupabaseClient, useSupabaseUser } from "#imports";
 import type { Database } from "~/types/supabase";
 
-const props = defineProps<{
-	proposals: Database["public"]["Tables"]["proposals"]["Row"][];
-	vontestId: string;
-	totalCredits: number;
-}>();
+type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 
-const user = useSupabaseUser();
-const supabase = useSupabaseClient<Database>();
-
-const allocations = ref<Record<string, number>>({});
-
-watch(
-    () => props.proposals,
-    (newProposals) => {
-        if (newProposals.length === 0) return;
-
-        props.proposals.forEach((p) => allocations.value[p.id] || (allocations.value[p.id] = 0));
-    })
+const props = withDefaults(
+	defineProps<{
+		proposals: Proposal[];
+		form: { votes: Ref<{ proposalId: string; value: number }[]> };
+		maxVotes: number;
+		minVotes?: number;
+	}>(),
+	{
+		minVotes: 1,
+	}
+);
 
 const emit = defineEmits<{
-	(e: "submit-votes", allocations: Record<string, number>): void;
+	(e: "submit"): void;
 }>();
+
+// votesMap for easier UI binding
+const votesMap = ref<Record<string, number>>({});
+
+const loading = ref(false);
+const allocations = ref<Record<string, number>>({});
+
+const user = useSupabaseUser();
 
 const totalCost = computed(() =>
 	Object.values(allocations.value).reduce((sum, v) => sum + v * v, 0)
 );
 
 const canSubmit = computed(
-	() => totalCost.value <= props.totalCredits && totalCost.value > 0
+	() => totalCost.value <= props.maxVotes && totalCost.value > props.minVotes
 );
 
 const voteSubmitted = ref(false);
@@ -45,10 +48,57 @@ const decrementVote = (id: string) => {
 };
 
 const submitVotes = async () => {
-	if (!canSubmit.value || !user.value) return;
+	if (totalCost.value > props.minVotes) {
+		alert(
+			"Please use at least the minimum number of points before submitting. (" +
+				props.minVotes +
+				")"
+		);
+		return;
+	} else if (totalCost.value <= props.maxVotes) {
+		alert(
+			"Please use at most the maximum number of points before submitting. (" +
+				props.maxVotes +
+				")"
+		);
+		return;
+	}
 
-	emit("submit-votes", allocations.value);
+	if (!user.value) {
+		alert("You must be logged in to submit votes.");
+		return;
+	}
+
+	loading.value = true;
+
+	// Update form.votes values before submitting
+
+	for (const [proposal, value] of Object.entries(votesMap.value)) {
+		if (value === 0) {
+			continue;
+		}
+
+		props.form.votes.value.push({
+			proposalId: proposal,
+			value: value,
+		});
+	}
+
+	emit("submit");
+
+	loading.value = false;
 };
+
+watch(
+	() => props.proposals,
+	(newProposals) => {
+		if (newProposals.length === 0) return;
+
+		props.proposals.forEach(
+			(p) => allocations.value[p.id] || (allocations.value[p.id] = 0)
+		);
+	}
+);
 </script>
 
 <template>
@@ -56,9 +106,16 @@ const submitVotes = async () => {
 		<h2 class="text-2xl font-semibold">Quadratic Voting</h2>
 
 		<div class="text-sm text-gray-300">
-			Total Cost: {{ totalCost }} / {{ props.totalCredits }}
+			Total Cost: {{ totalCost }} / {{ props.maxVotes }}
 		</div>
 
+		<div class="text-sm text-gray-300">
+			Points Remaining: {{ props.maxVotes - totalCost }}
+		</div>
+
+		<div class="text-sm text-gray-300">
+			Points Needed: {{ props.minVotes }}
+		</div>
 
 		<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 			<div
