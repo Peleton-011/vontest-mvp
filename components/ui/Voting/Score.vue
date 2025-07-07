@@ -26,7 +26,9 @@ const emit = defineEmits<{
 }>();
 
 // votesMap for easier UI binding
-const votesMap = ref<Record<string, number>>({});
+const votesMap = ref<Record<string, number>>(
+	Object.fromEntries(props.proposals.map((p) => [p.id, 0]))
+);
 const loading = ref(false);
 
 const user = useSupabaseUser();
@@ -79,12 +81,6 @@ const submitVotes = async () => {
 
 	loading.value = false;
 };
-
-onMounted(() => {
-	props.proposals.forEach((proposal) => {
-		votesMap.value[proposal.id] = 0;
-	});
-});
 </script>
 
 <template>
@@ -130,7 +126,9 @@ onMounted(() => {
 
 		<UButton
 			:disabled="
-				loading || pointsCast < localMinVotes || pointsCast > localMaxVotes
+				loading ||
+				pointsCast < localMinVotes ||
+				pointsCast > localMaxVotes
 			"
 			:loading="loading"
 			trailing-icon="i-lucide-check-circle"
