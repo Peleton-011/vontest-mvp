@@ -30,8 +30,6 @@ const emit = defineEmits<{
 	(e: "submit"): void;
 }>();
 
-// votesMap for easier UI binding
-const votesMap = ref<Record<string, number>>({});
 const loading = ref(false);
 
 const user = useSupabaseUser();
@@ -101,27 +99,17 @@ const submitVotes = async () => {
 
 	// Update form.votes values before submitting
 
-	for (const [proposal, value] of Object.entries(votesMap.value)) {
-		if (value === 0) {
-			continue;
-		}
-
+	choices.value.forEach((choice) => {
 		props.form.votes.value.push({
-			proposalId: proposal,
-			value: value,
+			proposalId: choice.id,
+			value: 1,
 		});
-	}
+	});
 
 	emit("submit");
 
 	loading.value = false;
 };
-
-onMounted(() => {
-	props.proposals.forEach((proposal) => {
-		votesMap.value[proposal.id] = 0;
-	});
-});
 </script>
 
 <template>
