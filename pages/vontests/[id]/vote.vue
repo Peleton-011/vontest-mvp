@@ -42,7 +42,7 @@ onMounted(async () => {
 </script>
 
 <template>
-	<section class="max-w-3xl mx-auto p-6 text-white">
+	<section v-if="proposals" class="max-w-3xl mx-auto p-6 text-white">
 		<div v-if="votingType === 'updown'">
 			Updown
 			<UiVotingUpdown
