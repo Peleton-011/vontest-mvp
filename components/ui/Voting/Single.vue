@@ -7,16 +7,20 @@ type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 
 const props = defineProps<{
 	proposals: Proposal[];
-	loading: boolean;
+	form: { votes: Ref<{ proposalId: string; value: number }[]> };
 }>();
 
 const localProposals = ref<Proposal[]>([...props.proposals]);
 
 const emit = defineEmits<{
-	(e: "submit-choice", ranking: Proposal): void;
+	(e: "submit"): void;
 }>();
 
-// === State ===
+// votesMap for easier UI binding
+const votesMap = ref<Record<string, number>>({});
+const loading = ref(false);
+
+const user = useSupabaseUser();
 const choice = ref<Proposal>();
 
 // === Methods ===
@@ -44,6 +48,45 @@ watch(
 	},
 	{ immediate: true }
 );
+
+const submitVotes = async () => {
+	if (!choice.value) {
+		alert(
+			"Please select a proposal before submitting your vote."
+		);
+		return;
+	} 
+
+	if (!user.value) {
+		alert("You must be logged in to submit votes.");
+		return;
+	}
+
+	loading.value = true;
+
+	// Update form.votes values before submitting
+
+	for (const [proposal, value] of Object.entries(votesMap.value)) {
+		if (value === 0) {
+			continue;
+		}
+
+		props.form.votes.value.push({
+			proposalId: proposal,
+			value: value,
+		});
+	}
+
+	emit("submit");
+
+	loading.value = false;
+};
+
+onMounted(() => {
+	props.proposals.forEach((proposal) => {
+		votesMap.value[proposal.id] = 0;
+	});
+});
 </script>
 
 <template>
@@ -92,7 +135,7 @@ watch(
 						size="sm"
 						:disabled="
 							(choice && choice.id === proposal.id) ||
-							props.loading
+							loading
 						"
 						@click="addChoice(proposal)"
 					>
@@ -103,11 +146,11 @@ watch(
 		</div>
 
 		<UButton
-			:disabled="props.loading"
-			:loading="props.loading"
+			:disabled="loading"
+			:loading="loading"
 			trailing-icon="i-lucide-check-circle"
 			class="mt-4 font-bold"
-			@click="emit('submit-choice', choice!)"
+			@click="emit('submit')"
 		>
 			Submit Vote
 		</UButton>
