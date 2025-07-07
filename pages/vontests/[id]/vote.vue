@@ -114,41 +114,6 @@ onMounted(async () => {
 				:loading="loading"
 				@submit="submitVotes"
 			/>
-
-			<!-- Testing vvv remove later -->
-			<hr />
-			<UiVotingRanked
-				:proposals="proposals"
-				:minimumChoices="3"
-				:maximumChoices="-1"
-				:loading="loading"
-				@submit="submitVotes"
-			/>
-			<hr />
-			<UiVotingMultiple
-				:proposals="proposals"
-				:minimumChoices="3"
-				:maximumChoices="-1"
-				:loading="loading"
-				@submit="submitVotes"
-			/>
-			<UiVotingUpdown
-				:proposals="proposals"
-				:votesMap="votesMap"
-				:loading="loading"
-				@submit="submitVotes"
-			/>
-			<UiVotingSingle
-				:proposals="proposals"
-				:loading="loading"
-				@submit="submitVotes"
-			/>
-			<UiVotingQuadratic
-				:proposals="proposals"
-				:vontestId="vontestId"
-				:totalCredits="5"
-			/>
-			<!-- Testing ^^^ remove later -->
 		</div>
 		<div v-else-if="votingType === 'ranked'">
 			Ranked Choice (Like multiple choice but order matters)
