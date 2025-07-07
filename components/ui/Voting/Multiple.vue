@@ -9,12 +9,12 @@ type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 const props = withDefaults(
 	defineProps<{
 		proposals: Proposal[];
+		form: { votes: Ref<{ proposalId: string; value: number }[]> };
 		minimumChoices: number;
 		maximumChoices: number;
-		loading: boolean;
 	}>(),
 	{
-		minimumChoices: -1,
+		minimumChoices: 0,
 		maximumChoices: -1,
 	}
 );
@@ -24,13 +24,17 @@ const localMinChoices =
 const localMaxChoices =
 	props.maximumChoices === -1 ? props.proposals.length : props.maximumChoices;
 
-const localProposals = ref<Proposal[]>([...props.proposals]);
+const unChosenProposals = ref<Proposal[]>([...props.proposals]);
 
 const emit = defineEmits<{
-	(e: "submit-choices", ranking: Proposal[]): void;
+	(e: "submit"): void;
 }>();
 
-// === State ===
+// votesMap for easier UI binding
+const votesMap = ref<Record<string, number>>({});
+const loading = ref(false);
+
+const user = useSupabaseUser();
 const choices = ref<Proposal[]>([]);
 
 // === Computed ===
@@ -39,19 +43,25 @@ const remainingToAdd = computed(() => localMinChoices - choices.value.length);
 // === Methods ===
 const addToChoices = (proposal: Proposal) => {
 	if (choices.value.length >= localMaxChoices) {
-		alert("You have reached the maximum number of choices. (" + localMaxChoices + ")");
+		alert(
+			"You have reached the maximum number of choices. (" +
+				localMaxChoices +
+				")"
+		);
 	}
 	if (!choices.value.find((p) => p.id === proposal.id)) {
 		choices.value.push(proposal);
 
-		localProposals.value = localProposals.value.filter(
+		unChosenProposals.value = unChosenProposals.value.filter(
 			(p) => p.id !== proposal.id
 		);
 	}
 };
 
 const removeFromChoices = (proposalId: string) => {
-	localProposals.value.push(choices.value.find((p) => p.id === proposalId)!!);
+	unChosenProposals.value.push(
+		choices.value.find((p) => p.id === proposalId)!!
+	);
 	choices.value = choices.value.filter((p) => p.id !== proposalId);
 };
 
@@ -60,10 +70,58 @@ watch(
 	(newProposals) => {
 		if (newProposals.length === 0) return;
 
-		localProposals.value = [...newProposals];
+		unChosenProposals.value = [...newProposals];
 	},
 	{ immediate: true }
 );
+
+const submitVotes = async () => {
+	if (choices.value.length < localMinChoices) {
+		alert(
+			"Please select at least the minimum number of choices before submitting. (" +
+				localMinChoices +
+				")"
+		);
+		return;
+	} else if (choices.value.length > localMaxChoices) {
+		alert(
+			"Please select at most the maximum number of choices before submitting. (" +
+				localMaxChoices +
+				")"
+		);
+		return;
+	}
+
+	if (!user.value) {
+		alert("You must be logged in to submit votes.");
+		return;
+	}
+
+	loading.value = true;
+
+	// Update form.votes values before submitting
+
+	for (const [proposal, value] of Object.entries(votesMap.value)) {
+		if (value === 0) {
+			continue;
+		}
+
+		props.form.votes.value.push({
+			proposalId: proposal,
+			value: value,
+		});
+	}
+
+	emit("submit");
+
+	loading.value = false;
+};
+
+onMounted(() => {
+	props.proposals.forEach((proposal) => {
+		votesMap.value[proposal.id] = 0;
+	});
+});
 </script>
 
 <template>
@@ -122,7 +180,11 @@ watch(
 			remaining):
 		</p>
 
-		<div v-for="proposal in localProposals" :key="proposal.id" class="mb-4">
+		<div
+			v-for="proposal in unChosenProposals"
+			:key="proposal.id"
+			class="mb-4"
+		>
 			<UCard class="bg-neutral-800">
 				<template #header>
 					<div class="text-lg font-semibold">
@@ -153,14 +215,14 @@ watch(
 
 		<UButton
 			:disabled="
-				props.loading ||
+				loading ||
 				choices.length < localMinChoices ||
 				choices.length > localMaxChoices
 			"
-			:loading="props.loading"
+			:loading="loading"
 			trailing-icon="i-lucide-check-circle"
 			class="mt-4 font-bold"
-			@click="emit('submit-choices', choices)"
+			@click="submitVotes"
 		>
 			Submit Choices
 		</UButton>
