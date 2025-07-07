@@ -100,6 +100,9 @@ const submitVotes = async () => {
 				/>
 			</UCard>
 		</div>
+        <div v-else class="my-4">
+            <p class="text-sm text-gray-400">Choose what prefer.</p>
+        </div>
 
 		<div v-for="proposal in localProposals" :key="proposal.id" class="mb-4">
 			<UCard class="bg-neutral-800">
