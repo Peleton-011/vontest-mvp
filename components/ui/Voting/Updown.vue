@@ -5,28 +5,65 @@ import DOMPurify from "dompurify";
 type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 
 const props = defineProps<{
+	form: { votes: Ref<{ proposalId: string; value: number }[]> };
 	proposals: Proposal[];
-	votesMap: Record<string, number>;
-	loading: boolean;
 }>();
 
 const emit = defineEmits<{
-	(e: "submit-votes"): void;
+	(e: "submit"): void;
 }>();
 
-const handleUpVote = (id: string) => {
-	const currentVotes = props.votesMap[id];
+// votesMap for easier UI binding
+const votesMap = ref<Record<string, number>>({});
+const loading = ref(false);
 
-	if (currentVotes === 1) props.votesMap[id] = 0;
-	else props.votesMap[id] = 1;
+const user = useSupabaseUser();
+
+const handleUpVote = (id: string) => {
+	const currentVotes = votesMap.value[id];
+
+	if (currentVotes === 1) votesMap.value[id] = 0;
+	else votesMap.value[id] = 1;
 };
 
 const handleDownVote = (id: string) => {
-	const currentVotes = props.votesMap[id];
+	const currentVotes = votesMap.value[id];
 
-	if (currentVotes === -1) props.votesMap[id] = 0;
-	else props.votesMap[id] = -1;
+	if (currentVotes === -1) votesMap.value[id] = 0;
+	else votesMap.value[id] = -1;
 };
+
+const submitVotes = async () => {
+	if (!user.value) {
+		alert("You must be logged in to submit votes.");
+		return;
+	}
+
+	loading.value = true;
+
+	// Update form.votes values before submitting
+
+	for (const [proposal, value] of Object.entries(votesMap.value)) {
+		if (value === 0) {
+			continue;
+		}
+
+		props.form.votes.value.push({
+			proposalId: proposal,
+			value: value,
+		});
+	}
+
+	emit("submit");
+
+	loading.value = false;
+};
+
+onMounted(() => {
+	props.proposals.forEach((proposal) => {
+		votesMap.value[proposal.id] = 0;
+	});
+});
 </script>
 
 <template>
@@ -48,12 +85,16 @@ const handleDownVote = (id: string) => {
 			<template #footer>
 				<div>
 					<UButton
-						:variant="votesMap[proposal.id] === 1 ? 'solid' : 'ghost'"
+						:variant="
+							votesMap[proposal.id] === 1 ? 'solid' : 'ghost'
+						"
 						icon="i-lucide-chevrons-up"
 						@click="handleUpVote(proposal.id)"
 					/>
 					<UButton
-						:variant="votesMap[proposal.id] === -1 ? 'solid' : 'ghost'"
+						:variant="
+							votesMap[proposal.id] === -1 ? 'solid' : 'ghost'
+						"
 						icon="i-lucide-chevrons-down"
 						@click="handleDownVote(proposal.id)"
 					/>
@@ -66,7 +107,7 @@ const handleDownVote = (id: string) => {
 			:loading="loading"
 			trailing-icon="i-lucide-check-circle"
 			class="font-bold"
-			@click="emit('submit-votes')"
+			@click="submitVotes"
 		>
 			Submit Votes
 		</UButton>
