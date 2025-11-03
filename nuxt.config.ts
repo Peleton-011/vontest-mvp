@@ -13,7 +13,16 @@ export default defineNuxtConfig({
 		"@nuxt/fonts",
 		"@nuxt/eslint",
 		"@nuxtjs/supabase",
+		"@nuxtjs/ionic",
 	],
+	ssr: false,
+	ionic: {
+		css: {
+			core: false,
+			basic: false,
+			utilities: false,
+		},
+	},
 	supabase: {
 		redirectOptions: {
 			login: "/login",
