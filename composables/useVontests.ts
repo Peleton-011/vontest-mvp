@@ -20,7 +20,7 @@ export const useVontests = () => {
 		id: null as string | null,
 		title: "",
 		description: "",
-		proposalPermission: "creator" as "creator" | "all",
+		proposalPermission: "all" as "creator" | "all",
 		votingSettings: "",
 	});
 

@@ -237,7 +237,7 @@ const handleStepperClick = (index: number | string | undefined) => {
 									form.proposalPermission
 										.value as RadioGroupValue
 								"
-								:items="permissionOptions"
+                                :items="permissionOptions"
 								variant="card"
 							/>
 						</UFormField>
@@ -246,6 +246,8 @@ const handleStepperClick = (index: number | string | undefined) => {
 							v-if="form.proposalPermission.value === 'creator'"
 							class="space-y-2"
 						>
+                        <h3>Options:</h3>
+                        <div class="text-xs text-gray-400 -mt-1">You can add more options later</div>
 							<div
 								v-for="(opt, i) in options"
 								:key="i"
@@ -253,7 +255,7 @@ const handleStepperClick = (index: number | string | undefined) => {
 							>
 								<UFormField
 									:name="`options.${i}.label`"
-									label="Option"
+									:label="'Option ' + (i + 1)"
 								>
 									<UInput
 										v-model="options[i].label"
@@ -283,9 +285,10 @@ const handleStepperClick = (index: number | string | undefined) => {
 							/>
 						</UFormField>
 
-						<UButton variant="outline" @click="toggleAdvanced">
+						<UButton v-if="false"  variant="outline" @click="toggleAdvanced">
 							{{ showAdvanced ? "Hide" : "Custom" }} Settings
 						</UButton>
+
 						<UCollapsible v-model:open="showAdvanced">
 							<template #content>
 								<UFormField name="anonymity" label="Anonymity">
@@ -327,7 +330,7 @@ const handleStepperClick = (index: number | string | undefined) => {
 								{{
 									form.proposalPermission.value === "creator"
 										? "Only you"
-										: "Participants"
+										: "Anyone"
 								}}
 							</p>
 							<div
