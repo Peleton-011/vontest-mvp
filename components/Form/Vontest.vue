@@ -383,12 +383,20 @@ const handleStepperClick = (index: number | string | undefined) => {
 								<strong>Voting Method:</strong>
 								{{ form.votingType }}
 							</p>
-							<p>
+                            <p>
+                                <strong>Min votes:</strong>
+                                {{ form.minVotes.value }}
+                            </p>
+                            <p>
+                                <strong>Max votes:</strong>
+                                {{ form.maxVotes.value }}
+                            </p>
+							<!-- <p>
 								<strong>Anonymity:</strong>
 								{{ anonymityValue }}<br />
 								<strong>Allow updates:</strong>
 								{{ form.allowRevoting ? "Yes" : "No" }}
-							</p>
+							</p> -->
 						</UCard>
 					</div>
 				</template>
