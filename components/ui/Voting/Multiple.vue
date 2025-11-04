@@ -1,5 +1,6 @@
+<!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
 import type { Database } from "~/types/supabase";
 import DOMPurify from "dompurify";
@@ -10,8 +11,8 @@ const props = withDefaults(
 	defineProps<{
 		proposals: Proposal[];
 		form: { votes: Ref<{ proposalId: string; value: number }[]> };
-		minimumChoices: number;
-		maximumChoices: number;
+		minimumChoices?: number;
+		maximumChoices?: number;
 	}>(),
 	{
 		minimumChoices: 0,
@@ -35,9 +36,6 @@ const loading = ref(false);
 const user = useSupabaseUser();
 const choices = ref<Proposal[]>([]);
 
-// === Computed ===
-const remainingToAdd = computed(() => localMinChoices - choices.value.length);
-
 // === Methods ===
 const addToChoices = (proposal: Proposal) => {
 	if (choices.value.length >= localMaxChoices) {
@@ -58,7 +56,7 @@ const addToChoices = (proposal: Proposal) => {
 
 const removeFromChoices = (proposalId: string) => {
 	unChosenProposals.value.push(
-		choices.value.find((p) => p.id === proposalId)!!
+		choices.value.find((p) => p.id === proposalId)!
 	);
 	choices.value = choices.value.filter((p) => p.id !== proposalId);
 };
@@ -125,7 +123,7 @@ const submitVotes = async () => {
 						class="space-y-2"
 					>
 						<li
-							v-for="(element, index) in choices"
+							v-for="element in choices"
 							:key="element.id"
 							class="list-decimal marker:font-bold"
 						>
@@ -162,10 +160,7 @@ const submitVotes = async () => {
 			</ClientOnly>
 		</div>
 		<p class="mb-2 text-gray-300">
-			Select at least {{ localMinChoices }} proposals ({{
-				remainingToAdd
-			}}
-			remaining):
+			Select at least {{ localMinChoices }} and up to {{ localMaxChoices }} options
 		</p>
 
 		<div

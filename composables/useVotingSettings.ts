@@ -60,8 +60,8 @@ export const useVotingSettings = () => {
 		votingStartAt: null as string | null,
 		votingEndAt: null as string | null,
 		requiresLogin: false,
-		maxVotes: 1,
-		minVotes: 1,
+		maxVotes: null as number | null,
+		minVotes: null as number | null,
 	});
 
 	const resetForm = () => {
@@ -73,8 +73,8 @@ export const useVotingSettings = () => {
 		form.votingStartAt = null;
 		form.votingEndAt = null;
 		form.requiresLogin = false;
-		form.maxVotes = 1;
-		form.minVotes = 1;
+		form.maxVotes = null;
+		form.minVotes = null;
 	};
 
 	const createVotingSetting = async () => {
