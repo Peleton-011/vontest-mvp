@@ -4,17 +4,25 @@ type Vontest = Database["public"]["Tables"]["vontests"]["Row"];
 type VontestInsert = Database["public"]["Tables"]["vontests"]["Insert"];
 type VontestUpdate = Partial<VontestInsert>;
 
-
 export const useVontests = () => {
-    const { submitThread } = useThread();
+	const { submitThread } = useThread();
 	const supabase = useSupabaseClient<Database>();
-	const { data, status, error, refresh } = useAsyncData<Vontest[]>(
-		"vontests",
-		() => $fetch("/api/vontests"),
-		{ server: true, lazy: false, default: () => [] }
-	);
 
-	const pending = computed(() => status.value === "pending");
+	const vontests = ref<Vontest[]>([]);
+	const error = ref<Error | null>(null);
+	const loading = ref(false);
+
+	const fetchVontests = async () => {
+		const { data, error: fetchError } = await supabase
+			.from("vontests")
+			.select("*")
+			.order("created_at", { ascending: false });
+		if (!fetchError) {
+			vontests.value = data || [];
+		} else {
+			error.value = fetchError;
+		}
+	};
 
 	const form = reactive({
 		id: null as string | null,
@@ -62,7 +70,7 @@ export const useVontests = () => {
 			throw error;
 		}
 		resetForm();
-		await refresh();
+		await fetchVontests();
 
 		//Make a thread for the vontest
 		submitThread({
@@ -88,7 +96,7 @@ export const useVontests = () => {
 
 		if (!error) {
 			resetForm();
-			await refresh();
+			await fetchVontests();
 		} else {
 			alert(error.message);
 		}
@@ -98,7 +106,7 @@ export const useVontests = () => {
 		const { error } = await supabase.from("vontests").delete().eq("id", id);
 
 		if (!error) {
-			await refresh();
+			await fetchVontests();
 		} else {
 			alert(error.message);
 		}
@@ -123,10 +131,10 @@ export const useVontests = () => {
 	};
 
 	return {
-		vontests: data,
-		loading: pending,
+		vontests,
+		loading,
 		error,
-		refresh,
+		fetchVontests,
 		form: { ...toRefs(form) },
 		createVontest,
 		updateVontest,
