@@ -130,6 +130,8 @@ export const useVontests = () => {
 		if (data) return data;
 	};
 
+    fetchVontests();
+
 	return {
 		vontests,
 		loading,
