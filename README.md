@@ -84,4 +84,14 @@ Generate types with:
 npx supabase gen types typescript --project-id "tawensvvfjiaspqzqzqi" --schema public > ./types/supabase.ts
 ```
 
+To prepare for android build:
+
+```bash
+npx @capacitor/assets generate  --splashBackgroundColor '#0f172b' 
+npm run build
+npx cap copy android
+npx cap sync android
+npx cap open android
+```
+
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
