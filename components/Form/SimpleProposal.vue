@@ -4,7 +4,7 @@ const props = defineProps<{
 }>();
 
 const open = ref(false);
-const { form, submitProposal, loading, error } = useProposals(props.vontestId);
+const { form, submitProposal, loading } = useProposals(props.vontestId);
 
 const submit = async () => {
 	const newProposal = await submitProposal();
@@ -20,12 +20,12 @@ const submit = async () => {
 		<UButton
 			label="New Proposal"
 			variant="subtle"
-			@click="open = true"
 			block
+			@click="open = true"
 		/>
-		<UModal title="Submit a Proposal" v-model:open="open">
+		<UModal v-model:open="open" title="Submit a Proposal">
 			<template #body>
-				<form @submit.prevent="submit" class="space-y-4">
+				<form class="space-y-4" @submit.prevent="submit">
 					<div>
 						<label for="title" class="block text-sm mb-1"
 							>Title</label
