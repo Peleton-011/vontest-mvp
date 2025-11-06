@@ -88,10 +88,8 @@ onMounted(() => {
 		</section>
 
 		<!-- Proposals -->
-		<section
-			v-if="vontest && vontest.type === 'solution'"
-			class="p-6 max-w-4xl mx-auto text-white"
-		>
+		<!-- v-if="vontest && vontest.type === 'solution'" -->
+		<section class="p-6 max-w-4xl mx-auto text-white">
 			<div v-if="proposals.length > 0" class="space-y-4">
 				<div class="flex items-center justify-between">
 					<h2 class="text-2xl font-semibold">Browse Proposals</h2>
@@ -108,6 +106,10 @@ onMounted(() => {
 						</div>
 						<!-- Add Proposal -->
 						<UButton
+							v-if="
+								vontest?.type === 'solution' ||
+								vontest?.created_by === user?.id
+							"
 							label="New Proposal"
 							color="primary"
 							variant="subtle"
@@ -155,7 +157,7 @@ onMounted(() => {
 				No proposals yet. Be the first to suggest something.
 			</div>
 		</section>
-		<section
+		<!-- <section
 			v-else-if="vontest?.type === 'choice'"
 			class="p-6 max-w-4xl mx-auto text-white"
 		>
@@ -163,7 +165,7 @@ onMounted(() => {
 				:proposals="proposals"
 				:vontest-id="vontestId"
 			/>
-		</section>
+		</section> -->
 		<section class="px-6 flex justify-end">
 			<UButton
 				to="/dashboard"
