@@ -192,11 +192,15 @@ const handleStepperClick = (index: number | string | undefined) => {
 <template>
 	<div class="flex flex-col items-center">
 		<!-- Bind the form state via :state to UForm -->
-		<UForm :state="form" class="w-1/2" @submit.prevent="publish">
+		<UForm
+			:state="form"
+			class="px-4 max-w-100% md:max-w-3/4 lg:max-w-1/2"
+			@submit.prevent="publish"
+		>
 			<UStepper
+				id="stepper"
 				ref="stepper"
 				v-model="step"
-                
 				:items="stepperItems"
 				@update:model-value="handleStepperClick"
 			>
@@ -285,7 +289,7 @@ const handleStepperClick = (index: number | string | undefined) => {
 							<USelect
 								v-model="form.votingType.value"
 								:items="votingMethods"
-                                class="w-full"
+								class="w-full"
 							/>
 						</UFormField>
 
@@ -296,7 +300,7 @@ const handleStepperClick = (index: number | string | undefined) => {
 								form.votingType.value === 'ranked' ||
 								form.votingType.value === 'quadratic'
 							"
-                            class="ml-4"
+							class="ml-4"
 						>
 							<UFormField name="minVotes" label="Min votes">
 								<UInput
@@ -383,14 +387,14 @@ const handleStepperClick = (index: number | string | undefined) => {
 								<strong>Voting Method:</strong>
 								{{ form.votingType }}
 							</p>
-                            <p>
-                                <strong>Min votes:</strong>
-                                {{ form.minVotes.value }}
-                            </p>
-                            <p>
-                                <strong>Max votes:</strong>
-                                {{ form.maxVotes.value }}
-                            </p>
+							<p>
+								<strong>Min votes:</strong>
+								{{ form.minVotes.value }}
+							</p>
+							<p>
+								<strong>Max votes:</strong>
+								{{ form.maxVotes.value }}
+							</p>
 							<!-- <p>
 								<strong>Anonymity:</strong>
 								{{ anonymityValue }}<br />
@@ -427,3 +431,11 @@ const handleStepperClick = (index: number | string | undefined) => {
 		</UForm>
 	</div>
 </template>
+
+<style scoped>
+@media (max-width: 767px) {
+	:deep(#stepper div[id^="reka-stepper-item-title"]) {
+		visibility: hidden;
+	}
+}
+</style>
