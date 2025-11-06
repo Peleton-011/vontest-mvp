@@ -5,23 +5,31 @@ export default defineNuxtConfig({
 				devtools: { enabled: true },
 
 				css: ["~/assets/css/main.css"],
-
-				modules: [
-				 "@nuxt/content",
-				 "@nuxt/ui",
-				 "@nuxt/icon",
-				 "@nuxt/fonts",
-				 "@nuxt/eslint",
-				 "@nuxtjs/supabase",
-				 "@vueuse/nuxt",
-				],
-				supabase: {
-								redirectOptions: {
-												login: "/login",
-												callback: "/confirm",
-												exclude: ["/login", "/signup", "/", "/logout", "/confirm"],
-								},
-				},
+	modules: [
+		"@nuxt/content",
+		"@nuxt/ui",
+		"@nuxt/icon",
+		"@nuxt/fonts",
+		"@nuxt/eslint",
+		"@nuxtjs/supabase",
+  	"@vueuse/nuxt",
+		"@nuxtjs/ionic",
+	],
+	ssr: false,
+	ionic: {
+		css: {
+			core: false,
+			basic: false,
+			utilities: false,
+		},
+	},
+	supabase: {
+		redirectOptions: {
+			login: "/login",
+			callback: "/confirm",
+			exclude: ["/login", "/signup", "/", "/logout", "/confirm"],
+		},
+	},
 
 				vite: {
 								plugins: [tailwindcss()],
