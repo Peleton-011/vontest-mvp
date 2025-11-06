@@ -8,7 +8,7 @@
 				(props.class ? props.class : '')
 			"
 			content-type="html"
-			toolbar="full"
+			:toolbar="isMobile ? ['bold', 'italic', 'underline'] : 'full'"
 			:read-only="readOnly"
 			@ready="handleReady"
 			@selection-change="handleSelectionChange"
@@ -49,6 +49,15 @@ const emit = defineEmits([
 	"selection-change",
 	"text-change",
 ]);
+
+const breakpoints = useBreakpoints({
+	sm: 640,
+	md: 768,
+	lg: 1024,
+	xl: 1280,
+});
+
+const isMobile = breakpoints.smaller("md");
 
 const content = ref(props.modelValue);
 const contentMarkdown = ref(props.contentMarkdown);
