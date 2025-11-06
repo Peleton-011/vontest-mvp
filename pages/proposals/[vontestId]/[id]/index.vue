@@ -92,5 +92,14 @@ const navigateTo = (path: string) => router.push(path);
 		</UCard>
 
 		<UiCommentSection v-if="thread" :thread-id="thread?.id" />
+		<section class="px-6 flex justify-end">
+			<UButton
+				:to="`/vontests/${vontestId}`"
+				variant="outline"
+				leading-icon="i-lucide-arrow-left"
+			>
+				Back
+			</UButton>
+		</section>
 	</section>
 </template>
