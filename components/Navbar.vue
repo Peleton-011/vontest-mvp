@@ -1,6 +1,15 @@
 <script setup lang="ts">
 const user = useSupabaseUser();
 const route = useRoute();
+
+const breakpoints = useBreakpoints({
+	sm: 640,
+	md: 768,
+	lg: 1024,
+	xl: 1280,
+});
+
+const isMobile = breakpoints.smaller("md");
 </script>
 
 <template>
@@ -16,7 +25,7 @@ const route = useRoute();
 				>
 					Home
 				</NuxtLink>
-                <NuxtLink
+				<NuxtLink
 					v-if="user"
 					to="/dashboard"
 					class="text-lg font-semibold hover:text-primary-400 transition"
@@ -24,14 +33,14 @@ const route = useRoute();
 					Dashboard
 				</NuxtLink>
 				<NuxtLink
-					v-if="user"
+					v-if="user && !isMobile && false"
 					to="/protected"
 					class="text-lg font-semibold hover:text-primary-400 transition"
 				>
 					Protected
 				</NuxtLink>
-                <NuxtLink
-					v-if="user"
+				<NuxtLink
+					v-if="user && !isMobile && false"
 					to="/updates"
 					class="text-lg font-semibold hover:text-primary-400 transition"
 				>
@@ -56,7 +65,7 @@ const route = useRoute();
 					</NuxtLink>
 				</template>
 				<template v-else-if="user">
-                    <NuxtLink to="/logout">
+					<NuxtLink to="/logout">
 						<UButton class="font-bold" variant="outline">
 							Log Out
 							<UIcon name="i-lucide-log-out" class="ml-2" />
