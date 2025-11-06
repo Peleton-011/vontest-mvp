@@ -11,14 +11,13 @@ const {
 	updateProposal,
 	fetchProposal,
 	loading,
-	error,
 } = useProposals(props.vontestId);
 
 // Fetch proposal if it's an update
 onMounted(async () => {
 	if (props.proposalId) {
 		const proposal = await fetchProposal(props.proposalId);
-		proposal && editProposal(proposal);
+		if(proposal) editProposal(proposal);
 	}
 });
 
@@ -41,8 +40,8 @@ const submit = async () => {
 <template>
 	<div class="w-full flex flex-col items-center">
 		<form
-			@submit.prevent="submit"
 			class="space-y-4 md:max-w-3/4 lg:max-w-1/2"
+			@submit.prevent="submit"
 		>
 			<h1 class="text-2xl font-bold my-4 w-full text-center">
 				Submit a new Proposal
@@ -70,7 +69,7 @@ const submit = async () => {
 				</label>
 				<ClientOnly>
 					<!-- class="w-full rounded-[calc(var(--ui-radius)*1.5)] border-0 placeholder:text-(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-(--ui-text-highlighted) bg-(--ui-bg) ring ring-inset ring-(--ui-border-accented) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ui-primary]" -->
-					<MdEditor v-model="form.description.value" id="description" />
+					<MdEditor id="description" v-model="form.description.value" />
 				</ClientOnly>
 			</div>
 			<UButton type="submit" :loading="loading" class="font-bold" to="">

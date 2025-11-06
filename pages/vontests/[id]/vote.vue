@@ -5,7 +5,7 @@ import type { Database } from "~/types/supabase";
 type VotingSettings = Database["public"]["Tables"]["voting_settings"]["Row"];
 
 const route = useRoute();
-const user = useSupabaseUser();
+// const user = useSupabaseUser();
 const navigateTo = useRouter().push;
 
 const vontestId = route.params.id as string;
@@ -52,32 +52,34 @@ onMounted(async () => {
 			/>
 		</div>
 		<div v-else-if="votingType === 'multiple'">
-			Multiple Choice (+ Approval Voting)
+			Approval Voting (Multiple Choice)
 			<UiVotingMultiple
 				:proposals="proposals"
 				:form="{ votes: form.votes }"
-				:minimumChoices="settings?.min_votes ?? 3"
-				:maximumChoices="settings?.max_votes ?? -1"
+				:minimum-choices="settings?.min_votes ?? 1"
+				:maximum-choices="settings?.max_votes ?? -1"
 				@submit="onBallotCast"
 			/>
 		</div>
 		<div v-else-if="votingType === 'score'">
-			Score Voting (+ Likert)
+			Score Voting 
+            <!-- (+ Likert) -->
 			<UiVotingScore
 				:proposals="proposals"
 				:form="{ votes: form.votes }"
-				:maxVotes="settings?.max_votes ?? 10"
-				:minVotes="settings?.min_votes ?? 10"
+				:max-votes="settings?.max_votes ?? 10"
+				:min-votes="settings?.min_votes ?? 1"
 				@submit="onBallotCast"
 			/>
 		</div>
 		<div v-else-if="votingType === 'ranked'">
-			Ranked Choice (Like multiple choice but order matters)
+			Ranked Choice 
+            <!-- (Like multiple choice but order matters) -->
 			<UiVotingRanked
 				:proposals="proposals"
 				:form="{ votes: form.votes }"
-				:minimumChoices="3"
-				:maximumChoices="-1"
+				:minimum-choices="1"
+				:maximum-choices="-1"
 				@submit="onBallotCast"
 			/>
 		</div>
@@ -86,8 +88,8 @@ onMounted(async () => {
 			<UiVotingQuadratic
 				:proposals="proposals"
 				:form="{ votes: form.votes }"
-				:maxVotes="settings?.max_votes ?? 10"
-				:minVotes="settings?.min_votes ?? 1"
+				:max-votes="settings?.max_votes ?? 10"
+				:min-votes="settings?.min_votes ?? 1"
                 @submit="onBallotCast"
 			/>
 		</div>

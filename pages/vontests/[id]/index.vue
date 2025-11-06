@@ -59,7 +59,7 @@ onMounted(() => {
 					</div>
 				</template>
 				<p
-                    v-if="vontest.description"
+					v-if="vontest.description"
 					class="text-gray-400 markdown-body ql-editor"
 					v-html="DOMPurify.sanitize(vontest.description)"
 				/>
@@ -163,6 +163,15 @@ onMounted(() => {
 				:proposals="proposals"
 				:vontest-id="vontestId"
 			/>
+		</section>
+		<section class="px-6 flex justify-end">
+			<UButton
+				to="/dashboard"
+				variant="outline"
+				leading-icon="i-lucide-arrow-left"
+			>
+				Back
+			</UButton>
 		</section>
 	</div>
 </template>

@@ -1,11 +1,10 @@
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
-	compatibilityDate: "2024-11-01",
-	devtools: { enabled: true },
+				compatibilityDate: "2024-11-01",
+				devtools: { enabled: true },
 
-	css: ["~/assets/css/main.css"],
-
+				css: ["~/assets/css/main.css"],
 	modules: [
 		"@nuxt/content",
 		"@nuxt/ui",
@@ -13,6 +12,7 @@ export default defineNuxtConfig({
 		"@nuxt/fonts",
 		"@nuxt/eslint",
 		"@nuxtjs/supabase",
+  	"@vueuse/nuxt",
 		"@nuxtjs/ionic",
 	],
 	ssr: false,
@@ -31,18 +31,18 @@ export default defineNuxtConfig({
 		},
 	},
 
-	vite: {
-		plugins: [tailwindcss()],
-		build: {
-			rollupOptions: {
-				external: ["#supabase/server"],
-			},
-		},
-	},
+				vite: {
+								plugins: [tailwindcss()],
+								build: {
+												rollupOptions: {
+																external: ["#supabase/server"],
+												},
+								},
+				},
 
-	app: {
-		rootAttrs: {
-			"data-vaul-drawer-wrapper": "",
-		},
-	},
+				app: {
+								rootAttrs: {
+												"data-vaul-drawer-wrapper": "",
+								},
+				},
 });

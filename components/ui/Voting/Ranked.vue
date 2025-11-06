@@ -10,8 +10,8 @@ const props = withDefaults(
 	defineProps<{
 		proposals: Proposal[];
 		form: { votes: Ref<{ proposalId: string; value: number }[]> };
-		minimumChoices: number;
-		maximumChoices: number;
+		minimumChoices?: number;
+		maximumChoices?: number;
 	}>(),
 	{
 		minimumChoices: 0,
@@ -104,19 +104,17 @@ const submitVotes = async () => {
 
 	// Update form.votes values before submitting
 
-    ranking.value.forEach((proposal, index) => {
-        props.form.votes.value.push({
-            proposalId: proposal.id,
-            value: ranking.value.length - index,
-        });
-    });
+	ranking.value.forEach((proposal, index) => {
+		props.form.votes.value.push({
+			proposalId: proposal.id,
+			value: ranking.value.length - index,
+		});
+	});
 
 	emit("submit");
 
 	loading.value = false;
 };
-
-
 </script>
 
 <template>
@@ -135,7 +133,7 @@ const submitVotes = async () => {
 						class="space-y-2"
 					>
 						<li
-							v-for="(element, index) in ranking"
+							v-for="element in ranking"
 							:key="element.id"
 							class="list-decimal marker:font-bold"
 						>
@@ -228,10 +226,8 @@ const submitVotes = async () => {
 				</ClientOnly>
 			</div>
 			<p class="mb-2 text-gray-300">
-				Select at least {{ localMinChoices }} proposals to rank ({{
-					remainingToAdd
-				}}
-				remaining):
+				Select at least {{ localMinChoices }} and up to
+				{{ localMaxChoices }} options
 			</p>
 
 			<div

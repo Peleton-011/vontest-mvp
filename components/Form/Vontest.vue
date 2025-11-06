@@ -124,14 +124,14 @@ const anonymityOptions = ref<RadioGroupItem[]>([
 const votingMethods = ref<SelectItem[]>([
 	{ label: "Single choice", value: "single" },
 	{
-		label: "Multiple choice",
+		label: "Approval voting (multiple choice)",
 		value: "multiple",
 	},
 	{ label: "Ranked choice", value: "ranked" },
 	{ label: "Score voting", value: "score" },
 	{ label: "Updown", value: "updown" },
-	{ label: "Likert", value: "likert" },
-	{ label: "Quadratic voting", value: "quadratic" },
+	// { label: "Likert", value: "likert" },
+	// { label: "Quadratic voting", value: "quadratic" },
 ]);
 
 const options = ref<{ label: string }[]>([{ label: "" }]);
@@ -147,9 +147,9 @@ const toggleAdvanced = () => {
 };
 
 const publish = async () => {
-	console.log(form);
+	// console.log(form);
 	// Placeholder: handle form submission
-	console.log("Publishing vontest", form);
+	// console.log("Publishing vontest", form);
 
 	if (props.vontestId) {
 		//Handle submit of an update
@@ -169,13 +169,28 @@ const publish = async () => {
 	//Handle submit of a new vontest
 	const newVontest = await createVontest();
 
-	if (newVontest) {
-		navigateTo(`/vontests/${newVontest?.id}`);
+	if (!newVontest) {
+		console.error("Error creating vontest ");
+		alert("Error creating vontest");
+		return;
 	}
+
+	if (options.value.length > 0) {
+		const { form: proposalForm, submitProposal } = useProposals(
+			newVontest.id
+		);
+
+        for (const option of options.value) {
+            proposalForm.title.value = option.label;
+            await submitProposal();
+        }
+	}
+
+	navigateTo(`/vontests/${newVontest?.id}`);
 };
 
 const handleStepperClick = (index: number | string | undefined) => {
-	console.log(vontestForm);
+	// console.log(vontestForm);
 	if (typeof index !== "number") {
 		alert("Error with Stepper, clicked: " + index);
 		return;
@@ -192,8 +207,13 @@ const handleStepperClick = (index: number | string | undefined) => {
 <template>
 	<div class="flex flex-col items-center">
 		<!-- Bind the form state via :state to UForm -->
-		<UForm :state="form" class="w-1/2" @submit.prevent="publish">
+		<UForm
+			:state="form"
+			class="px-4 max-w-100% md:max-w-3/4 lg:max-w-1/2"
+			@submit.prevent="publish"
+		>
 			<UStepper
+				id="stepper"
 				ref="stepper"
 				v-model="step"
 				:items="stepperItems"
@@ -246,6 +266,10 @@ const handleStepperClick = (index: number | string | undefined) => {
 							v-if="form.proposalPermission.value === 'creator'"
 							class="space-y-2"
 						>
+							<h3>Options:</h3>
+							<div class="text-xs text-gray-400 -mt-1">
+								You can add more options later
+							</div>
 							<div
 								v-for="(opt, i) in options"
 								:key="i"
@@ -253,7 +277,7 @@ const handleStepperClick = (index: number | string | undefined) => {
 							>
 								<UFormField
 									:name="`options.${i}.label`"
-									label="Option"
+									:label="'Option ' + (i + 1)"
 								>
 									<UInput
 										v-model="options[i].label"
@@ -275,36 +299,68 @@ const handleStepperClick = (index: number | string | undefined) => {
 
 				<!-- Step 3: Voting Method -->
 				<template #voting>
-					<div class="space-y-4">
+					<div class="space-y-4 w-2/3 mx-auto">
 						<UFormField name="votingMethod" label="Voting Method">
 							<USelect
 								v-model="form.votingType.value"
 								:items="votingMethods"
+								class="w-full"
 							/>
 						</UFormField>
 
-						<UButton variant="outline" @click="toggleAdvanced">
-							{{ showAdvanced ? "Hide" : "Custom" }} Settings
-						</UButton>
-						<UCollapsible v-model:open="showAdvanced">
-							<template #content>
-								<UFormField name="anonymity" label="Anonymity">
-									<URadioGroup
-										v-model="anonymityValue"
-										:items="anonymityOptions"
-									/>
-								</UFormField>
-								<UFormField
-									name="allowUpdate"
-									label="Allow updates until close"
-								>
-									<UCheckbox
-										v-model="form.allowRevoting.value"
-									/>
-								</UFormField>
-								<!-- Add more custom controls as needed -->
-							</template>
-						</UCollapsible>
+						<div
+							v-if="
+								form.votingType.value === 'multiple' ||
+								form.votingType.value === 'score' ||
+								form.votingType.value === 'ranked' ||
+								form.votingType.value === 'quadratic'
+							"
+							class="ml-4"
+						>
+							<UFormField name="minVotes" label="Min votes">
+								<UInput
+									v-model="form.minVotes.value"
+									type="number"
+									class="w-full"
+								/>
+							</UFormField>
+							<UFormField name="maxVotes" label="Max votes">
+								<UInput
+									v-model="form.maxVotes.value"
+									type="number"
+									class="w-full"
+								/>
+							</UFormField>
+						</div>
+
+						<div v-if="false">
+							<UButton variant="outline" @click="toggleAdvanced">
+								{{ showAdvanced ? "Hide" : "Custom" }} Settings
+							</UButton>
+
+							<UCollapsible v-model:open="showAdvanced">
+								<template #content>
+									<UFormField
+										name="anonymity"
+										label="Anonymity"
+									>
+										<URadioGroup
+											v-model="anonymityValue"
+											:items="anonymityOptions"
+										/>
+									</UFormField>
+									<UFormField
+										name="allowUpdate"
+										label="Allow updates until close"
+									>
+										<UCheckbox
+											v-model="form.allowRevoting.value"
+										/>
+									</UFormField>
+									<!-- Add more custom controls as needed -->
+								</template>
+							</UCollapsible>
+						</div>
 					</div>
 				</template>
 
@@ -327,7 +383,7 @@ const handleStepperClick = (index: number | string | undefined) => {
 								{{
 									form.proposalPermission.value === "creator"
 										? "Only you"
-										: "Participants"
+										: "Anyone"
 								}}
 							</p>
 							<div
@@ -347,11 +403,19 @@ const handleStepperClick = (index: number | string | undefined) => {
 								{{ form.votingType }}
 							</p>
 							<p>
+								<strong>Min votes:</strong>
+								{{ form.minVotes.value }}
+							</p>
+							<p>
+								<strong>Max votes:</strong>
+								{{ form.maxVotes.value }}
+							</p>
+							<!-- <p>
 								<strong>Anonymity:</strong>
 								{{ anonymityValue }}<br />
 								<strong>Allow updates:</strong>
 								{{ form.allowRevoting ? "Yes" : "No" }}
-							</p>
+							</p> -->
 						</UCard>
 					</div>
 				</template>
@@ -382,3 +446,11 @@ const handleStepperClick = (index: number | string | undefined) => {
 		</UForm>
 	</div>
 </template>
+
+<style scoped>
+@media (max-width: 767px) {
+	:deep(#stepper div[id^="reka-stepper-item-title"]) {
+		visibility: hidden;
+	}
+}
+</style>
