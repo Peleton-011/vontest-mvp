@@ -169,9 +169,24 @@ const publish = async () => {
 	//Handle submit of a new vontest
 	const newVontest = await createVontest();
 
-	if (newVontest) {
-		navigateTo(`/vontests/${newVontest?.id}`);
+	if (!newVontest) {
+		console.error("Error creating vontest ");
+		alert("Error creating vontest");
+		return;
 	}
+
+	if (options.value.length > 0) {
+		const { form: proposalForm, submitProposal } = useProposals(
+			newVontest.id
+		);
+
+        for (const option of options.value) {
+            proposalForm.title.value = option.label;
+            await submitProposal();
+        }
+	}
+
+	navigateTo(`/vontests/${newVontest?.id}`);
 };
 
 const handleStepperClick = (index: number | string | undefined) => {
