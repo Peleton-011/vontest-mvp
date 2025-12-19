@@ -139,20 +139,20 @@ CREATE TRIGGER on_debate_match_created
 -- ==========================================
 
 -- View to see games with their threads
-CREATE OR REPLACE VIEW game_instances_with_threads AS
-SELECT
-  gi.*,
-  t.id as thread_id
-FROM game_instances gi
-LEFT JOIN threads t ON t.reference_id = gi.id AND t.type = 'game_instance';
+-- CREATE OR REPLACE VIEW game_instances_with_threads AS
+-- SELECT
+--   gi.*,
+--   t.id as thread_id
+-- FROM game_instances gi
+-- LEFT JOIN threads t ON t.reference_id = gi.id AND t.type = 'game_instance';
 
 -- View to see debate matches with their threads
-CREATE OR REPLACE VIEW debate_matches_with_threads AS
-SELECT
-  dm.*,
-  t.id as thread_id
-FROM debate_matches dm
-LEFT JOIN threads t ON t.reference_id = dm.id AND t.type = 'debate_match';
+-- CREATE OR REPLACE VIEW debate_matches_with_threads AS
+-- SELECT
+--   dm.*,
+--   t.id as thread_id
+-- FROM debate_matches dm
+-- LEFT JOIN threads t ON t.reference_id = dm.id AND t.type = 'debate_match';
 
 -- ==========================================
 -- COMMENTS
