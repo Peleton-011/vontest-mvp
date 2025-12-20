@@ -33,6 +33,13 @@ const isMobile = breakpoints.smaller("md");
 					Dashboard
 				</NuxtLink>
 				<NuxtLink
+					v-if="user"
+					to="/games"
+					class="text-lg font-semibold hover:text-primary-400 transition"
+				>
+					Games
+				</NuxtLink>
+				<NuxtLink
 					v-if="user && !isMobile && false"
 					to="/protected"
 					class="text-lg font-semibold hover:text-primary-400 transition"
