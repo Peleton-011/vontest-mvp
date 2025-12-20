@@ -5,6 +5,13 @@ export default defineNuxtConfig({
 				devtools: { enabled: true },
 
 				css: ["~/assets/css/main.css"],
+
+	runtimeConfig: {
+		public: {
+			siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+		},
+	},
+
 	modules: [
 		"@nuxt/content",
 		"@nuxt/ui",
