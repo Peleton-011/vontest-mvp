@@ -692,6 +692,71 @@ export type Database = {
           },
         ]
       }
+      group_invite_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          group_id: string
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          uses_count: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          group_id: string
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          uses_count?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          group_id?: string
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          uses_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_invite_codes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_invite_codes_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_invite_codes_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "recent_games_detailed"
+            referencedColumns: ["group_id"]
+          },
+          {
+            foreignKeyName: "group_invite_codes_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "user_groups_with_stats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_members: {
         Row: {
           group_id: string
@@ -774,6 +839,49 @@ export type Database = {
           {
             foreignKeyName: "groups_created_by_fkey"
             columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invite_code_uses: {
+        Row: {
+          id: string
+          invite_code_id: string
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          invite_code_id: string
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          invite_code_id?: string
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invite_code_uses_invite_code_id_fkey"
+            columns: ["invite_code_id"]
+            isOneToOne: false
+            referencedRelation: "group_invite_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invite_code_uses_invite_code_id_fkey"
+            columns: ["invite_code_id"]
+            isOneToOne: false
+            referencedRelation: "group_invite_codes_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invite_code_uses_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1042,6 +1150,52 @@ export type Database = {
           },
         ]
       }
+      group_invite_codes_with_stats: {
+        Row: {
+          actual_uses: number | null
+          code: string | null
+          created_at: string | null
+          created_by: string | null
+          created_by_username: string | null
+          expires_at: string | null
+          group_id: string | null
+          group_name: string | null
+          id: string | null
+          is_active: boolean | null
+          max_uses: number | null
+          uses_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_invite_codes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_invite_codes_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_invite_codes_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "recent_games_detailed"
+            referencedColumns: ["group_id"]
+          },
+          {
+            foreignKeyName: "group_invite_codes_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "user_groups_with_stats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recent_games_detailed: {
         Row: {
           comment_count: number | null
@@ -1208,7 +1362,17 @@ export type Database = {
         Args: { p_group_id: string }
         Returns: string
       }
+      create_group_invite_code: {
+        Args: {
+          p_expires_in_days?: number
+          p_group_id: string
+          p_max_uses?: number
+        }
+        Returns: string
+      }
+      deactivate_invite_code: { Args: { p_code: string }; Returns: boolean }
       expire_old_games: { Args: never; Returns: undefined }
+      generate_invite_code: { Args: never; Returns: string }
       get_active_game: {
         Args: { p_group_id: string }
         Returns: {
@@ -1242,6 +1406,7 @@ export type Database = {
         }[]
       }
       get_game_thread: { Args: { p_game_instance_id: string }; Returns: string }
+      get_group_from_invite_code: { Args: { p_code: string }; Returns: Json }
       get_group_game_history: {
         Args: { p_group_id: string; p_limit?: number; p_offset?: number }
         Returns: {
@@ -1328,6 +1493,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      join_group_via_code: { Args: { p_code: string }; Returns: Json }
       user_can_access_game: {
         Args: { p_game_instance_id: string; p_user_id: string }
         Returns: boolean
