@@ -2,16 +2,17 @@
 
 ## 🎯 What Can You Test Now?
 
-The Groups module is ready for end-to-end testing! Here's everything you can do:
+The Groups module with invite code system is ready for end-to-end testing! Here's everything you can do:
 
 ---
 
 ## ✅ Prerequisites
 
-1. **Database migrations completed** - All 5 migration files run in Supabase
+1. **Database migrations completed** - All 6 migration files run in Supabase (including 006_invite_codes_system.sql)
 2. **TypeScript types updated** - `types/supabase.ts` regenerated
 3. **App running** - `npm run dev` on `http://localhost:3000`
 4. **Logged in** - You must be authenticated to access games
+5. **Environment variable set** - `NUXT_PUBLIC_SITE_URL` configured (optional, defaults to localhost:3000)
 
 ---
 
@@ -106,22 +107,128 @@ ORDER BY joined_at DESC LIMIT 1;
 
 ---
 
-### Scenario 5: Leave a Group (Non-Admin)
-
-**Note:** This requires another user. For now, you can test by:
+### Scenario 5: Create Invite Code
 
 **Steps:**
-1. Create a second test account
-2. As admin, you'd need to invite them (feature coming next)
-3. As non-admin member, click **"Leave Group"**
-4. Confirm the dialog
-5. Should redirect to `/games` list
+1. Go to your group page `/games/{group-id}`
+2. Click the **"Invite"** tab
+3. You should see empty state: "No active invite links"
+4. Click **"Create Invite Link"** button
+5. A new invite code should appear in the list
+6. The code should show:
+   - 8-character random code (e.g., "abc123xy")
+   - Creation date
+   - Uses count (0 / unlimited)
+   - Full invite URL
+7. Click **"Copy Link"** button
+8. You should see alert: "Invite link copied to clipboard!"
+
+**Expected Results:**
+- ✅ Invite code generated successfully
+- ✅ Shows in active invites list
+- ✅ Full URL displayed (e.g., `http://localhost:3000/games/join/abc123xy`)
+- ✅ Copy to clipboard works
+- ✅ Uses count shows 0
+
+**Database Verification:**
+```sql
+-- Check invite code was created
+SELECT * FROM group_invite_codes
+WHERE group_id = 'your-group-id'
+ORDER BY created_at DESC LIMIT 1;
+
+-- Should show: is_active = true, uses_count = 0
+```
+
+---
+
+### Scenario 6: Join Group via Invite Link
+
+**Note:** Best tested with a second account or incognito window
+
+**Steps:**
+1. Copy an invite link from Scenario 5
+2. **Option A:** Open in incognito window and log in with different account
+3. **Option B:** Create a second test account
+4. Paste the invite link (e.g., `http://localhost:3000/games/join/abc123xy`)
+5. You should see group preview page with:
+   - "You've been invited!" header
+   - Group name and description
+   - Member count
+   - Expiration date (if set)
+   - Uses count (if limited)
+6. Click **"Join Group"** button
+7. Should auto-redirect to group page after 0.5 seconds
+8. You should now be a member of the group
+
+**Expected Results:**
+- ✅ Group preview shows correct info
+- ✅ Join button works
+- ✅ Redirects to `/games/{group-id}`
+- ✅ You appear in Members tab as "Member" role
+- ✅ Group appears in your `/games` list
+- ✅ Uses count incremented in invite code
+
+**Database Verification:**
+```sql
+-- Check you were added as member
+SELECT * FROM group_members
+WHERE group_id = 'group-id' AND user_id = 'your-user-id';
+
+-- Check invite code use was tracked
+SELECT * FROM invite_code_uses
+WHERE code = 'abc123xy'
+ORDER BY used_at DESC LIMIT 1;
+
+-- Check uses count incremented
+SELECT uses_count FROM group_invite_codes
+WHERE code = 'abc123xy';
+```
+
+---
+
+### Scenario 7: Deactivate Invite Code
+
+**Steps:**
+1. As group admin, go to **"Invite"** tab
+2. Find an active invite code
+3. Click the **X** (deactivate) button
+4. Confirm the dialog: "Are you sure you want to deactivate this invite link?"
+5. Code should disappear from active list
+
+**Expected Results:**
+- ✅ Confirmation dialog appears
+- ✅ Code is deactivated
+- ✅ Disappears from active invites
+- ✅ Link no longer works (try joining - should show error)
+
+**Database Verification:**
+```sql
+-- Check code was deactivated
+SELECT is_active FROM group_invite_codes
+WHERE code = 'abc123xy';
+-- Should return: is_active = false
+```
+
+---
+
+### Scenario 8: Leave a Group (Non-Admin)
+
+**Note:** This requires being a non-admin member (use account from Scenario 6)
+
+**Steps:**
+1. As non-admin member, go to group page
+2. Click **"Leave Group"** button (top right)
+3. Confirm the dialog
+4. Should redirect to `/games` list
+5. Group no longer appears in your list
 
 **Expected Results:**
 - ✅ Confirmation dialog appears
 - ✅ Successfully leaves group
 - ✅ Redirects to groups list
 - ✅ Group no longer appears in your list
+- ✅ Admin can see you're no longer in Members tab
 
 ---
 
@@ -155,11 +262,13 @@ ORDER BY joined_at DESC LIMIT 1;
 
 These features will come in the next development session:
 
-- ⏳ **Invite members** - Button exists but doesn't work yet
-- ⏳ **Group settings** - Settings button doesn't work yet
+- ✅ **Invite members via codes** - COMPLETED! Shareable invite links work
+- ⏳ **Group settings page** - Settings button doesn't work yet
 - ⏳ **Edit group** - Can't edit name/description yet
 - ⏳ **Delete group** - No delete functionality yet
 - ⏳ **Upload avatar** - Avatar URL field exists but no upload UI
+- ⏳ **Promote/demote members** - Can't change member roles yet
+- ⏳ **Remove members** - Admin can't kick members yet (they must leave)
 - ⏳ **Active games** - No games created yet (needs game module)
 - ⏳ **Game history** - No past games to show yet
 
@@ -264,23 +373,39 @@ You've successfully completed testing if you can:
 
 Once testing is complete, we'll build:
 
-### Phase 3: Invitations System
-- Send invitations by username or email
-- Accept/decline invitations
-- Pending invitations badge
+### ✅ Phase 2: Invite Code System - COMPLETED!
+- ✅ Generate shareable invite codes
+- ✅ Join groups via invite links
+- ✅ Preview group before joining
+- ✅ Track code usage and expiration
+- ✅ Deactivate codes (admin only)
 
-### Phase 4: Group Management
-- Edit group settings
+### Phase 3: Game Instances Module
+- Create `useGameInstances.ts` composable
+- Create `useGameResponses.ts` composable
+- Create `useGameVotes.ts` composable
+- Build first game type: "Would You Rather Ranked"
+- Intensity slider component (1-10 scale)
+- Distribution chart component
+- Game results page
+
+### Phase 4: Daily Automation
+- Edge Function for daily game generation
+- Cron job scheduling
+- Game expiration handling
+- Push notifications (optional for MVP)
+
+### Phase 5: Additional Group Management
+- Edit group settings page
 - Delete groups
 - Upload group avatars
 - Remove members (admin only)
 - Promote/demote members
 
-### Phase 5: First Game Type
-- "Would You Rather Ranked"
-- Daily game generation
-- Intensity voting (1-10 scale)
-- Distribution analytics
+### Phase 6: Additional Game Types
+- Hot Takes (with debate matching)
+- Guess Who Said It (multi-phase)
+- Most Likely To
 
 ---
 
@@ -295,5 +420,5 @@ Let me know if you encounter any issues! 🚀
 
 ---
 
-*Last Updated: 2024-12-19*
-*Status: Groups Module - E2E Testing Ready*
+*Last Updated: 2025-12-20*
+*Status: Groups Module + Invite Code System - E2E Testing Ready*
