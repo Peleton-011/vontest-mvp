@@ -109,13 +109,6 @@
 							<h3 class="text-lg font-semibold">
 								Members ({{ memberCount }})
 							</h3>
-							<UButton
-								v-if="isAdmin"
-								icon="i-heroicons-user-plus"
-								size="sm"
-							>
-								Invite Member
-							</UButton>
 						</div>
 
 						<div class="space-y-3">
@@ -142,6 +135,95 @@
 						</div>
 					</div>
 				</template>
+
+				<!-- Invite Tab -->
+				<template #invite>
+					<div class="py-6 space-y-6">
+						<!-- Create Invite Section -->
+						<div v-if="isAdmin">
+							<div class="flex justify-between items-center mb-4">
+								<div>
+									<h3 class="text-lg font-semibold">Invite Links</h3>
+									<p class="text-sm text-gray-600">Share these links to invite friends</p>
+								</div>
+								<UButton
+									@click="handleCreateInvite"
+									icon="i-heroicons-plus"
+									:loading="inviteLoading"
+								>
+									New Invite Link
+								</UButton>
+							</div>
+						</div>
+
+						<!-- Active Invite Codes -->
+						<div v-if="activeInviteCodes.length > 0">
+							<h4 class="text-sm font-semibold text-gray-700 mb-3">Active Invites</h4>
+							<div class="space-y-3">
+								<UCard
+									v-for="code in activeInviteCodes"
+									:key="code.id"
+									class="p-4"
+								>
+									<div class="space-y-3">
+										<div class="flex justify-between items-start">
+											<div class="flex-1">
+												<p class="font-mono text-lg font-semibold">{{ code.code }}</p>
+												<p class="text-sm text-gray-600 mt-1">
+													Created {{ new Date(code.created_at).toLocaleDateString() }}
+													<span v-if="code.expires_at">
+														• Expires {{ new Date(code.expires_at).toLocaleDateString() }}
+													</span>
+												</p>
+												<p class="text-sm text-gray-600">
+													<UIcon name="i-heroicons-ticket" class="w-4 h-4 inline" />
+													{{ code.uses_count }} {{ code.max_uses ? `/ ${code.max_uses}` : '' }} uses
+												</p>
+											</div>
+											<div class="flex gap-2">
+												<UButton
+													size="sm"
+													icon="i-heroicons-clipboard-document"
+													@click="handleCopyLink(code.code)"
+												>
+													Copy Link
+												</UButton>
+												<UButton
+													v-if="isAdmin"
+													size="sm"
+													color="red"
+													variant="ghost"
+													icon="i-heroicons-x-mark"
+													@click="handleDeactivate(code.code)"
+												/>
+											</div>
+										</div>
+										<div class="bg-gray-50 p-3 rounded text-xs font-mono break-all">
+											{{ getInviteLink(code.code) }}
+										</div>
+									</div>
+								</UCard>
+							</div>
+						</div>
+
+						<!-- Empty State -->
+						<div v-else class="text-center py-12">
+							<UIcon name="i-heroicons-link" class="w-16 h-16 mx-auto text-gray-400" />
+							<h3 class="text-xl font-semibold mt-4">No active invite links</h3>
+							<p class="text-gray-600 mt-2">
+								{{ isAdmin ? 'Create an invite link to share with friends' : 'Ask an admin to create an invite link' }}
+							</p>
+							<UButton
+								v-if="isAdmin"
+								@click="handleCreateInvite"
+								class="mt-6"
+								icon="i-heroicons-plus"
+							>
+								Create Invite Link
+							</UButton>
+						</div>
+					</div>
+				</template>
 			</UTabs>
 		</div>
 	</div>
@@ -158,6 +240,7 @@ const groupId = computed(() => route.params.groupId as string);
 
 const { fetchGroup, loading: groupLoading, error: groupError } = useGroups();
 const { members, memberCount, isAdmin, loading: membersLoading, error: membersError, leaveGroup } = useGroupMembers(groupId);
+const { inviteCodes, activeInviteCodes, createInviteCode, deactivateCode, getInviteLink, copyInviteLink, loading: inviteLoading } = useInviteCodes(groupId);
 
 const group = ref<any>(null);
 const loading = computed(() => groupLoading.value || membersLoading.value);
@@ -179,6 +262,11 @@ const tabs = [
 		label: 'Members',
 		icon: 'i-heroicons-users',
 	},
+	{
+		slot: 'invite',
+		label: 'Invite',
+		icon: 'i-heroicons-link',
+	},
 ];
 
 const handleLeave = async () => {
@@ -187,6 +275,28 @@ const handleLeave = async () => {
 		if (success) {
 			navigateTo('/games');
 		}
+	}
+};
+
+const handleCreateInvite = async () => {
+	const code = await createInviteCode();
+	if (code) {
+		// Success! Code will appear in the list
+		console.log('Created invite code:', code);
+	}
+};
+
+const handleCopyLink = async (code: string) => {
+	const success = await copyInviteLink(code);
+	if (success) {
+		// TODO: Show toast notification
+		alert('Invite link copied to clipboard!');
+	}
+};
+
+const handleDeactivate = async (code: string) => {
+	if (confirm('Are you sure you want to deactivate this invite link?')) {
+		await deactivateCode(code);
 	}
 };
 
