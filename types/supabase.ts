@@ -85,13 +85,6 @@ export type Database = {
             foreignKeyName: "comment_links_thread_id_fkey"
             columns: ["thread_id"]
             isOneToOne: false
-            referencedRelation: "recent_games_detailed"
-            referencedColumns: ["thread_id"]
-          },
-          {
-            foreignKeyName: "comment_links_thread_id_fkey"
-            columns: ["thread_id"]
-            isOneToOne: false
             referencedRelation: "threads"
             referencedColumns: ["id"]
           },
@@ -120,13 +113,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "comments_thread_id_fkey"
-            columns: ["thread_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
-            referencedColumns: ["thread_id"]
-          },
           {
             foreignKeyName: "comments_thread_id_fkey"
             columns: ["thread_id"]
@@ -185,29 +171,8 @@ export type Database = {
             foreignKeyName: "debate_matches_game_instance_id_fkey"
             columns: ["game_instance_id"]
             isOneToOne: false
-            referencedRelation: "active_games_with_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "debate_matches_game_instance_id_fkey"
-            columns: ["game_instance_id"]
-            isOneToOne: false
             referencedRelation: "game_instances"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "debate_matches_game_instance_id_fkey"
-            columns: ["game_instance_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "debate_matches_thread_id_fkey"
-            columns: ["thread_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
-            referencedColumns: ["thread_id"]
           },
           {
             foreignKeyName: "debate_matches_thread_id_fkey"
@@ -266,21 +231,7 @@ export type Database = {
             foreignKeyName: "game_analytics_game_instance_id_fkey"
             columns: ["game_instance_id"]
             isOneToOne: false
-            referencedRelation: "active_games_with_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "game_analytics_game_instance_id_fkey"
-            columns: ["game_instance_id"]
-            isOneToOne: false
             referencedRelation: "game_instances"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "game_analytics_game_instance_id_fkey"
-            columns: ["game_instance_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
             referencedColumns: ["id"]
           },
         ]
@@ -330,20 +281,6 @@ export type Database = {
             referencedRelation: "groups"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "game_instances_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
-            referencedColumns: ["group_id"]
-          },
-          {
-            foreignKeyName: "game_instances_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "user_groups_with_stats"
-            referencedColumns: ["id"]
-          },
         ]
       }
       game_leaderboards: {
@@ -379,20 +316,6 @@ export type Database = {
             referencedRelation: "groups"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "game_leaderboards_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
-            referencedColumns: ["group_id"]
-          },
-          {
-            foreignKeyName: "game_leaderboards_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "user_groups_with_stats"
-            referencedColumns: ["id"]
-          },
         ]
       }
       game_phase_history: {
@@ -422,21 +345,7 @@ export type Database = {
             foreignKeyName: "game_phase_history_game_instance_id_fkey"
             columns: ["game_instance_id"]
             isOneToOne: false
-            referencedRelation: "active_games_with_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "game_phase_history_game_instance_id_fkey"
-            columns: ["game_instance_id"]
-            isOneToOne: false
             referencedRelation: "game_instances"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "game_phase_history_game_instance_id_fkey"
-            columns: ["game_instance_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
             referencedColumns: ["id"]
           },
         ]
@@ -474,21 +383,7 @@ export type Database = {
             foreignKeyName: "game_responses_game_instance_id_fkey"
             columns: ["game_instance_id"]
             isOneToOne: false
-            referencedRelation: "active_games_with_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "game_responses_game_instance_id_fkey"
-            columns: ["game_instance_id"]
-            isOneToOne: false
             referencedRelation: "game_instances"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "game_responses_game_instance_id_fkey"
-            columns: ["game_instance_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
             referencedColumns: ["id"]
           },
           {
@@ -524,21 +419,7 @@ export type Database = {
             foreignKeyName: "game_user_scores_game_instance_id_fkey"
             columns: ["game_instance_id"]
             isOneToOne: false
-            referencedRelation: "active_games_with_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "game_user_scores_game_instance_id_fkey"
-            columns: ["game_instance_id"]
-            isOneToOne: false
             referencedRelation: "game_instances"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "game_user_scores_game_instance_id_fkey"
-            columns: ["game_instance_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
             referencedColumns: ["id"]
           },
           {
@@ -583,21 +464,7 @@ export type Database = {
             foreignKeyName: "game_votes_game_instance_id_fkey"
             columns: ["game_instance_id"]
             isOneToOne: false
-            referencedRelation: "active_games_with_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "game_votes_game_instance_id_fkey"
-            columns: ["game_instance_id"]
-            isOneToOne: false
             referencedRelation: "game_instances"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "game_votes_game_instance_id_fkey"
-            columns: ["game_instance_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
             referencedColumns: ["id"]
           },
           {
@@ -660,20 +527,6 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "group_invitations_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
-            referencedColumns: ["group_id"]
-          },
-          {
-            foreignKeyName: "group_invitations_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "user_groups_with_stats"
             referencedColumns: ["id"]
           },
           {
@@ -741,20 +594,6 @@ export type Database = {
             referencedRelation: "groups"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "group_invite_codes_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
-            referencedColumns: ["group_id"]
-          },
-          {
-            foreignKeyName: "group_invite_codes_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "user_groups_with_stats"
-            referencedColumns: ["id"]
-          },
         ]
       }
       group_members: {
@@ -782,20 +621,6 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "group_members_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
-            referencedColumns: ["group_id"]
-          },
-          {
-            foreignKeyName: "group_members_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "user_groups_with_stats"
             referencedColumns: ["id"]
           },
           {
@@ -870,13 +695,6 @@ export type Database = {
             columns: ["invite_code_id"]
             isOneToOne: false
             referencedRelation: "group_invite_codes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invite_code_uses_invite_code_id_fkey"
-            columns: ["invite_code_id"]
-            isOneToOne: false
-            referencedRelation: "group_invite_codes_with_stats"
             referencedColumns: ["id"]
           },
           {
@@ -1108,200 +926,7 @@ export type Database = {
       }
     }
     Views: {
-      active_games_with_stats: {
-        Row: {
-          created_at: string | null
-          current_phase: string | null
-          expires_at: string | null
-          game_type: string | null
-          group_id: string | null
-          group_name: string | null
-          id: string | null
-          metadata: Json | null
-          participation_rate: number | null
-          phase_deadline: string | null
-          prompt: Json | null
-          response_count: number | null
-          status: string | null
-          total_members: number | null
-          vote_count: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "game_instances_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "game_instances_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
-            referencedColumns: ["group_id"]
-          },
-          {
-            foreignKeyName: "game_instances_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "user_groups_with_stats"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      group_invite_codes_with_stats: {
-        Row: {
-          actual_uses: number | null
-          code: string | null
-          created_at: string | null
-          created_by: string | null
-          created_by_username: string | null
-          expires_at: string | null
-          group_id: string | null
-          group_name: string | null
-          id: string | null
-          is_active: boolean | null
-          max_uses: number | null
-          uses_count: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "group_invite_codes_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "group_invite_codes_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "group_invite_codes_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
-            referencedColumns: ["group_id"]
-          },
-          {
-            foreignKeyName: "group_invite_codes_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "user_groups_with_stats"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      recent_games_detailed: {
-        Row: {
-          comment_count: number | null
-          created_at: string | null
-          current_phase: string | null
-          expires_at: string | null
-          game_type: string | null
-          group_id: string | null
-          group_name: string | null
-          id: string | null
-          member_count: number | null
-          prompt: Json | null
-          response_count: number | null
-          status: string | null
-          thread_id: string | null
-          vote_count: number | null
-        }
-        Relationships: []
-      }
-      user_groups_with_stats: {
-        Row: {
-          active_games_count: number | null
-          avatar_url: string | null
-          created_at: string | null
-          created_by: string | null
-          description: string | null
-          id: string | null
-          member_count: number | null
-          name: string | null
-          settings: Json | null
-          total_games_count: number | null
-        }
-        Insert: {
-          active_games_count?: never
-          avatar_url?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          description?: string | null
-          id?: string | null
-          member_count?: never
-          name?: string | null
-          settings?: Json | null
-          total_games_count?: never
-        }
-        Update: {
-          active_games_count?: never
-          avatar_url?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          description?: string | null
-          id?: string | null
-          member_count?: never
-          name?: string | null
-          settings?: Json | null
-          total_games_count?: never
-        }
-        Relationships: [
-          {
-            foreignKeyName: "groups_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_participation_summary: {
-        Row: {
-          games_responded: number | null
-          games_voted: number | null
-          group_id: string | null
-          group_name: string | null
-          total_score: number | null
-          user_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "group_members_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "group_members_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "recent_games_detailed"
-            referencedColumns: ["group_id"]
-          },
-          {
-            foreignKeyName: "group_members_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "user_groups_with_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "group_members_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       accept_group_invitation: {
@@ -1410,27 +1035,21 @@ export type Database = {
       get_group_game_history: {
         Args: { p_group_id: string; p_limit?: number; p_offset?: number }
         Returns: {
-          comment_count: number | null
-          created_at: string | null
-          current_phase: string | null
-          expires_at: string | null
-          game_type: string | null
-          group_id: string | null
-          group_name: string | null
-          id: string | null
-          member_count: number | null
-          prompt: Json | null
-          response_count: number | null
-          status: string | null
-          thread_id: string | null
-          vote_count: number | null
+          comment_count: number
+          created_at: string
+          current_phase: string
+          expires_at: string
+          game_type: string
+          group_id: string
+          group_name: string
+          id: string
+          member_count: number
+          prompt: string
+          response_count: number
+          status: string
+          thread_id: string
+          vote_count: number
         }[]
-        SetofOptions: {
-          from: "*"
-          to: "recent_games_detailed"
-          isOneToOne: false
-          isSetofReturn: true
-        }
       }
       get_group_members_with_stats: {
         Args: { p_group_id: string }
@@ -1475,23 +1094,25 @@ export type Database = {
       get_user_groups: {
         Args: { p_user_id: string }
         Returns: {
-          active_games_count: number | null
-          avatar_url: string | null
-          created_at: string | null
-          created_by: string | null
-          description: string | null
-          id: string | null
-          member_count: number | null
-          name: string | null
-          settings: Json | null
-          total_games_count: number | null
+          active_games_count: number
+          avatar_url: string
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          member_count: number
+          name: string
+          settings: Json
+          total_games_count: number
         }[]
-        SetofOptions: {
-          from: "*"
-          to: "user_groups_with_stats"
-          isOneToOne: false
-          isSetofReturn: true
-        }
+      }
+      is_group_admin: {
+        Args: { p_group_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      is_group_member: {
+        Args: { p_group_id: string; p_user_id: string }
+        Returns: boolean
       }
       join_group_via_code: { Args: { p_code: string }; Returns: Json }
       user_can_access_game: {
