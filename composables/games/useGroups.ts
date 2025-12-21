@@ -210,7 +210,7 @@ export const useGroups = () => {
 		// Parse settings from JSONB
 		if (group.settings && typeof group.settings === "object") {
 			const settings = group.settings as {
-				enabled_games?: string[];
+				enabled_games?: GameType[];
 				notification_time?: string;
 				timezone?: string;
 			};
