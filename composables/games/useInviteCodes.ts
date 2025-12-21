@@ -61,14 +61,34 @@ export const useInviteCodes = (groupId?: Ref<string> | string) => {
 		loading.value = true;
 
 		try {
+			// Query base table with joins instead of view (RLS-safe)
 			const { data, error: fetchError } = await supabase
-				.from("group_invite_codes_with_stats")
-				.select("*")
+				.from("group_invite_codes")
+				.select(`
+					*,
+					groups!inner(name),
+					profiles!group_invite_codes_created_by_fkey(username)
+				`)
 				.eq("group_id", currentGroupId.value)
 				.order("created_at", { ascending: false });
 
 			if (fetchError) throw fetchError;
-			inviteCodes.value = (data as InviteCodeWithStats[]) || [];
+
+			// Transform data to match InviteCodeWithStats interface
+			inviteCodes.value = (data || []).map((code) => ({
+				id: code.id,
+				group_id: code.group_id,
+				code: code.code,
+				created_by: code.created_by,
+				created_at: code.created_at,
+				expires_at: code.expires_at,
+				max_uses: code.max_uses,
+				uses_count: code.uses_count,
+				is_active: code.is_active,
+				group_name: (code.groups as any)?.name || "",
+				created_by_username: (code.profiles as any)?.username || null,
+				actual_uses: code.uses_count, // uses_count is kept up-to-date by the function
+			}));
 		} catch (err) {
 			error.value = err as Error;
 			console.error("Error fetching invite codes:", err);
