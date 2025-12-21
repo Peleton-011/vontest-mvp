@@ -126,7 +126,7 @@
 				>
 					<USelect
 						v-model="form.timezone.value"
-						:options="timezones"
+						:items="timezones"
 						:disabled="loading"
 					/>
 				</UFormGroup>
