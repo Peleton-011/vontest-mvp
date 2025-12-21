@@ -164,6 +164,11 @@
 									<UDropdownMenu
 										v-if="isAdmin && member.user_id !== user?.id"
 										:items="getMemberActions(member)"
+										:content="{
+											align: 'end',
+											side: 'bottom',
+											sideOffset: 8,
+										}"
 									>
 										<UButton
 											variant="ghost"
@@ -330,6 +335,7 @@
 
 <script setup lang="ts">
 import type { Database } from "~/types/supabase";
+import type { DropdownMenuItem } from "@nuxt/ui";
 
 type Group = Database["public"]["Tables"]["groups"]["Row"];
 
@@ -430,40 +436,33 @@ const handleDeactivate = async (code: string) => {
 /**
  * Member Management Actions
  */
-const getMemberActions = (member: any) => {
-	const actions = [];
+const getMemberActions = (member: any): DropdownMenuItem[] => {
+	const actions: DropdownMenuItem[] = [];
 
-	// Role management section
-	const roleActions = [];
+	// Role management actions
 	if (member.role === "admin") {
 		// Can only demote if there are other admins
 		if (adminCount.value > 1) {
-			roleActions.push({
+			actions.push({
 				label: "Remove Admin",
 				icon: "i-heroicons-shield-exclamation",
-				click: () => handleDemote(member),
+				onSelect: () => handleDemote(member),
 			});
 		}
 	} else {
-		roleActions.push({
+		actions.push({
 			label: "Make Admin",
 			icon: "i-heroicons-shield-check",
-			click: () => handlePromote(member),
+			onSelect: () => handlePromote(member),
 		});
 	}
 
-	if (roleActions.length > 0) {
-		actions.push(roleActions);
-	}
-
-	// Remove member section (always available)
-	actions.push([
-		{
-			label: "Remove from Group",
-			icon: "i-heroicons-user-minus",
-			click: () => handleRemoveMember(member),
-		},
-	]);
+	// Remove member action (always available)
+	actions.push({
+		label: "Remove from Group",
+		icon: "i-heroicons-user-minus",
+		onSelect: () => handleRemoveMember(member),
+	});
 
 	return actions;
 };
