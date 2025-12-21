@@ -76,6 +76,7 @@
 						v-if="isAdmin"
 						variant="outline"
 						icon="i-heroicons-cog-6-tooth"
+						:to="`/games/${groupId}/settings`"
 					>
 						Settings
 					</UButton>
@@ -125,31 +126,51 @@
 							<UCard
 								v-for="member in members"
 								:key="member.user_id"
-								class="flex items-center justify-between p-4"
+								class="p-4"
 							>
-								<div class="flex items-center gap-3">
-									<UAvatar
-										:src="member.avatar_url"
-										:alt="member.username || 'User'"
-										size="md"
-									/>
-									<div>
-										<p class="font-medium">
-											{{
-												member.username ||
-												"Unknown User"
-											}}
-										</p>
-										<p class="text-sm text-gray-600">
-											{{
-												member.role === "admin"
-													? "👑 Admin"
-													: "Member"
-											}}
-											• {{ member.games_played }} games •
-											{{ member.total_score }} pts
-										</p>
+								<div class="flex items-center justify-between">
+									<div class="flex items-center gap-3">
+										<UAvatar
+											:src="member.avatar_url"
+											:alt="member.username || 'User'"
+											size="md"
+										/>
+										<div>
+											<p class="font-medium">
+												{{
+													member.username ||
+													"Unknown User"
+												}}
+												<span
+													v-if="member.user_id === user?.id"
+													class="text-xs text-gray-500"
+												>
+													(You)
+												</span>
+											</p>
+											<p class="text-sm text-gray-600">
+												{{
+													member.role === "admin"
+														? "👑 Admin"
+														: "Member"
+												}}
+												• {{ member.games_played }} games •
+												{{ member.total_score }} pts
+											</p>
+										</div>
 									</div>
+
+									<!-- Member Actions (Admin Only) -->
+									<UDropdown
+										v-if="isAdmin && member.user_id !== user?.id"
+										:items="getMemberActions(member)"
+									>
+										<UButton
+											variant="ghost"
+											color="gray"
+											icon="i-heroicons-ellipsis-vertical"
+										/>
+									</UDropdown>
 								</div>
 							</UCard>
 						</div>
@@ -318,16 +339,20 @@ definePageMeta({
 });
 
 const route = useRoute();
+const user = useSupabaseUser();
 const groupId = computed(() => route.params.groupId as string);
 
 const { fetchGroup, loading: groupLoading, error: groupError } = useGroups();
 const {
 	members,
 	memberCount,
+	adminCount,
 	isAdmin,
 	loading: membersLoading,
 	error: membersError,
 	leaveGroup,
+	removeMember,
+	updateRole,
 } = useGroupMembers(groupId);
 const {
 	activeInviteCodes,
@@ -366,6 +391,12 @@ const tabs = [
 ];
 
 const handleLeave = async () => {
+	// Prevent last admin from leaving
+	if (isAdmin.value && adminCount.value <= 1) {
+		alert("You are the only admin. Please promote another member to admin before leaving, or delete the group from settings.");
+		return;
+	}
+
 	if (confirm("Are you sure you want to leave this group?")) {
 		const success = await leaveGroup();
 		if (success) {
@@ -393,6 +424,76 @@ const handleCopyLink = async (code: string) => {
 const handleDeactivate = async (code: string) => {
 	if (confirm("Are you sure you want to deactivate this invite link?")) {
 		await deactivateCode(code);
+	}
+};
+
+/**
+ * Member Management Actions
+ */
+const getMemberActions = (member: any) => {
+	const actions = [];
+
+	// Role management
+	if (member.role === "admin") {
+		// Can only demote if there are other admins
+		if (adminCount.value > 1) {
+			actions.push([
+				{
+					label: "Remove Admin",
+					icon: "i-heroicons-shield-exclamation",
+					click: () => handleDemote(member),
+				},
+			]);
+		}
+	} else {
+		actions.push([
+			{
+				label: "Make Admin",
+				icon: "i-heroicons-shield-check",
+				click: () => handlePromote(member),
+			},
+		]);
+	}
+
+	// Remove member (always available)
+	actions.push([
+		{
+			label: "Remove from Group",
+			icon: "i-heroicons-user-minus",
+			click: () => handleRemoveMember(member),
+			color: "red" as const,
+		},
+	]);
+
+	return actions;
+};
+
+const handlePromote = async (member: any) => {
+	if (confirm(`Promote ${member.username || "this user"} to admin?`)) {
+		await updateRole(member.user_id, "admin");
+	}
+};
+
+const handleDemote = async (member: any) => {
+	if (adminCount.value <= 1) {
+		alert("Cannot demote the last admin. Promote another member to admin first.");
+		return;
+	}
+
+	if (confirm(`Remove admin privileges from ${member.username || "this user"}?`)) {
+		await updateRole(member.user_id, "member");
+	}
+};
+
+const handleRemoveMember = async (member: any) => {
+	// Prevent removing the last admin
+	if (member.role === "admin" && adminCount.value <= 1) {
+		alert("Cannot remove the last admin. Promote another member to admin first.");
+		return;
+	}
+
+	if (confirm(`Remove ${member.username || "this user"} from the group?`)) {
+		await removeMember(member.user_id);
 	}
 };
 
