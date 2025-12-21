@@ -54,34 +54,55 @@
 					label="Select Games"
 					name="enabled_games"
 					required
-					help="Choose which games this group will play"
+					help="Choose which games this group will play (select at least one)"
 				>
-					<div class="space-y-2">
-						<UCheckbox
-							v-model="form.enabled_games"
-							value="would_you_rather"
-							label="Would You Rather (Ranked)"
-							:disabled="loading"
-						/>
-						<UCheckbox
-							v-model="form.enabled_games"
-							value="hot_takes"
-							label="Hot Takes (Debate)"
-							:disabled="loading"
-						/>
-						<UCheckbox
-							v-model="form.enabled_games"
-							value="guess_who_said_it"
-							label="Guess Who Said It"
-							:disabled="loading"
-						/>
-						<UCheckbox
-							v-model="form.enabled_games"
-							value="most_likely_to"
-							label="Most Likely To"
-							:disabled="loading"
-						/>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+						<div
+							v-for="gameType in availableGames"
+							:key="gameType.id"
+							class="relative"
+						>
+							<label
+								:for="`game-${gameType.id}`"
+								class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-all"
+								:class="[
+									isGameSelected(gameType.id)
+										? 'border-primary-500 bg-primary-50 dark:bg-primary-950'
+										: 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700',
+									loading ? 'opacity-50 cursor-not-allowed' : ''
+								]"
+							>
+								<input
+									:id="`game-${gameType.id}`"
+									type="checkbox"
+									:value="gameType.id"
+									:checked="isGameSelected(gameType.id)"
+									:disabled="loading"
+									@change="toggleGame(gameType.id)"
+									class="mt-1 h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+								/>
+								<div class="flex-1 min-w-0">
+									<div class="flex items-center gap-2 mb-1">
+										<UIcon
+											:name="gameType.icon"
+											class="w-5 h-5"
+											:class="`text-${gameType.color}-500`"
+										/>
+										<span class="font-medium text-sm">{{ gameType.name }}</span>
+									</div>
+									<p class="text-xs text-gray-600 dark:text-gray-400">
+										{{ gameType.description }}
+									</p>
+									<p class="text-xs text-gray-500 dark:text-gray-500 mt-1">
+										Min. {{ gameType.minPlayers }} players
+									</p>
+								</div>
+							</label>
+						</div>
 					</div>
+					<p v-if="form.enabled_games.length === 0" class="text-xs text-red-500 mt-2">
+						Please select at least one game type
+					</p>
 				</UFormGroup>
 
 				<!-- Notification Settings -->
@@ -154,6 +175,8 @@
 </template>
 
 <script setup lang="ts">
+import { getAllGameTypes, type GameType } from '~/types/games';
+
 definePageMeta({
 	middleware: 'auth',
 	layout: 'default',
@@ -162,6 +185,26 @@ definePageMeta({
 const { form, createGroup, loading, error, isFormValid, resetForm } = useGroups();
 
 const successMessage = ref('');
+
+// Get all available game types
+const availableGames = getAllGameTypes();
+
+// Helper to check if a game is selected
+const isGameSelected = (gameId: GameType): boolean => {
+	return form.enabled_games.includes(gameId);
+};
+
+// Helper to toggle game selection
+const toggleGame = (gameId: GameType) => {
+	const index = form.enabled_games.indexOf(gameId);
+	if (index > -1) {
+		// Remove if already selected
+		form.enabled_games.splice(index, 1);
+	} else {
+		// Add if not selected
+		form.enabled_games.push(gameId);
+	}
+};
 
 // Common timezones
 const timezones = [

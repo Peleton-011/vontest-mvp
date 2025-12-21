@@ -1,4 +1,5 @@
 import type { Database } from "~/types/supabase";
+import type { GameType } from "~/types/games";
 
 type Group = Database["public"]["Tables"]["groups"]["Row"];
 type GroupInsert = Database["public"]["Tables"]["groups"]["Insert"];
@@ -23,7 +24,7 @@ export const useGroups = () => {
 			"hot_takes",
 			"guess_who_said_it",
 			"most_likely_to",
-		] as string[],
+		] as GameType[],
 		notification_time: "09:00",
 		timezone: "UTC",
 	});
