@@ -78,9 +78,9 @@
 									:value="gameType.id"
 									:checked="isGameSelected(gameType.id)"
 									:disabled="loading"
-									@change="toggleGame(gameType.id)"
 									class="mt-1 h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-								/>
+									@change="toggleGame(gameType.id)"
+								>
 								<div class="flex-1 min-w-0">
 									<div class="flex items-center gap-2 mb-1">
 										<UIcon
@@ -100,7 +100,7 @@
 							</label>
 						</div>
 					</div>
-					<p v-if="form.enabled_games.length === 0" class="text-xs text-red-500 mt-2">
+					<p v-if="form.enabled_games.value.length === 0" class="text-xs text-red-500 mt-2">
 						Please select at least one game type
 					</p>
 				</UFormGroup>
@@ -191,18 +191,18 @@ const availableGames = getAllGameTypes();
 
 // Helper to check if a game is selected
 const isGameSelected = (gameId: GameType): boolean => {
-	return form.enabled_games.includes(gameId);
+	return form.enabled_games.value.includes(gameId);
 };
 
 // Helper to toggle game selection
 const toggleGame = (gameId: GameType) => {
-	const index = form.enabled_games.indexOf(gameId);
+	const index = form.enabled_games.value.indexOf(gameId);
 	if (index > -1) {
 		// Remove if already selected
-		form.enabled_games.splice(index, 1);
+		form.enabled_games.value.splice(index, 1);
 	} else {
 		// Add if not selected
-		form.enabled_games.push(gameId);
+		form.enabled_games.value.push(gameId);
 	}
 };
 
