@@ -308,6 +308,8 @@
 </template>
 
 <script setup lang="ts">
+import type { Database } from "~/types/supabase";
+
 type Group = Database["public"]["Tables"]["groups"]["Row"];
 
 definePageMeta({
