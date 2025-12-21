@@ -8,12 +8,13 @@ The Groups module with invite code system is ready for end-to-end testing! Here'
 
 ## ✅ Prerequisites
 
-1. **Database migrations completed** - All 10 migration files run in Supabase:
+1. **Database migrations completed** - All 11 migration files run in Supabase:
    - 001-006: Core functionality (groups, games, invite codes)
    - 007: Fix RLS infinite recursion
    - 008: Fix groups SELECT policy for post-creation access
    - 009: Remove insecure views (security fix)
    - 010: Remove invite codes view (security fix)
+   - 011: Fix user signup profile creation (CRITICAL)
 2. **TypeScript types updated** - `types/supabase.ts` regenerated
 3. **App running** - `npm run dev` on `http://localhost:3000`
 4. **Logged in** - You must be authenticated to access games
