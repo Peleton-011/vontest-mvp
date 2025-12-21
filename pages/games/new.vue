@@ -16,7 +16,7 @@
 		</div>
 
 		<UCard>
-			<form @submit.prevent="handleSubmit" class="space-y-6">
+			<form class="space-y-6" @submit.prevent="handleSubmit">
 				<!-- Group Name -->
 				<UFormGroup
 					label="Group Name"
@@ -25,7 +25,7 @@
 					help="Choose a name for your group (3-50 characters)"
 				>
 					<UInput
-						v-model="form.name"
+						v-model="form.name.value"
 						placeholder="e.g., College Friends, Book Club, Family"
 						:maxlength="50"
 						size="lg"
@@ -41,7 +41,7 @@
 					help="Optional description (max 500 characters)"
 				>
 					<UTextarea
-						v-model="form.description"
+						v-model="form.description.value"
 						placeholder="What's this group about?"
 						:maxlength="500"
 						:rows="3"
@@ -91,7 +91,7 @@
 					help="When should new games be created each day?"
 				>
 					<UInput
-						v-model="form.notification_time"
+						v-model="form.notification_time.value"
 						type="time"
 						:disabled="loading"
 					/>
@@ -104,7 +104,7 @@
 					help="Select your timezone"
 				>
 					<USelect
-						v-model="form.timezone"
+						v-model="form.timezone.value"
 						:options="timezones"
 						:disabled="loading"
 					/>
@@ -113,7 +113,7 @@
 				<!-- Error Display -->
 				<UAlert
 					v-if="error"
-					color="red"
+					color="error"
 					variant="soft"
 					title="Error creating group"
 					:description="error.message"
@@ -122,7 +122,7 @@
 				<!-- Success Message -->
 				<UAlert
 					v-if="successMessage"
-					color="green"
+					color="success"
 					variant="soft"
 					title="Success!"
 					:description="successMessage"
