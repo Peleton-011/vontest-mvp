@@ -161,16 +161,16 @@
 									</div>
 
 									<!-- Member Actions (Admin Only) -->
-									<UDropdown
+									<UDropdownMenu
 										v-if="isAdmin && member.user_id !== user?.id"
 										:items="getMemberActions(member)"
 									>
 										<UButton
 											variant="ghost"
-											color="gray"
+											color="neutral"
 											icon="i-heroicons-ellipsis-vertical"
 										/>
-									</UDropdown>
+									</UDropdownMenu>
 								</div>
 							</UCard>
 						</div>
