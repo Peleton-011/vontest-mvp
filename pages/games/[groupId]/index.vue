@@ -20,7 +20,7 @@
 		<!-- Error state -->
 		<UAlert
 			v-else-if="error"
-			color="red"
+			color="error"
 			variant="soft"
 			title="Error loading group"
 			:description="error.message"
@@ -78,7 +78,7 @@
 					<UButton
 						v-if="!isAdmin"
 						variant="outline"
-						color="red"
+						color="error"
 						icon="i-heroicons-arrow-right-on-rectangle"
 						@click="handleLeave"
 					>
@@ -147,9 +147,9 @@
 									<p class="text-sm text-gray-600">Share these links to invite friends</p>
 								</div>
 								<UButton
-									@click="handleCreateInvite"
 									icon="i-heroicons-plus"
 									:loading="inviteLoading"
+									@click="handleCreateInvite"
 								>
 									New Invite Link
 								</UButton>
@@ -191,7 +191,7 @@
 												<UButton
 													v-if="isAdmin"
 													size="sm"
-													color="red"
+													color="error"
 													variant="ghost"
 													icon="i-heroicons-x-mark"
 													@click="handleDeactivate(code.code)"
@@ -215,9 +215,9 @@
 							</p>
 							<UButton
 								v-if="isAdmin"
-								@click="handleCreateInvite"
 								class="mt-6"
 								icon="i-heroicons-plus"
+								@click="handleCreateInvite"
 							>
 								Create Invite Link
 							</UButton>
