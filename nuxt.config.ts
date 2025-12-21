@@ -33,7 +33,9 @@ export default defineNuxtConfig({
 	supabase: {
 		redirectOptions: {
 			login: "/login",
-			callback: "/confirm",
+			// Email confirmation disabled - redirect to home after auth
+			// callback: "/confirm",
+			callback: "/",
 			exclude: ["/login", "/signup", "/", "/logout", "/confirm"],
 		},
 	},
