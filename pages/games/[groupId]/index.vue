@@ -441,14 +441,14 @@ const getMemberActions = (member: any) => {
 			roleActions.push({
 				label: "Remove Admin",
 				icon: "i-heroicons-shield-exclamation",
-				onClick: () => handleDemote(member),
+				click: () => handleDemote(member),
 			});
 		}
 	} else {
 		roleActions.push({
 			label: "Make Admin",
 			icon: "i-heroicons-shield-check",
-			onClick: () => handlePromote(member),
+			click: () => handlePromote(member),
 		});
 	}
 
@@ -461,7 +461,7 @@ const getMemberActions = (member: any) => {
 		{
 			label: "Remove from Group",
 			icon: "i-heroicons-user-minus",
-			onClick: () => handleRemoveMember(member),
+			click: () => handleRemoveMember(member),
 		},
 	]);
 
