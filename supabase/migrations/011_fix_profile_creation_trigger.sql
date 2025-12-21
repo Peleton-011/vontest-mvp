@@ -1,6 +1,7 @@
 -- Fix signup issue: Add trigger to auto-create profiles on user signup
 -- Issue: New user signups fail with 500 error because no profile is created
 -- Solution: Create trigger that automatically creates a profile when auth.users record is created
+-- This version handles cases where policies/triggers already exist
 
 -- Function to create profile for new user
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -13,7 +14,8 @@ BEGIN
     COALESCE(NEW.raw_user_meta_data->>'avatar_url', ''),
     NOW(),
     '{}'::jsonb
-  );
+  )
+  ON CONFLICT (id) DO NOTHING;  -- Don't fail if profile already exists
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -29,10 +31,11 @@ CREATE TRIGGER on_auth_user_created
 -- Ensure profiles table has RLS enabled
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
--- Drop existing policies if they exist
+-- Drop existing policies if they exist (using IF EXISTS)
 DROP POLICY IF EXISTS "Users can view all profiles" ON public.profiles;
 DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Service role can insert profiles" ON public.profiles;
 
 -- Allow users to view all profiles (needed for group members, game participants, etc.)
 CREATE POLICY "Users can view all profiles"
