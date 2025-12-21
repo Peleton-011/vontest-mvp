@@ -13,21 +13,21 @@ export const useGroups = () => {
 	const error = ref<Error | null>(null);
 	const loading = ref(false);
 
-	// Form state for create/edit
-	const form = reactive({
-		id: null as string | null,
-		name: "",
-		description: "",
-		avatar_url: "",
-		enabled_games: [
+	// Form state for create/edit (using refs for two-way binding)
+	const form = {
+		id: ref<string | null>(null),
+		name: ref(""),
+		description: ref(""),
+		avatar_url: ref(""),
+		enabled_games: ref<GameType[]>([
 			"would_you_rather",
 			"hot_takes",
 			"guess_who_said_it",
 			"most_likely_to",
-		] as GameType[],
-		notification_time: "09:00",
-		timezone: "UTC",
-	});
+		]),
+		notification_time: ref("09:00"),
+		timezone: ref("UTC"),
+	};
 
 	/**
 	 * Fetch all groups for the current user
@@ -90,14 +90,14 @@ export const useGroups = () => {
 
 		try {
 			const newGroup: GroupInsert = {
-				name: form.name,
-				description: form.description || null,
-				avatar_url: form.avatar_url || "",
+				name: form.name.value,
+				description: form.description.value || null,
+				avatar_url: form.avatar_url.value || "",
 				created_by: user.value.id,
 				settings: {
-					enabled_games: form.enabled_games,
-					notification_time: form.notification_time,
-					timezone: form.timezone,
+					enabled_games: form.enabled_games.value,
+					notification_time: form.notification_time.value,
+					timezone: form.timezone.value,
 				},
 			};
 
@@ -129,7 +129,7 @@ export const useGroups = () => {
 	 * Update an existing group
 	 */
 	const updateGroup = async () => {
-		if (!form.id) {
+		if (!form.id.value) {
 			error.value = new Error("No group ID specified");
 			return false;
 		}
@@ -138,20 +138,20 @@ export const useGroups = () => {
 
 		try {
 			const updateData: GroupUpdate = {
-				name: form.name,
-				description: form.description || null,
-				avatar_url: form.avatar_url || "",
+				name: form.name.value,
+				description: form.description.value || null,
+				avatar_url: form.avatar_url.value || "",
 				settings: {
-					enabled_games: form.enabled_games,
-					notification_time: form.notification_time,
-					timezone: form.timezone,
+					enabled_games: form.enabled_games.value,
+					notification_time: form.notification_time.value,
+					timezone: form.timezone.value,
 				},
 			};
 
 			const { error: updateError } = await supabase
 				.from("groups")
 				.update(updateData)
-				.eq("id", form.id);
+				.eq("id", form.id.value);
 
 			if (updateError) throw updateError;
 
@@ -202,10 +202,10 @@ export const useGroups = () => {
 	 * Load a group into the form for editing
 	 */
 	const editGroup = (group: Group) => {
-		form.id = group.id;
-		form.name = group.name;
-		form.description = group.description || "";
-		form.avatar_url = group.avatar_url || "";
+		form.id.value = group.id;
+		form.name.value = group.name;
+		form.description.value = group.description || "";
+		form.avatar_url.value = group.avatar_url || "";
 
 		// Parse settings from JSONB
 		if (group.settings && typeof group.settings === "object") {
@@ -215,10 +215,10 @@ export const useGroups = () => {
 				timezone?: string;
 			};
 
-			form.enabled_games = settings.enabled_games || form.enabled_games;
-			form.notification_time =
-				settings.notification_time || form.notification_time;
-			form.timezone = settings.timezone || form.timezone;
+			form.enabled_games.value = (settings.enabled_games as GameType[]) || form.enabled_games.value;
+			form.notification_time.value =
+				settings.notification_time || form.notification_time.value;
+			form.timezone.value = settings.timezone || form.timezone.value;
 		}
 	};
 
@@ -226,18 +226,18 @@ export const useGroups = () => {
 	 * Reset form to initial state
 	 */
 	const resetForm = () => {
-		form.id = null;
-		form.name = "";
-		form.description = "";
-		form.avatar_url = "";
-		form.enabled_games = [
+		form.id.value = null;
+		form.name.value = "";
+		form.description.value = "";
+		form.avatar_url.value = "";
+		form.enabled_games.value = [
 			"would_you_rather",
 			"hot_takes",
 			"guess_who_said_it",
 			"most_likely_to",
 		];
-		form.notification_time = "09:00";
-		form.timezone = "UTC";
+		form.notification_time.value = "09:00";
+		form.timezone.value = "UTC";
 	};
 
 	/**
@@ -245,9 +245,9 @@ export const useGroups = () => {
 	 */
 	const isFormValid = computed(() => {
 		return (
-			form.name.length >= 3 &&
-			form.name.length <= 50 &&
-			form.enabled_games.length > 0
+			form.name.value.length >= 3 &&
+			form.name.value.length <= 50 &&
+			form.enabled_games.value.length > 0
 		);
 	});
 
@@ -263,7 +263,7 @@ export const useGroups = () => {
 		error,
 
 		// Form
-		form: { ...toRefs(form) },
+		form,
 		isFormValid,
 
 		// Actions

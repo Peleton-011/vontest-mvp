@@ -1,6 +1,6 @@
 <template>
-	<div class="container mx-auto px-4 py-8 max-w-2xl">
-		<div class="mb-8">
+	<div class="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-2xl">
+		<div class="mb-6 sm:mb-8">
 			<UButton
 				to="/games"
 				variant="ghost"
@@ -9,8 +9,8 @@
 			>
 				Back to Groups
 			</UButton>
-			<h1 class="text-3xl font-bold">Create New Group</h1>
-			<p class="text-gray-600 mt-2">
+			<h1 class="text-2xl sm:text-3xl font-bold">Create New Group</h1>
+			<p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-2">
 				Create a group to play daily social games with your friends
 			</p>
 		</div>
@@ -150,10 +150,11 @@
 				/>
 
 				<!-- Actions -->
-				<div class="flex gap-3">
+				<div class="flex flex-col sm:flex-row gap-3">
 					<UButton
 						type="submit"
 						size="lg"
+						class="w-full sm:w-auto"
 						:loading="loading"
 						:disabled="!isFormValid || loading"
 					>
@@ -163,6 +164,7 @@
 						type="button"
 						variant="ghost"
 						size="lg"
+						class="w-full sm:w-auto"
 						:disabled="loading"
 						@click="navigateTo('/games')"
 					>
@@ -206,19 +208,19 @@ const toggleGame = (gameId: GameType) => {
 	}
 };
 
-// Common timezones
+// Common timezones formatted for USelect
 const timezones = [
-	'UTC',
-	'America/New_York',
-	'America/Chicago',
-	'America/Denver',
-	'America/Los_Angeles',
-	'Europe/London',
-	'Europe/Paris',
-	'Europe/Berlin',
-	'Asia/Tokyo',
-	'Asia/Shanghai',
-	'Australia/Sydney',
+	{ label: 'UTC', value: 'UTC' },
+	{ label: 'Eastern (New York)', value: 'America/New_York' },
+	{ label: 'Central (Chicago)', value: 'America/Chicago' },
+	{ label: 'Mountain (Denver)', value: 'America/Denver' },
+	{ label: 'Pacific (Los Angeles)', value: 'America/Los_Angeles' },
+	{ label: 'London', value: 'Europe/London' },
+	{ label: 'Paris', value: 'Europe/Paris' },
+	{ label: 'Berlin', value: 'Europe/Berlin' },
+	{ label: 'Tokyo', value: 'Asia/Tokyo' },
+	{ label: 'Shanghai', value: 'Asia/Shanghai' },
+	{ label: 'Sydney', value: 'Australia/Sydney' },
 ];
 
 const handleSubmit = async () => {
