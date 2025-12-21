@@ -433,35 +433,35 @@ const handleDeactivate = async (code: string) => {
 const getMemberActions = (member: any) => {
 	const actions = [];
 
-	// Role management
+	// Role management section
+	const roleActions = [];
 	if (member.role === "admin") {
 		// Can only demote if there are other admins
 		if (adminCount.value > 1) {
-			actions.push([
-				{
-					label: "Remove Admin",
-					icon: "i-heroicons-shield-exclamation",
-					click: () => handleDemote(member),
-				},
-			]);
+			roleActions.push({
+				label: "Remove Admin",
+				icon: "i-heroicons-shield-exclamation",
+				onClick: () => handleDemote(member),
+			});
 		}
 	} else {
-		actions.push([
-			{
-				label: "Make Admin",
-				icon: "i-heroicons-shield-check",
-				click: () => handlePromote(member),
-			},
-		]);
+		roleActions.push({
+			label: "Make Admin",
+			icon: "i-heroicons-shield-check",
+			onClick: () => handlePromote(member),
+		});
 	}
 
-	// Remove member (always available)
+	if (roleActions.length > 0) {
+		actions.push(roleActions);
+	}
+
+	// Remove member section (always available)
 	actions.push([
 		{
 			label: "Remove from Group",
 			icon: "i-heroicons-user-minus",
-			click: () => handleRemoveMember(member),
-			color: "red" as const,
+			onClick: () => handleRemoveMember(member),
 		},
 	]);
 
