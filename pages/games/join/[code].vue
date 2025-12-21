@@ -9,7 +9,7 @@
 		<!-- Error state -->
 		<UAlert
 			v-else-if="error || groupPreview?.error"
-			color="red"
+			color="error"
 			variant="soft"
 			title="Invalid Invite Link"
 			:description="error?.message || groupPreview?.error || 'This invite link is invalid or expired'"
@@ -65,10 +65,10 @@
 				<div class="text-center">
 					<UButton
 						size="xl"
-						@click="handleJoin"
 						:loading="joiningLoading"
 						:disabled="joiningLoading"
 						icon="i-heroicons-check-circle"
+						@click="handleJoin"
 					>
 						Join Group
 					</UButton>
@@ -77,7 +77,7 @@
 				<!-- Already a member -->
 				<UAlert
 					v-if="joinError"
-					color="amber"
+					color="info"
 					variant="soft"
 					:description="joinError"
 					class="mt-4"

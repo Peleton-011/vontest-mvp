@@ -233,7 +233,9 @@ export const useInviteCodes = (groupId?: Ref<string> | string) => {
 	 * Generate shareable invite link
 	 */
 	const getInviteLink = (code: string): string => {
-		const baseUrl = config.public.siteUrl || window.location.origin;
+		// Use current browser URL for dynamic invite links
+		// Falls back to config only for SSR scenarios
+		const baseUrl = process.client ? window.location.origin : (config.public.siteUrl || 'http://localhost:3000');
 		return `${baseUrl}/games/join/${code}`;
 	};
 
