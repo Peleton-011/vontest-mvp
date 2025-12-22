@@ -119,7 +119,9 @@ export const useGameResults = () => {
 	const postGameAnnouncement = async (
 		groupId: string,
 		gameType: GameType,
-		message: string
+		message: string,
+		responseCount: number = 0,
+		totalMembers: number = 0
 	): Promise<{ success: boolean; error?: string }> => {
 		try {
 			// Get or create the group's chat thread
@@ -152,35 +154,36 @@ export const useGameResults = () => {
 				throw new Error('Failed to get or create chat thread');
 			}
 
-			// Format announcement as a gradient card
+			// Format announcement as a gradient card (matching the old style)
 			const announcement = `
-				<div class="game-announcement-card" style="
-					background: linear-gradient(to right, #dbeafe, #e0e7ff);
-					border-radius: 0.75rem;
-					padding: 1.5rem;
-					margin: 0.5rem 0;
+				<a href="/games/${groupId}?tab=games" style="
+					display: block;
+					text-decoration: none;
+					font-style: italic;
+					padding: 1.25em;
+					background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+					border-radius: 0.5em;
+					color: white;
 					text-align: center;
-				">
-					<div style="font-size: 2rem; margin-bottom: 0.5rem;">🎮</div>
-					<div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #1e40af;">
+					cursor: pointer;
+					transition: transform 0.2s;
+				" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+					<div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎮</div>
+					<div style="font-size: 1.1rem; font-weight: bold; margin-bottom: 0.5rem;">
 						${getGameName(gameType)} Started!
 					</div>
-					<div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">
+					<div style="font-size: 0.9rem; margin-bottom: 0.75rem; opacity: 0.95;">
 						${message}
 					</div>
-					<a href="/games/${groupId}" style="
-						display: inline-block;
-						background: #2563eb;
-						color: white;
-						padding: 0.5rem 1.5rem;
-						border-radius: 0.5rem;
-						text-decoration: none;
-						font-weight: 600;
-						font-size: 0.875rem;
-					">
-						Go to Games Tab →
-					</a>
-				</div>
+					<div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 0.75rem; margin-top: 0.75rem;">
+						<div style="font-size: 1.75rem; font-weight: bold; margin-bottom: 0.25rem;">
+							${responseCount}
+						</div>
+						<div style="font-size: 0.85rem; opacity: 0.9;">
+							${responseCount === 1 ? 'response' : 'responses'} ${totalMembers > 0 ? `• ${totalMembers - responseCount} left to play` : ''}
+						</div>
+					</div>
+				</a>
 			`;
 
 			// Post to chat
@@ -202,13 +205,14 @@ export const useGameResults = () => {
 	};
 
 	/**
-	 * Post response count update to chat
+	 * Post response count update to chat (unified with game announcement)
 	 */
 	const postResponseCountUpdate = async (
 		groupId: string,
 		gameType: GameType,
 		responseCount: number,
-		totalMembers: number
+		totalMembers: number,
+		message: string
 	): Promise<{ success: boolean; error?: string }> => {
 		try {
 			// Get the group's chat thread
@@ -222,38 +226,36 @@ export const useGameResults = () => {
 			if (threadError) throw threadError;
 			if (!thread) throw new Error('Chat thread not found');
 
-			// Format response count card
+			// Use the same unified card format
 			const countCard = `
-				<div class="response-count-card" style="
-					background: linear-gradient(to right, #dbeafe, #e0e7ff);
-					border-radius: 0.75rem;
-					padding: 1.5rem;
-					margin: 0.5rem 0;
+				<a href="/games/${groupId}?tab=games" style="
+					display: block;
+					text-decoration: none;
+					font-style: italic;
+					padding: 1.25em;
+					background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+					border-radius: 0.5em;
+					color: white;
 					text-align: center;
 					cursor: pointer;
-				">
-					<div style="font-size: 3rem; font-weight: 700; color: #2563eb; margin-bottom: 0.5rem;">
-						${responseCount}
+					transition: transform 0.2s;
+				" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+					<div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎮</div>
+					<div style="font-size: 1.1rem; font-weight: bold; margin-bottom: 0.5rem;">
+						${getGameName(gameType)} is Live!
 					</div>
-					<div style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.25rem;">
-						${responseCount === 1 ? 'Response' : 'Responses'}
+					<div style="font-size: 0.9rem; margin-bottom: 0.75rem; opacity: 0.95;">
+						${message}
 					</div>
-					<div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">
-						${totalMembers - responseCount} ${totalMembers - responseCount === 1 ? 'person' : 'people'} left to respond!
+					<div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 0.75rem; margin-top: 0.75rem;">
+						<div style="font-size: 1.75rem; font-weight: bold; margin-bottom: 0.25rem;">
+							${responseCount}
+						</div>
+						<div style="font-size: 0.85rem; opacity: 0.9;">
+							${responseCount === 1 ? 'response' : 'responses'} • ${totalMembers - responseCount} left to play
+						</div>
 					</div>
-					<a href="/games/${groupId}" style="
-						display: inline-block;
-						background: #2563eb;
-						color: white;
-						padding: 0.5rem 1.5rem;
-						border-radius: 0.5rem;
-						text-decoration: none;
-						font-weight: 600;
-						font-size: 0.875rem;
-					">
-						Give Your Take →
-					</a>
-				</div>
+				</a>
 			`;
 
 			// Post to chat

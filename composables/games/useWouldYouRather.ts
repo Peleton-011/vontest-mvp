@@ -75,11 +75,21 @@ export const useWouldYouRather = (groupId: string) => {
 
 			if (createError) throw createError;
 
+			// Get total group member count for the announcement
+			const { data: members } = await supabase
+				.from('group_members')
+				.select('id')
+				.eq('group_id', groupId);
+
+			const totalMembers = members?.length || 0;
+
 			// Post announcement to chat
 			await postGameAnnouncement(
 				groupId,
 				'would_you_rather',
-				`Choose: ${prompt.option_a} OR ${prompt.option_b}`
+				`Choose: ${prompt.option_a} OR ${prompt.option_b}`,
+				0,
+				totalMembers
 			);
 
 			return { success: true, gameId: game.id };
@@ -132,7 +142,7 @@ export const useWouldYouRather = (groupId: string) => {
 			// Update game metadata with vote counts
 			const { data: game } = await supabase
 				.from('game_instances')
-				.select('metadata, game_type')
+				.select('metadata, game_type, prompt')
 				.eq('id', gameId)
 				.single();
 
@@ -166,12 +176,17 @@ export const useWouldYouRather = (groupId: string) => {
 
 			const totalMembers = members?.length || 0;
 
+			// Get game prompt for the message
+			const prompt = game?.prompt as WouldYouRatherPrompt;
+			const message = prompt ? `Choose: ${prompt.option_a} OR ${prompt.option_b}` : 'Vote now!';
+
 			// Post response count update to chat
 			await postResponseCountUpdate(
 				groupId,
 				game?.game_type as any,
 				responseCount,
-				totalMembers
+				totalMembers,
+				message
 			);
 
 			// Check if all members have responded

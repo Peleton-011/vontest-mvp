@@ -93,7 +93,7 @@
 			</div>
 
 			<!-- Tabs -->
-			<UTabs :items="tabs" class="mb-8">
+			<UTabs v-model="activeTab" :items="tabs" class="mb-8">
 				<!-- Games Tab -->
 				<template #games>
 					<div class="py-6">
@@ -423,8 +423,22 @@ definePageMeta({
 });
 
 const route = useRoute();
+const router = useRouter();
 const user = useSupabaseUser();
 const groupId = computed(() => route.params.groupId as string);
+
+// Control active tab via query params
+const activeTab = computed({
+	get() {
+		return (route.query.tab as string) || 'games';
+	},
+	set(tab) {
+		router.push({
+			path: route.path,
+			query: { tab },
+		});
+	},
+});
 
 const { fetchGroup, loading: groupLoading, error: groupError } = useGroups();
 const {
@@ -474,21 +488,25 @@ const settings = computed(() => {
 const tabs = [
 	{
 		slot: "games",
+		value: "games",
 		label: "Games",
 		icon: "i-heroicons-puzzle-piece",
 	},
 	{
 		slot: "chat",
+		value: "chat",
 		label: "Chat",
 		icon: "i-heroicons-chat-bubble-left-right",
 	},
 	{
 		slot: "members",
+		value: "members",
 		label: "Members",
 		icon: "i-heroicons-users",
 	},
 	{
 		slot: "invite",
+		value: "invite",
 		label: "Invite",
 		icon: "i-heroicons-link",
 	},
