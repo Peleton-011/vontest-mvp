@@ -116,7 +116,7 @@ watch(() => groupedMessages.value.length, () => {
 					class="w-16 h-16 mx-auto text-gray-400"
 				/>
 				<h3 class="text-xl font-semibold mt-4">No messages yet</h3>
-				<p class="text-gray-600 mt-2">
+				<p class="text-gray-400 mt-2">
 					Start the conversation!
 				</p>
 			</div>
