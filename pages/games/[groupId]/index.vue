@@ -113,6 +113,91 @@
 					</div>
 				</template>
 
+				<!-- Chat Tab -->
+				<template #chat>
+					<div class="py-6 flex flex-col h-[600px]">
+						<!-- Messages Area -->
+						<div class="flex-1 overflow-y-auto space-y-4 mb-4">
+							<!-- Loading State -->
+							<div v-if="chatLoading && messages.length === 0" class="text-center py-12">
+								<UIcon
+									name="i-heroicons-arrow-path"
+									class="w-8 h-8 animate-spin mx-auto"
+								/>
+								<p class="mt-4 text-gray-600">Loading messages...</p>
+							</div>
+
+							<!-- Empty State -->
+							<div v-else-if="messages.length === 0" class="text-center py-12">
+								<UIcon
+									name="i-heroicons-chat-bubble-left-right"
+									class="w-16 h-16 mx-auto text-gray-400"
+								/>
+								<h3 class="text-xl font-semibold mt-4">No messages yet</h3>
+								<p class="text-gray-600 mt-2">
+									Start the conversation!
+								</p>
+							</div>
+
+							<!-- Messages List -->
+							<div v-else class="space-y-4">
+								<div
+									v-for="message in messages"
+									:key="message.id"
+									class="flex gap-3"
+								>
+									<UAvatar
+										:src="message.avatar_url"
+										:alt="message.username || 'User'"
+										size="sm"
+									/>
+									<div class="flex-1 min-w-0">
+										<div class="flex items-baseline gap-2">
+											<span class="font-semibold text-sm">
+												{{ message.username || "Unknown User" }}
+											</span>
+											<span class="text-xs text-gray-500">
+												{{
+													new Date(
+														message.created_at
+													).toLocaleTimeString([], {
+														hour: "2-digit",
+														minute: "2-digit",
+													})
+												}}
+											</span>
+										</div>
+										<p class="text-sm text-gray-700 mt-1 whitespace-pre-wrap">
+											{{ message.comment }}
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Message Input -->
+						<div class="border-t pt-4">
+							<form @submit.prevent="handleSendMessage" class="flex gap-2">
+								<UInput
+									v-model="newMessage"
+									placeholder="Type a message..."
+									class="flex-1"
+									:disabled="chatLoading"
+									autofocus
+								/>
+								<UButton
+									type="submit"
+									icon="i-heroicons-paper-airplane"
+									:disabled="!newMessage.trim() || chatLoading"
+									:loading="chatLoading"
+								>
+									Send
+								</UButton>
+							</form>
+						</div>
+					</div>
+				</template>
+
 				<!-- Members Tab -->
 				<template #members>
 					<div class="py-6">
@@ -368,10 +453,18 @@ const {
 	copyInviteLink,
 	loading: inviteLoading,
 } = useInviteCodes(groupId);
+const {
+	messages,
+	sendMessage,
+	loading: chatLoading,
+	error: chatError,
+} = useGroupChat(groupId);
 
 const group = ref<Group | null>(null);
 const loading = computed(() => groupLoading.value || membersLoading.value);
 const error = computed(() => groupError.value || membersError.value);
+
+const newMessage = ref("");
 
 const settings = computed(() => {
 	if (!group.value?.settings) return { notification_time: "09:00" };
@@ -385,6 +478,11 @@ const tabs = [
 		icon: "i-heroicons-puzzle-piece",
 	},
 	{
+		slot: "chat",
+		label: "Chat",
+		icon: "i-heroicons-chat-bubble-left-right",
+	},
+	{
 		slot: "members",
 		label: "Members",
 		icon: "i-heroicons-users",
@@ -395,6 +493,15 @@ const tabs = [
 		icon: "i-heroicons-link",
 	},
 ];
+
+const handleSendMessage = async () => {
+	if (!newMessage.value.trim()) return;
+
+	const success = await sendMessage(newMessage.value);
+	if (success) {
+		newMessage.value = "";
+	}
+};
 
 const handleLeave = async () => {
 	// Prevent last admin from leaving
