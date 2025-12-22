@@ -157,7 +157,7 @@ watch(() => groupedMessages.value.length, () => {
 						<div
 							v-for="msg in group.messages"
 							:key="msg.id"
-							class="text-sm text-gray-600"
+							class="text-sm text-gray-400"
 							v-html="msg.comment"
 						></div>
 					</div>
