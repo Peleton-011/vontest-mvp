@@ -115,11 +115,11 @@
 
 				<!-- Chat Tab -->
 				<template #chat>
-					<div class="py-6 flex flex-col h-[600px]">
-						<!-- Messages Area -->
-						<div class="flex-1 overflow-y-auto space-y-4 mb-4">
+					<div class="flex flex-col h-[600px]">
+						<!-- Messages Area (scrollable) -->
+						<div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
 							<!-- Loading State -->
-							<div v-if="chatLoading && messages.length === 0" class="text-center py-12">
+							<div v-if="chatLoading && chatMessages.length === 0" class="text-center py-12">
 								<UIcon
 									name="i-heroicons-arrow-path"
 									class="w-8 h-8 animate-spin mx-auto"
@@ -128,7 +128,7 @@
 							</div>
 
 							<!-- Empty State -->
-							<div v-else-if="messages.length === 0" class="text-center py-12">
+							<div v-else-if="chatMessages.length === 0" class="text-center py-12">
 								<UIcon
 									name="i-heroicons-chat-bubble-left-right"
 									class="w-16 h-16 mx-auto text-gray-400"
@@ -140,55 +140,51 @@
 							</div>
 
 							<!-- Messages List -->
-							<div v-else class="space-y-4">
+							<div v-else class="space-y-3">
 								<div
-									v-for="message in messages"
-									:key="message.id"
+									v-for="msg in chatMessages"
+									:key="msg.id"
 									class="flex gap-3"
 								>
 									<UAvatar
-										:src="message.avatar_url"
-										:alt="message.username || 'User'"
+										:src="msg.avatar_url"
+										:alt="msg.username || 'User'"
 										size="sm"
+										class="flex-shrink-0"
 									/>
 									<div class="flex-1 min-w-0">
 										<div class="flex items-baseline gap-2">
 											<span class="font-semibold text-sm">
-												{{ message.username || "Unknown User" }}
+												{{ msg.username || "Unknown User" }}
 											</span>
 											<span class="text-xs text-gray-500">
 												{{
-													new Date(
-														message.created_at
-													).toLocaleTimeString([], {
+													new Date(msg.created_at).toLocaleTimeString([], {
 														hour: "2-digit",
 														minute: "2-digit",
 													})
 												}}
 											</span>
 										</div>
-										<p class="text-sm text-gray-700 mt-1 whitespace-pre-wrap">
-											{{ message.comment }}
-										</p>
+										<div class="text-sm text-gray-700 mt-1" v-html="msg.comment"></div>
 									</div>
 								</div>
 							</div>
 						</div>
 
-						<!-- Message Input -->
-						<div class="border-t pt-4">
-							<form @submit.prevent="handleSendMessage" class="flex gap-2">
+						<!-- Message Input (fixed bottom) -->
+						<div class="border-t p-4 bg-white">
+							<form @submit.prevent="handleSendChatMessage" class="flex gap-2">
 								<UInput
-									v-model="newMessage"
+									v-model="chatForm.comment.value"
 									placeholder="Type a message..."
 									class="flex-1"
 									:disabled="chatLoading"
-									autofocus
 								/>
 								<UButton
 									type="submit"
 									icon="i-heroicons-paper-airplane"
-									:disabled="!newMessage.trim() || chatLoading"
+									:disabled="!chatForm.comment.value.trim() || chatLoading"
 									:loading="chatLoading"
 								>
 									Send
@@ -453,18 +449,31 @@ const {
 	copyInviteLink,
 	loading: inviteLoading,
 } = useInviteCodes(groupId);
-const {
-	messages,
-	sendMessage,
-	loading: chatLoading,
-	error: chatError,
-} = useGroupChat(groupId);
 
 const group = ref<Group | null>(null);
 const loading = computed(() => groupLoading.value || membersLoading.value);
 const error = computed(() => groupError.value || membersError.value);
 
-const newMessage = ref("");
+// Chat state
+const supabase = useSupabaseClient<Database>();
+const chatThreadId = ref<string | null>(null);
+const chatLoading = ref(false);
+const messagesContainer = ref<HTMLElement | null>(null);
+
+// Initialize chat comments system when we have a thread ID
+const chatComments = computed(() => {
+	if (!chatThreadId.value) return null;
+	return useComments(chatThreadId.value);
+});
+
+const chatForm = computed(() => chatComments.value?.form || { comment: ref(""), parentIds: ref([]) });
+const chatMessages = computed(() => {
+	if (!chatComments.value) return [];
+	// Get all comments sorted by creation time
+	return Array.from(chatComments.value.nodeMap.value.values())
+		.filter(node => !node.parentIds.length) // Only root-level comments (no threading for chat)
+		.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+});
 
 const settings = computed(() => {
 	if (!group.value?.settings) return { notification_time: "09:00" };
@@ -494,14 +503,63 @@ const tabs = [
 	},
 ];
 
-const handleSendMessage = async () => {
-	if (!newMessage.value.trim()) return;
+// Get or create chat thread for the group
+const initChatThread = async () => {
+	if (!groupId.value) return;
 
-	const success = await sendMessage(newMessage.value);
-	if (success) {
-		newMessage.value = "";
+	chatLoading.value = true;
+	try {
+		const { data, error: rpcError } = await supabase.rpc(
+			"create_group_chat_thread",
+			{ p_group_id: groupId.value }
+		);
+
+		if (rpcError) throw rpcError;
+		chatThreadId.value = data as string;
+
+		// Load messages after thread is created
+		await nextTick();
+		if (chatComments.value) {
+			await chatComments.value.loadComments();
+			scrollToBottom();
+		}
+	} catch (err) {
+		console.error("Error initializing chat:", err);
+	} finally {
+		chatLoading.value = false;
 	}
 };
+
+// Send a chat message
+const handleSendChatMessage = async () => {
+	if (!chatComments.value || !chatForm.value.comment.value.trim()) return;
+
+	chatLoading.value = true;
+	try {
+		await chatComments.value.submitComment();
+		chatForm.value.comment.value = "";
+		chatForm.value.parentIds.value = [];
+		await chatComments.value.loadComments();
+		await nextTick();
+		scrollToBottom();
+	} catch (err) {
+		console.error("Error sending message:", err);
+	} finally {
+		chatLoading.value = false;
+	}
+};
+
+// Auto-scroll to bottom of messages
+const scrollToBottom = () => {
+	if (messagesContainer.value) {
+		messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+	}
+};
+
+// Watch for new messages and auto-scroll
+watch(() => chatMessages.value.length, () => {
+	nextTick(() => scrollToBottom());
+});
 
 const handleLeave = async () => {
 	// Prevent last admin from leaving
@@ -603,8 +661,9 @@ const handleRemoveMember = async (member: any) => {
 	}
 };
 
-// Fetch group data
+// Fetch group data and init chat
 onMounted(async () => {
 	group.value = await fetchGroup(groupId.value);
+	await initChatThread();
 });
 </script>
