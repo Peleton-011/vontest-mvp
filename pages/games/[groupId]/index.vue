@@ -115,82 +115,18 @@
 
 				<!-- Chat Tab -->
 				<template #chat>
-					<div class="flex flex-col h-[600px]">
-						<!-- Messages Area (scrollable) -->
-						<div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
-							<!-- Loading State -->
-							<div v-if="chatLoading && chatMessages.length === 0" class="text-center py-12">
-								<UIcon
-									name="i-heroicons-arrow-path"
-									class="w-8 h-8 animate-spin mx-auto"
-								/>
-								<p class="mt-4 text-gray-600">Loading messages...</p>
-							</div>
-
-							<!-- Empty State -->
-							<div v-else-if="chatMessages.length === 0" class="text-center py-12">
-								<UIcon
-									name="i-heroicons-chat-bubble-left-right"
-									class="w-16 h-16 mx-auto text-gray-400"
-								/>
-								<h3 class="text-xl font-semibold mt-4">No messages yet</h3>
-								<p class="text-gray-600 mt-2">
-									Start the conversation!
-								</p>
-							</div>
-
-							<!-- Messages List -->
-							<div v-else class="space-y-3">
-								<div
-									v-for="msg in chatMessages"
-									:key="msg.id"
-									class="flex gap-3"
-								>
-									<UAvatar
-										:src="msg.avatar_url"
-										:alt="msg.username || 'User'"
-										size="sm"
-										class="flex-shrink-0"
-									/>
-									<div class="flex-1 min-w-0">
-										<div class="flex items-baseline gap-2">
-											<span class="font-semibold text-sm">
-												{{ msg.username || "Unknown User" }}
-											</span>
-											<span class="text-xs text-gray-500">
-												{{
-													new Date(msg.created_at).toLocaleTimeString([], {
-														hour: "2-digit",
-														minute: "2-digit",
-													})
-												}}
-											</span>
-										</div>
-										<div class="text-sm text-gray-700 mt-1" v-html="msg.comment"></div>
-									</div>
-								</div>
-							</div>
+					<div class="py-6">
+						<!-- Loading State -->
+						<div v-if="!chatThreadId" class="text-center py-12">
+							<UIcon
+								name="i-heroicons-arrow-path"
+								class="w-8 h-8 animate-spin mx-auto"
+							/>
+							<p class="mt-4 text-gray-600">Loading chat...</p>
 						</div>
 
-						<!-- Message Input (fixed bottom) -->
-						<div class="border-t p-4 bg-white">
-							<form @submit.prevent="handleSendChatMessage" class="flex gap-2">
-								<UInput
-									v-model="chatForm.comment.value"
-									placeholder="Type a message..."
-									class="flex-1"
-									:disabled="chatLoading"
-								/>
-								<UButton
-									type="submit"
-									icon="i-heroicons-paper-airplane"
-									:disabled="!chatForm.comment.value.trim() || chatLoading"
-									:loading="chatLoading"
-								>
-									Send
-								</UButton>
-							</form>
-						</div>
+						<!-- Chat Component -->
+						<UiChatSection v-else :thread-id="chatThreadId" />
 					</div>
 				</template>
 
@@ -457,23 +393,6 @@ const error = computed(() => groupError.value || membersError.value);
 // Chat state
 const supabase = useSupabaseClient<Database>();
 const chatThreadId = ref<string | null>(null);
-const chatLoading = ref(false);
-const messagesContainer = ref<HTMLElement | null>(null);
-
-// Initialize chat comments system when we have a thread ID
-const chatComments = computed(() => {
-	if (!chatThreadId.value) return null;
-	return useComments(chatThreadId.value);
-});
-
-const chatForm = computed(() => chatComments.value?.form || { comment: ref(""), parentIds: ref([]) });
-const chatMessages = computed(() => {
-	if (!chatComments.value) return [];
-	// Get all comments sorted by creation time
-	return Array.from(chatComments.value.nodeMap.value.values())
-		.filter(node => !node.parentIds.length) // Only root-level comments (no threading for chat)
-		.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-});
 
 const settings = computed(() => {
 	if (!group.value?.settings) return { notification_time: "09:00" };
@@ -507,7 +426,6 @@ const tabs = [
 const initChatThread = async () => {
 	if (!groupId.value) return;
 
-	chatLoading.value = true;
 	try {
 		const { data, error: rpcError } = await supabase.rpc(
 			"create_group_chat_thread",
@@ -516,50 +434,10 @@ const initChatThread = async () => {
 
 		if (rpcError) throw rpcError;
 		chatThreadId.value = data as string;
-
-		// Load messages after thread is created
-		await nextTick();
-		if (chatComments.value) {
-			await chatComments.value.loadComments();
-			scrollToBottom();
-		}
 	} catch (err) {
 		console.error("Error initializing chat:", err);
-	} finally {
-		chatLoading.value = false;
 	}
 };
-
-// Send a chat message
-const handleSendChatMessage = async () => {
-	if (!chatComments.value || !chatForm.value.comment.value.trim()) return;
-
-	chatLoading.value = true;
-	try {
-		await chatComments.value.submitComment();
-		chatForm.value.comment.value = "";
-		chatForm.value.parentIds.value = [];
-		await chatComments.value.loadComments();
-		await nextTick();
-		scrollToBottom();
-	} catch (err) {
-		console.error("Error sending message:", err);
-	} finally {
-		chatLoading.value = false;
-	}
-};
-
-// Auto-scroll to bottom of messages
-const scrollToBottom = () => {
-	if (messagesContainer.value) {
-		messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-	}
-};
-
-// Watch for new messages and auto-scroll
-watch(() => chatMessages.value.length, () => {
-	nextTick(() => scrollToBottom());
-});
 
 const handleLeave = async () => {
 	// Prevent last admin from leaving
