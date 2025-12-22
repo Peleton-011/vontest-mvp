@@ -103,25 +103,24 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 				</div>
 			</div>
 
-			<!-- Info Tooltip -->
-			<UTooltip text="How to play" :popper="{ placement: 'left' }">
+			<!-- Info Popover -->
+			<UPopover>
 				<UButton
 					variant="ghost"
 					icon="i-heroicons-information-circle"
 					size="sm"
-				>
-					<template #default>
-						<div class="text-left space-y-2 p-2">
-							<p class="font-semibold">How to Play:</p>
-							<ol class="text-sm space-y-1 list-decimal list-inside">
-								<li v-for="(step, index) in gameMetadata.howToPlay" :key="index">
-									{{ step }}
-								</li>
-							</ol>
-						</div>
-					</template>
-				</UButton>
-			</UTooltip>
+				/>
+				<template #content>
+					<div class="text-left space-y-2 p-4">
+						<p class="font-semibold">How to Play:</p>
+						<ol class="text-sm space-y-1 list-decimal list-inside">
+							<li v-for="(step, index) in gameMetadata.howToPlay" :key="index">
+								{{ step }}
+							</li>
+						</ol>
+					</div>
+				</template>
+			</UPopover>
 		</div>
 
 		<!-- Error Display -->
@@ -197,7 +196,7 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 
 			<!-- Response Form (if not already responded) -->
 			<div v-if="!userResponse && currentGame.status === 'active'" class="space-y-4">
-				<UFormGroup label="How strongly do you feel about this choice?">
+				<UFormField label="How strongly do you feel about this choice?">
 					<div class="flex items-center gap-4">
 						<span class="text-sm text-gray-600 w-12">Weak</span>
 						<input
@@ -213,7 +212,7 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 							<span class="text-xs text-gray-500">/10</span>
 						</div>
 					</div>
-				</UFormGroup>
+				</UFormField>
 
 				<UButton
 					@click="handleSubmitResponse"
