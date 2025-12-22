@@ -15,21 +15,16 @@ BEGIN
   END IF;
 END $$;
 
--- Step 2: Add new constraint with all known types
--- Including types that might already exist in the database
+-- Step 2: Add new constraint with only the actual types
 ALTER TABLE threads ADD CONSTRAINT threads_type_check
   CHECK (type IN (
-    'post',
-    'vontest',
-    'comment',
-    'question',       -- Might exist from vontests
-    'answer',         -- Might exist from vontests
-    'debate',         -- Might exist from debates
-    'game_instance',
-    'debate_match',
+    'vontest',        -- Original type
+    'proposal',       -- Original type
+    'game_instance',  -- Added in migration 004
+    'debate_match',   -- Added in migration 004
     'game_general'    -- NEW: Group chat threads
   ));
 
 COMMENT ON CONSTRAINT threads_type_check ON threads IS
-  'Allowed thread types for various features in the app';
+  'Allowed thread types: vontest, proposal, game_instance, debate_match, game_general';
 
