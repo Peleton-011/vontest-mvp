@@ -1,0 +1,369 @@
+<template>
+	<div class="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-2xl">
+		<div class="mb-6 sm:mb-8">
+			<UButton
+				:to="`/games/${groupId}`"
+				variant="ghost"
+				icon="i-heroicons-arrow-left"
+				class="mb-4"
+			>
+				Back to Group
+			</UButton>
+			<h1 class="text-2xl sm:text-3xl font-bold">Group Settings</h1>
+			<p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-2">
+				Manage your group's settings and configuration
+			</p>
+		</div>
+
+		<!-- Loading state -->
+		<div v-if="initialLoading" class="text-center py-12">
+			<UIcon
+				name="i-heroicons-arrow-path"
+				class="w-8 h-8 animate-spin mx-auto"
+			/>
+			<p class="mt-4 text-gray-600">Loading group...</p>
+		</div>
+
+		<!-- Not admin error -->
+		<UAlert
+			v-else-if="!isAdmin"
+			color="error"
+			variant="soft"
+			title="Access Denied"
+			description="Only group admins can edit group settings"
+			class="mb-6"
+		>
+			<template #actions>
+				<UButton :to="`/games/${groupId}`" variant="ghost">
+					Back to Group
+				</UButton>
+			</template>
+		</UAlert>
+
+		<!-- Settings Form -->
+		<UCard v-else>
+			<form class="space-y-6" @submit.prevent="handleSubmit">
+				<!-- Group Name -->
+				<UFormGroup
+					label="Group Name"
+					name="name"
+					required
+					help="Choose a name for your group (3-50 characters)"
+				>
+					<UInput
+						v-model="form.name.value"
+						placeholder="e.g., College Friends, Book Club, Family"
+						:maxlength="50"
+						size="lg"
+						:disabled="loading"
+						autofocus
+					/>
+				</UFormGroup>
+
+				<!-- Description -->
+				<UFormGroup
+					label="Description"
+					name="description"
+					help="Optional description (max 500 characters)"
+				>
+					<UTextarea
+						v-model="form.description.value"
+						placeholder="What's this group about?"
+						:maxlength="500"
+						:rows="3"
+						:disabled="loading"
+					/>
+				</UFormGroup>
+
+				<!-- Enabled Games -->
+				<UFormGroup
+					label="Select Games"
+					name="enabled_games"
+					required
+					help="Choose which games this group will play (select at least one)"
+				>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+						<div
+							v-for="gameType in availableGames"
+							:key="gameType.id"
+							class="relative"
+						>
+							<label
+								:for="`game-${gameType.id}`"
+								class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-all"
+								:class="[
+									isGameSelected(gameType.id)
+										? 'border-primary-500 bg-primary-50 dark:bg-primary-950'
+										: 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700',
+									loading ? 'opacity-50 cursor-not-allowed' : ''
+								]"
+							>
+								<input
+									:id="`game-${gameType.id}`"
+									type="checkbox"
+									:value="gameType.id"
+									:checked="isGameSelected(gameType.id)"
+									:disabled="loading"
+									class="mt-1 h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+									@change="toggleGame(gameType.id)"
+								>
+								<div class="flex-1 min-w-0">
+									<div class="flex items-center gap-2 mb-1">
+										<UIcon
+											:name="gameType.icon"
+											class="w-5 h-5"
+											:class="`text-${gameType.color}-500`"
+										/>
+										<span class="font-medium text-sm">{{ gameType.name }}</span>
+									</div>
+									<p class="text-xs text-gray-600 dark:text-gray-400">
+										{{ gameType.description }}
+									</p>
+									<p class="text-xs text-gray-500 dark:text-gray-500 mt-1">
+										Min. {{ gameType.minPlayers }} players
+									</p>
+								</div>
+							</label>
+						</div>
+					</div>
+					<p v-if="form.enabled_games.value.length === 0" class="text-xs text-red-500 mt-2">
+						Please select at least one game type
+					</p>
+				</UFormGroup>
+
+				<!-- Notification Settings -->
+				<UFormGroup
+					label="Daily Game Time"
+					name="notification_time"
+					help="When should new games be created each day?"
+				>
+					<UInput
+						v-model="form.notification_time.value"
+						type="time"
+						:disabled="loading"
+					/>
+				</UFormGroup>
+
+				<!-- Timezone -->
+				<UFormGroup
+					label="Timezone"
+					name="timezone"
+					help="Select your timezone"
+				>
+					<USelect
+						v-model="form.timezone.value"
+						:items="timezones"
+						:disabled="loading"
+					/>
+				</UFormGroup>
+
+				<!-- Error Display -->
+				<UAlert
+					v-if="error"
+					color="error"
+					variant="soft"
+					title="Error updating group"
+					:description="error.message"
+				/>
+
+				<!-- Success Message -->
+				<UAlert
+					v-if="successMessage"
+					color="success"
+					variant="soft"
+					title="Success!"
+					:description="successMessage"
+				/>
+
+				<!-- Actions -->
+				<div class="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+					<UButton
+						type="submit"
+						size="lg"
+						class="w-full sm:w-auto"
+						:loading="loading"
+						:disabled="!isFormValid || loading"
+					>
+						Save Changes
+					</UButton>
+					<UButton
+						type="button"
+						variant="ghost"
+						size="lg"
+						class="w-full sm:w-auto"
+						:disabled="loading"
+						@click="navigateTo(`/games/${groupId}`)"
+					>
+						Cancel
+					</UButton>
+				</div>
+
+				<!-- Danger Zone -->
+				<div class="pt-6 border-t space-y-4">
+					<h3 class="text-lg font-semibold text-red-600 mb-3">Danger Zone</h3>
+
+					<!-- Leave Group -->
+					<UAlert
+						color="warning"
+						variant="soft"
+						title="Leave Group"
+						description="Remove yourself from this group. You can rejoin if you have an invite link."
+					>
+						<template #actions>
+							<UButton
+								color="warning"
+								variant="solid"
+								:disabled="loading"
+								@click="handleLeaveGroup"
+							>
+								Leave Group
+							</UButton>
+						</template>
+					</UAlert>
+
+					<!-- Delete Group -->
+					<UAlert
+						color="error"
+						variant="soft"
+						title="Delete Group"
+						description="Once you delete a group, there is no going back. All game history will be permanently deleted."
+					>
+						<template #actions>
+							<UButton
+								color="error"
+								variant="solid"
+								:disabled="loading"
+								@click="handleDelete"
+							>
+								Delete Group
+							</UButton>
+						</template>
+					</UAlert>
+				</div>
+			</form>
+		</UCard>
+	</div>
+</template>
+
+<script setup lang="ts">
+import { getAllGameTypes, type GameType } from '~/types/games';
+
+definePageMeta({
+	middleware: 'auth',
+	layout: 'default',
+});
+
+const route = useRoute();
+const router = useRouter();
+const groupId = computed(() => route.params.groupId as string);
+
+const { form, fetchGroup, updateGroup, deleteGroup, editGroup, loading, error, isFormValid, resetForm } = useGroups();
+const { isAdmin, adminCount, fetchMembers, leaveGroup } = useGroupMembers(groupId);
+
+const successMessage = ref('');
+const initialLoading = ref(true);
+
+// Get all available game types
+const availableGames = getAllGameTypes();
+
+// Helper to check if a game is selected
+const isGameSelected = (gameId: GameType): boolean => {
+	return form.enabled_games.value.includes(gameId);
+};
+
+// Helper to toggle game selection
+const toggleGame = (gameId: GameType) => {
+	const index = form.enabled_games.value.indexOf(gameId);
+	if (index > -1) {
+		// Remove if already selected
+		form.enabled_games.value.splice(index, 1);
+	} else {
+		// Add if not selected
+		form.enabled_games.value.push(gameId);
+	}
+};
+
+// Common timezones formatted for USelect
+const timezones = [
+	{ label: 'UTC', value: 'UTC' },
+	{ label: 'Eastern (New York)', value: 'America/New_York' },
+	{ label: 'Central (Chicago)', value: 'America/Chicago' },
+	{ label: 'Mountain (Denver)', value: 'America/Denver' },
+	{ label: 'Pacific (Los Angeles)', value: 'America/Los_Angeles' },
+	{ label: 'London', value: 'Europe/London' },
+	{ label: 'Paris', value: 'Europe/Paris' },
+	{ label: 'Berlin', value: 'Europe/Berlin' },
+	{ label: 'Tokyo', value: 'Asia/Tokyo' },
+	{ label: 'Shanghai', value: 'Asia/Shanghai' },
+	{ label: 'Sydney', value: 'Australia/Sydney' },
+];
+
+const handleSubmit = async () => {
+	successMessage.value = '';
+	error.value = null;
+
+	const result = await updateGroup();
+
+	if (result) {
+		successMessage.value = 'Group settings updated successfully!';
+
+		// Redirect back to group page after short delay
+		setTimeout(() => {
+			navigateTo(`/games/${groupId.value}`);
+		}, 1500);
+	}
+};
+
+const handleLeaveGroup = async () => {
+	// Prevent last admin from leaving
+	if (isAdmin.value && adminCount.value <= 1) {
+		alert("You are the only admin. Please promote another member to admin before leaving, or delete the group instead.");
+		return;
+	}
+
+	if (confirm("Are you sure you want to leave this group?")) {
+		const success = await leaveGroup();
+		if (success) {
+			navigateTo('/games');
+		}
+	}
+};
+
+const handleDelete = async () => {
+	const groupName = form.name.value;
+
+	if (!confirm(`Are you sure you want to delete "${groupName}"? This action cannot be undone and will delete all game history.`)) {
+		return;
+	}
+
+	if (!confirm(`Type the group name to confirm deletion: "${groupName}"`)) {
+		return;
+	}
+
+	const success = await deleteGroup(groupId.value);
+
+	if (success) {
+		navigateTo('/games');
+	}
+};
+
+// Load group data on mount
+onMounted(async () => {
+	// Fetch members first to check if user is admin
+	await fetchMembers();
+
+	if (isAdmin.value) {
+		const group = await fetchGroup(groupId.value);
+		if (group) {
+			editGroup(group);
+		}
+	}
+
+	initialLoading.value = false;
+});
+
+// Reset form when component unmounts
+onUnmounted(() => {
+	resetForm();
+});
+</script>

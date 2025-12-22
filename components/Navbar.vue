@@ -72,12 +72,28 @@ const isMobile = breakpoints.smaller("md");
 					</NuxtLink>
 				</template>
 				<template v-else-if="user">
-					<NuxtLink to="/logout">
-						<UButton class="font-bold" variant="outline">
-							Log Out
-							<UIcon name="i-lucide-log-out" class="ml-2" />
+					<UDropdownMenu
+						:items="[
+							[
+								{
+									label: 'Profile Settings',
+									icon: 'i-heroicons-user-circle',
+									to: '/profile/settings'
+								}
+							],
+							[
+								{
+									label: 'Log Out',
+									icon: 'i-heroicons-arrow-right-on-rectangle',
+									to: '/logout'
+								}
+							]
+						]"
+					>
+						<UButton variant="outline" trailing-icon="i-heroicons-chevron-down">
+							Account
 						</UButton>
-					</NuxtLink>
+					</UDropdownMenu>
 				</template>
 			</div>
 		</div>

@@ -116,8 +116,8 @@ export const useInviteCodes = (groupId?: Ref<string> | string) => {
 				"create_group_invite_code",
 				{
 					p_group_id: currentGroupId.value,
-					p_expires_in_days: expiresInDays || null,
-					p_max_uses: maxUses || null,
+					p_expires_in_days: expiresInDays || undefined,
+					p_max_uses: maxUses || undefined,
 				}
 			);
 

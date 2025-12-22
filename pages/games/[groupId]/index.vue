@@ -76,6 +76,7 @@
 						v-if="isAdmin"
 						variant="outline"
 						icon="i-heroicons-cog-6-tooth"
+						:to="`/games/${groupId}/settings`"
 					>
 						Settings
 					</UButton>
@@ -112,6 +113,23 @@
 					</div>
 				</template>
 
+				<!-- Chat Tab -->
+				<template #chat>
+					<div class="py-6">
+						<!-- Loading State -->
+						<div v-if="!chatThreadId" class="text-center py-12">
+							<UIcon
+								name="i-heroicons-arrow-path"
+								class="w-8 h-8 animate-spin mx-auto"
+							/>
+							<p class="mt-4 text-gray-600">Loading chat...</p>
+						</div>
+
+						<!-- Chat Component -->
+						<UiChatSection v-else :thread-id="chatThreadId" />
+					</div>
+				</template>
+
 				<!-- Members Tab -->
 				<template #members>
 					<div class="py-6">
@@ -125,31 +143,56 @@
 							<UCard
 								v-for="member in members"
 								:key="member.user_id"
-								class="flex items-center justify-between p-4"
+								class="p-4"
 							>
-								<div class="flex items-center gap-3">
-									<UAvatar
-										:src="member.avatar_url"
-										:alt="member.username || 'User'"
-										size="md"
-									/>
-									<div>
-										<p class="font-medium">
-											{{
-												member.username ||
-												"Unknown User"
-											}}
-										</p>
-										<p class="text-sm text-gray-600">
-											{{
-												member.role === "admin"
-													? "👑 Admin"
-													: "Member"
-											}}
-											• {{ member.games_played }} games •
-											{{ member.total_score }} pts
-										</p>
+								<div class="flex items-center justify-between">
+									<div class="flex items-center gap-3">
+										<UAvatar
+											:src="member.avatar_url"
+											:alt="member.username || 'User'"
+											size="md"
+										/>
+										<div>
+											<p class="font-medium">
+												{{
+													member.username ||
+													"Unknown User"
+												}}
+												<span
+													v-if="member.user_id === user?.id"
+													class="text-xs text-gray-500"
+												>
+													(You)
+												</span>
+											</p>
+											<p class="text-sm text-gray-600">
+												{{
+													member.role === "admin"
+														? "👑 Admin"
+														: "Member"
+												}}
+												• {{ member.games_played }} games •
+												{{ member.total_score }} pts
+											</p>
+										</div>
 									</div>
+
+									<!-- Member Actions (Admin Only) -->
+									<UDropdownMenu
+										v-if="isAdmin && member.user_id !== user?.id"
+										:items="getMemberActions(member)"
+										:content="{
+											align: 'end',
+											side: 'bottom',
+											sideOffset: 8,
+										}"
+									>
+										<UButton
+											variant="ghost"
+											color="neutral"
+											icon="i-heroicons-ellipsis-vertical"
+										/>
+									</UDropdownMenu>
 								</div>
 							</UCard>
 						</div>
@@ -309,6 +352,7 @@
 
 <script setup lang="ts">
 import type { Database } from "~/types/supabase";
+import type { DropdownMenuItem } from "@nuxt/ui";
 
 type Group = Database["public"]["Tables"]["groups"]["Row"];
 
@@ -318,16 +362,20 @@ definePageMeta({
 });
 
 const route = useRoute();
+const user = useSupabaseUser();
 const groupId = computed(() => route.params.groupId as string);
 
 const { fetchGroup, loading: groupLoading, error: groupError } = useGroups();
 const {
 	members,
 	memberCount,
+	adminCount,
 	isAdmin,
 	loading: membersLoading,
 	error: membersError,
 	leaveGroup,
+	removeMember,
+	updateRole,
 } = useGroupMembers(groupId);
 const {
 	activeInviteCodes,
@@ -342,6 +390,10 @@ const group = ref<Group | null>(null);
 const loading = computed(() => groupLoading.value || membersLoading.value);
 const error = computed(() => groupError.value || membersError.value);
 
+// Chat state
+const supabase = useSupabaseClient<Database>();
+const chatThreadId = ref<string | null>(null);
+
 const settings = computed(() => {
 	if (!group.value?.settings) return { notification_time: "09:00" };
 	return group.value.settings;
@@ -352,6 +404,11 @@ const tabs = [
 		slot: "games",
 		label: "Games",
 		icon: "i-heroicons-puzzle-piece",
+	},
+	{
+		slot: "chat",
+		label: "Chat",
+		icon: "i-heroicons-chat-bubble-left-right",
 	},
 	{
 		slot: "members",
@@ -365,7 +422,30 @@ const tabs = [
 	},
 ];
 
+// Get or create chat thread for the group
+const initChatThread = async () => {
+	if (!groupId.value) return;
+
+	try {
+		const { data, error: rpcError } = await supabase.rpc(
+			"create_group_chat_thread",
+			{ p_group_id: groupId.value }
+		);
+
+		if (rpcError) throw rpcError;
+		chatThreadId.value = data as string;
+	} catch (err) {
+		console.error("Error initializing chat:", err);
+	}
+};
+
 const handleLeave = async () => {
+	// Prevent last admin from leaving
+	if (isAdmin.value && adminCount.value <= 1) {
+		alert("You are the only admin. Please promote another member to admin before leaving, or delete the group from settings.");
+		return;
+	}
+
 	if (confirm("Are you sure you want to leave this group?")) {
 		const success = await leaveGroup();
 		if (success) {
@@ -396,8 +476,72 @@ const handleDeactivate = async (code: string) => {
 	}
 };
 
-// Fetch group data
+/**
+ * Member Management Actions
+ */
+const getMemberActions = (member: any): DropdownMenuItem[] => {
+	const actions: DropdownMenuItem[] = [];
+
+	// Role management actions
+	if (member.role === "admin") {
+		// Can only demote if there are other admins
+		if (adminCount.value > 1) {
+			actions.push({
+				label: "Remove Admin",
+				icon: "i-heroicons-shield-exclamation",
+				onSelect: () => handleDemote(member),
+			});
+		}
+	} else {
+		actions.push({
+			label: "Make Admin",
+			icon: "i-heroicons-shield-check",
+			onSelect: () => handlePromote(member),
+		});
+	}
+
+	// Remove member action (always available)
+	actions.push({
+		label: "Remove from Group",
+		icon: "i-heroicons-user-minus",
+		onSelect: () => handleRemoveMember(member),
+	});
+
+	return actions;
+};
+
+const handlePromote = async (member: any) => {
+	if (confirm(`Promote ${member.username || "this user"} to admin?`)) {
+		await updateRole(member.user_id, "admin");
+	}
+};
+
+const handleDemote = async (member: any) => {
+	if (adminCount.value <= 1) {
+		alert("Cannot demote the last admin. Promote another member to admin first.");
+		return;
+	}
+
+	if (confirm(`Remove admin privileges from ${member.username || "this user"}?`)) {
+		await updateRole(member.user_id, "member");
+	}
+};
+
+const handleRemoveMember = async (member: any) => {
+	// Prevent removing the last admin
+	if (member.role === "admin" && adminCount.value <= 1) {
+		alert("Cannot remove the last admin. Promote another member to admin first.");
+		return;
+	}
+
+	if (confirm(`Remove ${member.username || "this user"} from the group?`)) {
+		await removeMember(member.user_id);
+	}
+};
+
+// Fetch group data and init chat
 onMounted(async () => {
 	group.value = await fetchGroup(groupId.value);
+	await initChatThread();
 });
 </script>

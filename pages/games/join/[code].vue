@@ -3,7 +3,7 @@
 		<!-- Loading state -->
 		<div v-if="loading" class="text-center py-12">
 			<UIcon name="i-heroicons-arrow-path" class="w-12 h-12 animate-spin mx-auto" />
-			<p class="mt-4 text-gray-600">Loading group...</p>
+			<p class="mt-4 text-gray-400">Loading group...</p>
 		</div>
 
 		<!-- Error state -->
@@ -27,7 +27,7 @@
 			<template #header>
 				<div class="text-center">
 					<h1 class="text-3xl font-bold">You've been invited!</h1>
-					<p class="text-gray-600 mt-2">
+					<p class="text-gray-400 mt-2">
 						Join this group to start playing daily games
 					</p>
 				</div>
@@ -35,13 +35,13 @@
 
 			<div class="space-y-6">
 				<!-- Group Info -->
-				<div class="text-center py-6 bg-gray-50 rounded-lg">
-					<UIcon name="i-heroicons-user-group" class="w-16 h-16 mx-auto text-primary-500 mb-4" />
+				<div class="text-center py-6 bg-neutral-950 rounded-lg">
+					<UIcon name="i-heroicons-user-group" class="w-16 h-16 mx-auto text-gray-50 mb-4" />
 					<h2 class="text-2xl font-semibold">{{ groupPreview.group_name }}</h2>
-					<p v-if="groupPreview.group_description" class="text-gray-700 mt-2">
+					<p v-if="groupPreview.group_description" class="text-gray-400 mt-2">
 						{{ groupPreview.group_description }}
 					</p>
-					<div class="flex justify-center gap-6 mt-4 text-sm text-gray-600">
+					<div class="flex justify-center gap-6 mt-4 text-sm text-gray-400">
 						<span>
 							<UIcon name="i-heroicons-users" class="w-4 h-4 inline" />
 							{{ groupPreview.member_count }} {{ groupPreview.member_count === 1 ? 'member' : 'members' }}
@@ -50,7 +50,7 @@
 				</div>
 
 				<!-- Invite Code Stats -->
-				<div class="text-sm text-gray-600 text-center space-y-1">
+				<div class="text-sm text-gray-400 text-center space-y-1">
 					<p v-if="groupPreview.expires_at">
 						<UIcon name="i-heroicons-clock" class="w-4 h-4 inline" />
 						Expires {{ formatDate(groupPreview.expires_at) }}
