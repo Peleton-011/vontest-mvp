@@ -107,10 +107,9 @@
 							</div>
 							<UButton
 								icon="i-heroicons-sparkles"
-								:loading="gameSchedulerLoading"
-								@click="handleCreateGame"
+								@click="showCreateGameModal = true"
 							>
-								Create Game Now
+								Create Game
 							</UButton>
 						</div>
 
@@ -387,6 +386,21 @@
 					</div>
 				</template>
 			</UTabs>
+
+			<!-- Create Game Modal -->
+			<UModal v-model="showCreateGameModal" :ui="{ width: 'sm:max-w-3xl' }">
+				<UCard>
+					<template #header>
+						<h2 class="text-xl font-bold">Create New Game</h2>
+					</template>
+
+					<GamesCreateGameForm
+						:group-id="groupId"
+						@created="handleGameCreated"
+						@cancel="handleGameCanceled"
+					/>
+				</UCard>
+			</UModal>
 		</div>
 	</div>
 </template>
@@ -440,6 +454,7 @@ const error = computed(() => groupError.value || membersError.value);
 // Game state
 const activeGame = ref<any>(null);
 const loadingGame = ref(false);
+const showCreateGameModal = ref(false);
 
 // Chat state
 const supabase = useSupabaseClient<Database>();
@@ -618,18 +633,15 @@ const loadActiveGame = async () => {
 	}
 };
 
-// Handle manual game creation
-const handleCreateGame = async () => {
-	if (!groupId.value) return;
+// Handle game created from form
+const handleGameCreated = async (gameId: string, gameType: string) => {
+	showCreateGameModal.value = false;
+	await loadActiveGame();
+};
 
-	const result = await createGameForGroup(groupId.value);
-
-	if (result.success) {
-		alert(`Game created! Type: ${result.data?.gameType}`);
-		await loadActiveGame();
-	} else {
-		alert(`Failed to create game: ${result.error}`);
-	}
+// Handle cancel from form
+const handleGameCanceled = () => {
+	showCreateGameModal.value = false;
 };
 
 onMounted(async () => {
