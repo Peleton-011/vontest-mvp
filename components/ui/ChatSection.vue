@@ -106,7 +106,7 @@ watch(() => groupedMessages.value.length, () => {
 </script>
 
 <template>
-	<div class="flex flex-col h-[600px]">
+	<div class="flex flex-col h-[600px] bg-neutral-950 rounded-2xl">
 		<!-- Messages Area (scrollable) -->
 		<div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
 			<!-- Loading State -->
@@ -126,7 +126,7 @@ watch(() => groupedMessages.value.length, () => {
 				<div
 					v-for="group in groupedMessages"
 					:key="group.userId + group.timestamp"
-					class="flex gap-3"
+					class="flex gap-3 bg-neutral-900 rounded-lg p-3"
 				>
 					<!-- Avatar (shown once per group) -->
 					<UAvatar
@@ -166,7 +166,7 @@ watch(() => groupedMessages.value.length, () => {
 		</div>
 
 		<!-- Message Input (fixed bottom) -->
-		<div class="border-t p-4">
+		<div class="border-t-4 border-t-neutral-900 p-4 ">
 			<form class="flex gap-2" @submit.prevent="postMessage">
 				<UInput
 					v-model="form.comment.value"
