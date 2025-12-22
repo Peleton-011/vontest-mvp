@@ -97,7 +97,45 @@
 				<!-- Games Tab -->
 				<template #games>
 					<div class="py-6">
-						<div class="text-center py-12">
+						<!-- Admin Controls -->
+						<div v-if="isAdmin" class="mb-6 flex justify-between items-center">
+							<div>
+								<h3 class="text-lg font-semibold">Daily Games</h3>
+								<p class="text-sm text-gray-600">
+									Auto-created at {{ settings.notification_time }} ({{ settings.timezone }})
+								</p>
+							</div>
+							<UButton
+								icon="i-heroicons-sparkles"
+								:loading="gameSchedulerLoading"
+								@click="handleCreateGame"
+							>
+								Create Game Now
+							</UButton>
+						</div>
+
+						<!-- Active Game -->
+						<div v-if="activeGame">
+							<GamesWouldYouRatherGame
+								v-if="activeGame.game_type === 'would_you_rather'"
+								:group-id="groupId"
+							/>
+							<div v-else class="text-center py-12">
+								<UIcon
+									name="i-heroicons-puzzle-piece"
+									class="w-16 h-16 mx-auto text-gray-400"
+								/>
+								<h3 class="text-xl font-semibold mt-4">
+									{{ activeGame.game_type }}
+								</h3>
+								<p class="text-gray-600 mt-2">
+									This game type is not yet implemented
+								</p>
+							</div>
+						</div>
+
+						<!-- No Active Game -->
+						<div v-else class="text-center py-12">
 							<UIcon
 								name="i-heroicons-puzzle-piece"
 								class="w-16 h-16 mx-auto text-gray-400"
@@ -108,6 +146,9 @@
 							<p class="text-gray-600 mt-2">
 								The next game will be created at
 								{{ settings.notification_time }}
+							</p>
+							<p v-if="isAdmin" class="text-sm text-gray-500 mt-1">
+								Or click "Create Game Now" above to start one manually
 							</p>
 						</div>
 					</div>
@@ -386,9 +427,19 @@ const {
 	loading: inviteLoading,
 } = useInviteCodes(groupId);
 
+const {
+	createGameForGroup,
+	loading: gameSchedulerLoading,
+	error: gameSchedulerError,
+} = useGameScheduler();
+
 const group = ref<Group | null>(null);
 const loading = computed(() => groupLoading.value || membersLoading.value);
 const error = computed(() => groupError.value || membersError.value);
+
+// Game state
+const activeGame = ref<any>(null);
+const loadingGame = ref(false);
 
 // Chat state
 const supabase = useSupabaseClient<Database>();
@@ -540,8 +591,50 @@ const handleRemoveMember = async (member: any) => {
 };
 
 // Fetch group data and init chat
+// Load active game
+const loadActiveGame = async () => {
+	if (!groupId.value) return;
+
+	loadingGame.value = true;
+	try {
+		const { data, error: fetchError } = await supabase
+			.from("game_instances")
+			.select("*")
+			.eq("group_id", groupId.value)
+			.eq("status", "active")
+			.order("created_at", { ascending: false })
+			.limit(1)
+			.single();
+
+		if (fetchError && fetchError.code !== "PGRST116") {
+			throw fetchError;
+		}
+
+		activeGame.value = data;
+	} catch (err) {
+		console.error("Error loading active game:", err);
+	} finally {
+		loadingGame.value = false;
+	}
+};
+
+// Handle manual game creation
+const handleCreateGame = async () => {
+	if (!groupId.value) return;
+
+	const result = await createGameForGroup(groupId.value);
+
+	if (result.success) {
+		alert(`Game created! Type: ${result.data?.gameType}`);
+		await loadActiveGame();
+	} else {
+		alert(`Failed to create game: ${result.error}`);
+	}
+};
+
 onMounted(async () => {
 	group.value = await fetchGroup(groupId.value);
 	await initChatThread();
+	await loadActiveGame();
 });
 </script>
