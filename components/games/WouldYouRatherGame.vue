@@ -205,7 +205,7 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 							min="1"
 							max="10"
 							class="flex-1"
-						/>
+						>
 						<span class="text-sm text-gray-600 w-12">Strong</span>
 						<div class="w-12 text-center">
 							<span class="font-bold text-lg">{{ responseForm.intensity }}</span>
@@ -215,10 +215,10 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 				</UFormField>
 
 				<UButton
-					@click="handleSubmitResponse"
 					:loading="loading"
 					block
 					size="lg"
+					@click="handleSubmitResponse"
 				>
 					Submit Response
 				</UButton>
@@ -320,12 +320,12 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 			</div>
 
 			<!-- Admin Controls -->
-			<div v-if="isAdmin && currentGame.status === 'active'" class="pt-6 border-t">
+			<div v-if="isAdmin && currentGame.status === 'active'" class="pt-6 border-t cursor-pointer">
 				<UButton
-					@click="handleCompleteGame"
 					variant="outline"
-					color="green"
+					color="neutral"
 					icon="i-heroicons-check-circle"
+					@click="handleCompleteGame"
 				>
 					End Game & Post Results to Chat
 				</UButton>
