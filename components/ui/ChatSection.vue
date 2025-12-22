@@ -21,6 +21,53 @@ const messages = computed(() => {
 		.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 });
 
+// Group messages by same user within 5 minutes
+const groupedMessages = computed(() => {
+	const grouped: Array<{
+		userId: string;
+		username: string | null;
+		avatarUrl: string;
+		messages: Array<{ id: string; comment: string; createdAt: Date }>;
+		timestamp: Date;
+	}> = [];
+
+	messages.value.forEach((msg, index) => {
+		const prevMsg = messages.value[index - 1];
+		const timeDiff = prevMsg
+			? (msg.createdAt.getTime() - prevMsg.createdAt.getTime()) / 1000 / 60
+			: Infinity;
+
+		// Group if same user and within 5 minutes
+		const shouldGroup = prevMsg
+			&& prevMsg.author.id === msg.author.id
+			&& timeDiff < 5;
+
+		if (shouldGroup && grouped.length > 0) {
+			// Add to existing group
+			grouped[grouped.length - 1].messages.push({
+				id: msg.id,
+				comment: msg.comment,
+				createdAt: msg.createdAt,
+			});
+		} else {
+			// Start new group
+			grouped.push({
+				userId: msg.author.id,
+				username: msg.author.username,
+				avatarUrl: msg.author.avatarUrl,
+				messages: [{
+					id: msg.id,
+					comment: msg.comment,
+					createdAt: msg.createdAt,
+				}],
+				timestamp: msg.createdAt,
+			});
+		}
+	});
+
+	return grouped;
+});
+
 onMounted(loadComments);
 
 // Handler: post a new message
@@ -53,7 +100,7 @@ const scrollToBottom = () => {
 };
 
 // Watch for new messages and auto-scroll
-watch(() => messages.value.length, () => {
+watch(() => groupedMessages.value.length, () => {
 	nextTick(() => scrollToBottom());
 });
 </script>
@@ -61,9 +108,9 @@ watch(() => messages.value.length, () => {
 <template>
 	<div class="flex flex-col h-[600px]">
 		<!-- Messages Area (scrollable) -->
-		<div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
+		<div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
 			<!-- Loading State -->
-			<div v-if="messages.length === 0" class="text-center py-12">
+			<div v-if="groupedMessages.length === 0" class="text-center py-12">
 				<UIcon
 					name="i-heroicons-chat-bubble-left-right"
 					class="w-16 h-16 mx-auto text-gray-400"
@@ -74,34 +121,45 @@ watch(() => messages.value.length, () => {
 				</p>
 			</div>
 
-			<!-- Messages List -->
-			<div v-else class="space-y-3">
+			<!-- Messages List (Grouped) -->
+			<div v-else class="space-y-4">
 				<div
-					v-for="msg in messages"
-					:key="msg.id"
+					v-for="group in groupedMessages"
+					:key="group.userId + group.timestamp"
 					class="flex gap-3"
 				>
+					<!-- Avatar (shown once per group) -->
 					<UAvatar
-						:src="msg.author.avatarUrl"
-						:alt="msg.author.username || 'User'"
+						:src="group.avatarUrl"
+						:alt="group.username || 'User'"
 						size="sm"
 						class="flex-shrink-0"
 					/>
-					<div class="flex-1 min-w-0">
+
+					<!-- Message Group -->
+					<div class="flex-1 min-w-0 space-y-1">
+						<!-- Username and timestamp (shown once per group) -->
 						<div class="flex items-baseline gap-2">
 							<span class="font-semibold text-sm">
-								{{ msg.author.username || "Unknown User" }}
+								{{ group.username || "Unknown User" }}
 							</span>
 							<span class="text-xs text-gray-500">
 								{{
-									new Date(msg.createdAt).toLocaleTimeString([], {
+									group.timestamp.toLocaleTimeString([], {
 										hour: "2-digit",
 										minute: "2-digit",
 									})
 								}}
 							</span>
 						</div>
-						<div class="text-sm text-gray-700 mt-1" v-html="msg.comment"/>
+
+						<!-- Messages from same user -->
+						<div
+							v-for="msg in group.messages"
+							:key="msg.id"
+							class="text-sm text-gray-700"
+							v-html="msg.comment"
+						></div>
 					</div>
 				</div>
 			</div>
