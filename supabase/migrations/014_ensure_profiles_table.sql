@@ -11,6 +11,20 @@ CREATE TABLE IF NOT EXISTS profiles (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Fix existing usernames that violate length constraint
+-- Set usernames that are too short or too long to NULL so users can recreate them
+UPDATE profiles
+SET username = NULL
+WHERE username IS NOT NULL
+  AND (length(username) < 3 OR length(username) > 20);
+
+-- Fix existing usernames that violate format constraint
+-- Set usernames with invalid characters to NULL
+UPDATE profiles
+SET username = NULL
+WHERE username IS NOT NULL
+  AND username !~ '^[a-zA-Z0-9_]+$';
+
 -- Add username constraint if it doesn't exist
 DO $$
 BEGIN
