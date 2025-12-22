@@ -105,12 +105,22 @@
 									Auto-created at {{ settings.notification_time }} ({{ settings.timezone }})
 								</p>
 							</div>
-							<UButton
-								icon="i-heroicons-sparkles"
-								@click="showCreateGameModal = true"
-							>
-								Create Game
-							</UButton>
+							<div class="flex gap-2">
+								<UButton
+									icon="i-heroicons-sparkles"
+									:loading="gameSchedulerLoading"
+									@click="handleStartGameNow"
+								>
+									Start Game Now
+								</UButton>
+								<UButton
+									variant="outline"
+									icon="i-heroicons-pencil"
+									@click="showCustomGameModal = true"
+								>
+									Make Custom Game
+								</UButton>
+							</div>
 						</div>
 
 						<!-- Active Game -->
@@ -387,19 +397,15 @@
 				</template>
 			</UTabs>
 
-			<!-- Create Game Modal -->
-			<UModal v-model="showCreateGameModal" :ui="{ width: 'sm:max-w-3xl' }">
-				<UCard>
-					<template #header>
-						<h2 class="text-xl font-bold">Create New Game</h2>
-					</template>
-
+			<!-- Custom Game Modal -->
+			<UModal v-model:open="showCustomGameModal" title="Create Custom Game">
+				<template #body>
 					<GamesCreateGameForm
 						:group-id="groupId"
 						@created="handleGameCreated"
 						@cancel="handleGameCanceled"
 					/>
-				</UCard>
+				</template>
 			</UModal>
 		</div>
 	</div>
@@ -454,7 +460,7 @@ const error = computed(() => groupError.value || membersError.value);
 // Game state
 const activeGame = ref<any>(null);
 const loadingGame = ref(false);
-const showCreateGameModal = ref(false);
+const showCustomGameModal = ref(false);
 
 // Chat state
 const supabase = useSupabaseClient<Database>();
@@ -633,15 +639,28 @@ const loadActiveGame = async () => {
 	}
 };
 
-// Handle game created from form
+// Handle automatic game creation ("Start Game Now")
+const handleStartGameNow = async () => {
+	if (!groupId.value) return;
+
+	const result = await createGameForGroup(groupId.value);
+
+	if (result.success) {
+		await loadActiveGame();
+	} else {
+		alert(`Failed to create game: ${result.error}`);
+	}
+};
+
+// Handle game created from custom form
 const handleGameCreated = async (gameId: string, gameType: string) => {
-	showCreateGameModal.value = false;
+	showCustomGameModal.value = false;
 	await loadActiveGame();
 };
 
-// Handle cancel from form
+// Handle cancel from custom form
 const handleGameCanceled = () => {
-	showCreateGameModal.value = false;
+	showCustomGameModal.value = false;
 };
 
 onMounted(async () => {
