@@ -61,7 +61,7 @@ watch(() => messages.value.length, () => {
 <template>
 	<div class="flex flex-col h-[600px]">
 		<!-- Messages Area (scrollable) -->
-		<div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+		<div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
 			<!-- Loading State -->
 			<div v-if="messages.length === 0" class="text-center py-12">
 				<UIcon
