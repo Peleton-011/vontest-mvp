@@ -143,7 +143,7 @@ watch(() => groupedMessages.value.length, () => {
 							<span class="font-semibold text-sm">
 								{{ group.username || "Unknown User" }}
 							</span>
-							<span class="text-xs text-gray-500">
+							<span class="text-xs text-gray-400">
 								{{
 									group.timestamp.toLocaleTimeString([], {
 										hour: "2-digit",
@@ -157,7 +157,7 @@ watch(() => groupedMessages.value.length, () => {
 						<div
 							v-for="msg in group.messages"
 							:key="msg.id"
-							class="text-sm text-gray-700"
+							class="text-sm text-gray-600"
 							v-html="msg.comment"
 						></div>
 					</div>

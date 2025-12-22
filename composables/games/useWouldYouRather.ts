@@ -31,7 +31,7 @@ export interface WouldYouRatherResults {
 export const useWouldYouRather = (groupId: string) => {
 	const supabase = useSupabaseClient<Database>();
 	const user = useSupabaseUser();
-	const { postResultsToChat, postGameAnnouncement, postResponseCountUpdate } = useGameResults();
+	const { postResultsToChat } = useGameResults();
 
 	const loading = ref(false);
 	const error = ref<string | null>(null);
@@ -80,17 +80,6 @@ export const useWouldYouRather = (groupId: string) => {
 				.from('group_members')
 				.select('id')
 				.eq('group_id', groupId);
-
-			const totalMembers = members?.length || 0;
-
-			// Post announcement to chat
-			await postGameAnnouncement(
-				groupId,
-				'would_you_rather',
-				`Choose: ${prompt.option_a} OR ${prompt.option_b}`,
-				0,
-				totalMembers
-			);
 
 			return { success: true, gameId: game.id };
 		} catch (e: any) {
@@ -180,14 +169,6 @@ export const useWouldYouRather = (groupId: string) => {
 			const prompt = game?.prompt as WouldYouRatherPrompt;
 			const message = prompt ? `Choose: ${prompt.option_a} OR ${prompt.option_b}` : 'Vote now!';
 
-			// Post response count update to chat
-			await postResponseCountUpdate(
-				groupId,
-				game?.game_type as any,
-				responseCount,
-				totalMembers,
-				message
-			);
 
 			// Check if all members have responded
 			if (responseCount >= totalMembers && totalMembers > 0) {
