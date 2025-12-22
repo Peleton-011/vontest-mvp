@@ -18,7 +18,7 @@ const isSubmitting = ref(false);
 const messages = computed(() => {
 	return Array.from(nodeMap.value.values())
 		.filter(node => !node.parentIds.length) // Only root-level messages
-		.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+		.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 });
 
 onMounted(loadComments);
@@ -82,26 +82,26 @@ watch(() => messages.value.length, () => {
 					class="flex gap-3"
 				>
 					<UAvatar
-						:src="msg.avatar_url"
-						:alt="msg.username || 'User'"
+						:src="msg.author.avatarUrl"
+						:alt="msg.author.username || 'User'"
 						size="sm"
 						class="flex-shrink-0"
 					/>
 					<div class="flex-1 min-w-0">
 						<div class="flex items-baseline gap-2">
 							<span class="font-semibold text-sm">
-								{{ msg.username || "Unknown User" }}
+								{{ msg.author.username || "Unknown User" }}
 							</span>
 							<span class="text-xs text-gray-500">
 								{{
-									new Date(msg.created_at).toLocaleTimeString([], {
+									new Date(msg.createdAt).toLocaleTimeString([], {
 										hour: "2-digit",
 										minute: "2-digit",
 									})
 								}}
 							</span>
 						</div>
-						<div class="text-sm text-gray-700 mt-1" v-html="msg.comment"></div>
+						<div class="text-sm text-gray-700 mt-1" v-html="msg.comment"/>
 					</div>
 				</div>
 			</div>
@@ -109,7 +109,7 @@ watch(() => messages.value.length, () => {
 
 		<!-- Message Input (fixed bottom) -->
 		<div class="border-t p-4">
-			<form @submit.prevent="postMessage" class="flex gap-2">
+			<form class="flex gap-2" @submit.prevent="postMessage">
 				<UInput
 					v-model="form.comment.value"
 					placeholder="Type a message..."
