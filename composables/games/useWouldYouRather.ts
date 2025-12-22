@@ -31,7 +31,7 @@ export interface WouldYouRatherResults {
 export const useWouldYouRather = (groupId: string) => {
 	const supabase = useSupabaseClient<Database>();
 	const user = useSupabaseUser();
-	const { postResultsToChat, postGameAnnouncement } = useGameResults();
+	const { postResultsToChat, postGameAnnouncement, postResponseCountUpdate } = useGameResults();
 
 	const loading = ref(false);
 	const error = ref<string | null>(null);
@@ -79,7 +79,7 @@ export const useWouldYouRather = (groupId: string) => {
 			await postGameAnnouncement(
 				groupId,
 				'would_you_rather',
-				`New game started! ${prompt.option_a} vs ${prompt.option_b}`
+				`Choose: ${prompt.option_a} OR ${prompt.option_b}`
 			);
 
 			return { success: true, gameId: game.id };
@@ -132,7 +132,7 @@ export const useWouldYouRather = (groupId: string) => {
 			// Update game metadata with vote counts
 			const { data: game } = await supabase
 				.from('game_instances')
-				.select('metadata')
+				.select('metadata, game_type')
 				.eq('id', gameId)
 				.single();
 
@@ -149,6 +149,36 @@ export const useWouldYouRather = (groupId: string) => {
 				.eq('id', gameId);
 
 			userResponse.value = response;
+
+			// Get current response count
+			const { data: responses } = await supabase
+				.from('game_responses')
+				.select('id')
+				.eq('game_instance_id', gameId);
+
+			const responseCount = responses?.length || 0;
+
+			// Get total group member count
+			const { data: members } = await supabase
+				.from('group_members')
+				.select('id')
+				.eq('group_id', groupId);
+
+			const totalMembers = members?.length || 0;
+
+			// Post response count update to chat
+			await postResponseCountUpdate(
+				groupId,
+				game?.game_type as any,
+				responseCount,
+				totalMembers
+			);
+
+			// Check if all members have responded
+			if (responseCount >= totalMembers && totalMembers > 0) {
+				// Auto-complete the game
+				await completeGame(gameId);
+			}
 
 			return { success: true };
 		} catch (e: any) {

@@ -114,7 +114,7 @@ export const useGameResults = () => {
 	};
 
 	/**
-	 * Post a simple game announcement to chat
+	 * Post a game announcement card to chat (with gradient and clickable)
 	 */
 	const postGameAnnouncement = async (
 		groupId: string,
@@ -152,8 +152,36 @@ export const useGameResults = () => {
 				throw new Error('Failed to get or create chat thread');
 			}
 
-			// Format announcement
-			const announcement = `<div class="game-announcement" style="font-style: italic; color: #888;">🎲 ${getGameName(gameType)}: ${message}</div>`;
+			// Format announcement as a gradient card
+			const announcement = `
+				<div class="game-announcement-card" style="
+					background: linear-gradient(to right, #dbeafe, #e0e7ff);
+					border-radius: 0.75rem;
+					padding: 1.5rem;
+					margin: 0.5rem 0;
+					text-align: center;
+				">
+					<div style="font-size: 2rem; margin-bottom: 0.5rem;">🎮</div>
+					<div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #1e40af;">
+						${getGameName(gameType)} Started!
+					</div>
+					<div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">
+						${message}
+					</div>
+					<a href="/games/${groupId}" style="
+						display: inline-block;
+						background: #2563eb;
+						color: white;
+						padding: 0.5rem 1.5rem;
+						border-radius: 0.5rem;
+						text-decoration: none;
+						font-weight: 600;
+						font-size: 0.875rem;
+					">
+						Go to Games Tab →
+					</a>
+				</div>
+			`;
 
 			// Post to chat
 			const { error: commentError } = await supabase
@@ -173,10 +201,84 @@ export const useGameResults = () => {
 		}
 	};
 
+	/**
+	 * Post response count update to chat
+	 */
+	const postResponseCountUpdate = async (
+		groupId: string,
+		gameType: GameType,
+		responseCount: number,
+		totalMembers: number
+	): Promise<{ success: boolean; error?: string }> => {
+		try {
+			// Get the group's chat thread
+			const { data: thread, error: threadError } = await supabase
+				.from('threads')
+				.select('id')
+				.eq('reference_id', groupId)
+				.eq('type', 'game_general')
+				.single();
+
+			if (threadError) throw threadError;
+			if (!thread) throw new Error('Chat thread not found');
+
+			// Format response count card
+			const countCard = `
+				<div class="response-count-card" style="
+					background: linear-gradient(to right, #dbeafe, #e0e7ff);
+					border-radius: 0.75rem;
+					padding: 1.5rem;
+					margin: 0.5rem 0;
+					text-align: center;
+					cursor: pointer;
+				">
+					<div style="font-size: 3rem; font-weight: 700; color: #2563eb; margin-bottom: 0.5rem;">
+						${responseCount}
+					</div>
+					<div style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.25rem;">
+						${responseCount === 1 ? 'Response' : 'Responses'}
+					</div>
+					<div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">
+						${totalMembers - responseCount} ${totalMembers - responseCount === 1 ? 'person' : 'people'} left to respond!
+					</div>
+					<a href="/games/${groupId}" style="
+						display: inline-block;
+						background: #2563eb;
+						color: white;
+						padding: 0.5rem 1.5rem;
+						border-radius: 0.5rem;
+						text-decoration: none;
+						font-weight: 600;
+						font-size: 0.875rem;
+					">
+						Give Your Take →
+					</a>
+				</div>
+			`;
+
+			// Post to chat
+			const { error: commentError } = await supabase
+				.from('comments')
+				.insert({
+					thread_id: thread.id,
+					user_id: (await supabase.auth.getUser()).data.user?.id,
+					comment: countCard,
+				});
+
+			if (commentError) throw commentError;
+
+			return { success: true };
+		} catch (error: any) {
+			console.error('Error posting response count update:', error);
+			return { success: false, error: error.message };
+		}
+	};
+
 	return {
 		formatGameResultMessage,
 		postResultsToChat,
 		postGameAnnouncement,
+		postResponseCountUpdate,
 	};
 };
 
