@@ -12,6 +12,7 @@ const {
 	currentGame,
 	userResponse,
 	getActiveGame,
+	getUserResponse,
 	submitAnswer,
 	submitGuesses,
 	startGuessingPhase,
