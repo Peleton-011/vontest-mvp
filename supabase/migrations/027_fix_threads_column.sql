@@ -120,11 +120,10 @@ BEGIN
     END IF;
 
     -- Post announcement with NULL user_id (system message)
-    INSERT INTO messages (
+    INSERT INTO comments (
       thread_id,
       user_id,
-      content,
-      metadata
+      comment
     ) VALUES (
       v_thread_id,
       NULL,  -- System message
@@ -135,12 +134,7 @@ BEGIN
         WHEN 'guess_who_said_it' THEN 'Guess Who Said It'
         WHEN 'most_likely_to' THEN 'Most Likely To'
       END ||
-      ' is ready to play!</div>',
-      jsonb_build_object(
-        'game_id', v_game_id,
-        'game_type', v_selected_game,
-        'type', 'game_announcement'
-      )
+      ' is ready to play!</div>'
     );
   END;
 
