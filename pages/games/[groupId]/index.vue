@@ -129,6 +129,18 @@
 								v-if="activeGame.game_type === 'would_you_rather'"
 								:group-id="groupId"
 							/>
+							<GamesHotTakesGame
+								v-else-if="activeGame.game_type === 'hot_takes'"
+								:group-id="groupId"
+							/>
+							<GamesGuessWhoSaidItGame
+								v-else-if="activeGame.game_type === 'guess_who_said_it'"
+								:group-id="groupId"
+							/>
+							<GamesMostLikelyToGame
+								v-else-if="activeGame.game_type === 'most_likely_to'"
+								:group-id="groupId"
+							/>
 							<div v-else class="text-center py-12">
 								<UIcon
 									name="i-heroicons-puzzle-piece"
