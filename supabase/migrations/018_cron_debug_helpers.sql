@@ -26,7 +26,7 @@ RETURNS TABLE (
   schedule TEXT,
   last_run TIMESTAMPTZ,
   last_status TEXT,
-  next_run TIMESTAMPTZ
+  command TEXT
 )
 LANGUAGE plpgsql
 AS $$
@@ -37,7 +37,7 @@ BEGIN
     j.schedule::TEXT,
     (SELECT MAX(start_time) FROM cron.job_run_details WHERE jobid = j.jobid)::TIMESTAMPTZ as last_run,
     (SELECT status FROM cron.job_run_details WHERE jobid = j.jobid ORDER BY start_time DESC LIMIT 1)::TEXT as last_status,
-    cron.schedule_to_next_run(j.schedule)::TIMESTAMPTZ as next_run
+    j.command::TEXT
   FROM cron.job j
   WHERE j.jobname = 'daily-game-generator';
 END;
