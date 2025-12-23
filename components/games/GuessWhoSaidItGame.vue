@@ -61,8 +61,8 @@ const loadActiveGame = async () => {
 		if (gameResults) {
 			responseCount.value = gameResults.responses.length;
 
-			// Only show full results if game is completed
-			if (game.status === 'completed') {
+			// Show results in guessing phase or if game is completed
+			if (game.current_phase === 'guessing' || game.status === 'completed') {
 				results.value = gameResults;
 			}
 		}
