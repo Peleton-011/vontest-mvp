@@ -40,14 +40,26 @@ const gameMetadata = computed(() => GAME_TYPES['guess_who_said_it']);
 const loadGroupMembers = async () => {
 	const { data: members } = await supabase
 		.from('group_members')
-		.select('user_id, profiles:user_id (username)')
+		.select('user_id, profiles:user_id (username, avatar_url)')
 		.eq('group_id', props.groupId);
 
 	groupMembers.value = members?.map((m: any) => ({
 		userId: m.user_id,
 		username: m.profiles?.username || 'Unknown',
+		avatarUrl: m.profiles?.avatar_url || '',
 	})) || [];
 };
+
+// Drag and drop state
+const draggedUserId = ref<string | null>(null);
+const user = useSupabaseUser();
+
+// Find user's own response ID
+const userOwnResponseId = computed(() => {
+	if (!results.value || !user.value) return null;
+	const ownResponse = results.value.responses.find((r: any) => r.actualUserId === user.value.id);
+	return ownResponse?.responseId || null;
+});
 
 // Load active game and user response
 const loadActiveGame = async () => {
@@ -71,11 +83,16 @@ const loadActiveGame = async () => {
 		if (game.current_phase === 'guessing') {
 			await loadGroupMembers();
 
-			// Initialize guess form with empty values for each response
+			// Initialize guess form
 			if (gameResults) {
 				const initialGuesses: Record<string, string> = {};
 				gameResults.responses.forEach((r: any) => {
-					initialGuesses[r.responseId] = userResponse.value?.guesses?.[r.responseId] || '';
+					// Pre-fill user's own answer
+					if (user.value && r.actualUserId === user.value.id) {
+						initialGuesses[r.responseId] = user.value.id;
+					} else {
+						initialGuesses[r.responseId] = userResponse.value?.guesses?.[r.responseId] || '';
+					}
 				});
 				guessForm.value = initialGuesses;
 			}
@@ -123,6 +140,49 @@ const handleCompleteGame = async () => {
 	if (result.success) {
 		await loadActiveGame();
 	}
+};
+
+// Drag and drop handlers
+const handleDragStart = (userId: string) => {
+	draggedUserId.value = userId;
+};
+
+const handleDragEnd = () => {
+	draggedUserId.value = null;
+};
+
+const handleDragOver = (event: DragEvent) => {
+	event.preventDefault(); // Allow drop
+};
+
+const handleDrop = (responseId: string) => {
+	if (draggedUserId.value) {
+		// Don't allow changing user's own answer
+		if (responseId === userOwnResponseId.value) {
+			return;
+		}
+		guessForm.value[responseId] = draggedUserId.value;
+	}
+};
+
+const clearGuess = (responseId: string) => {
+	// Don't allow clearing user's own answer
+	if (responseId === userOwnResponseId.value) {
+		return;
+	}
+	guessForm.value[responseId] = '';
+};
+
+// Get username by ID
+const getUsernameById = (userId: string) => {
+	const member = groupMembers.value.find(m => m.userId === userId);
+	return member?.username || 'Unknown';
+};
+
+// Get avatar URL by ID
+const getAvatarUrlById = (userId: string) => {
+	const member = groupMembers.value.find(m => m.userId === userId);
+	return member?.avatarUrl || '';
 };
 
 onMounted(async () => {
@@ -285,39 +345,107 @@ onMounted(async () => {
 
 			<!-- Phase 2: Guess Who Said What -->
 			<div v-if="currentGame.current_phase === 'guessing'" class="space-y-4">
-				<!-- Get Results First -->
-				<div v-if="results && currentGame.status === 'active'" class="space-y-4">
-					<div class="text-center mb-4">
-						<p class="text-sm text-gray-600">
-							Match each answer to the person who said it!
+				<!-- Drag and Drop Guessing Interface -->
+				<div v-if="results && currentGame.status === 'active'" class="space-y-6">
+					<div class="text-center">
+						<p class="text-sm text-gray-600 mb-2">
+							Drag a person from the right and drop them on an answer to match!
+						</p>
+						<p class="text-xs text-gray-500">
+							💡 Your own answer is pre-matched
 						</p>
 					</div>
 
-					<!-- Guessing Form -->
-					<div class="space-y-3">
-						<UCard
-							v-for="response in results.responses"
-							:key="response.responseId"
-							class="p-4"
-						>
-							<div class="space-y-3">
-								<p class="text-sm font-semibold text-gray-700">
+					<!-- Two Column Layout -->
+					<div class="grid md:grid-cols-2 gap-6">
+						<!-- Left: Responses (Drop Zones) -->
+						<div class="space-y-3">
+							<h3 class="font-semibold text-sm text-gray-700 mb-3">📝 Responses</h3>
+							<div
+								v-for="response in results.responses"
+								:key="response.responseId"
+								@dragover="handleDragOver"
+								@drop.prevent="handleDrop(response.responseId)"
+								:class="[
+									'relative p-4 rounded-lg border-2 transition-all',
+									response.responseId === userOwnResponseId
+										? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 border-dashed'
+										: guessForm[response.responseId]
+											? 'bg-green-50 dark:bg-green-900/20 border-green-400'
+											: 'bg-white dark:bg-gray-800 border-gray-200 hover:border-purple-300'
+								]"
+							>
+								<!-- Response Text -->
+								<p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 italic">
 									"{{ response.answer }}"
 								</p>
-								<UFormField label="Who said this?">
-									<USelect
-										v-model="guessForm[response.responseId]"
-										:options="groupMembers.map(m => ({ label: m.username, value: m.userId }))"
-										placeholder="Select a person..."
+
+								<!-- Matched User -->
+								<div v-if="guessForm[response.responseId]" class="flex items-center justify-between">
+									<div class="flex items-center gap-2">
+										<UAvatar
+											:src="getAvatarUrlById(guessForm[response.responseId])"
+											:alt="getUsernameById(guessForm[response.responseId])"
+											size="sm"
+										/>
+										<span class="text-sm font-semibold">
+											{{ getUsernameById(guessForm[response.responseId]) }}
+										</span>
+										<UBadge v-if="response.responseId === userOwnResponseId" color="blue" size="xs">
+											You
+										</UBadge>
+									</div>
+									<UButton
+										v-if="response.responseId !== userOwnResponseId"
+										@click="clearGuess(response.responseId)"
+										variant="ghost"
+										size="xs"
+										icon="i-heroicons-x-mark"
+										color="gray"
 									/>
-								</UFormField>
+								</div>
+
+								<!-- Empty State -->
+								<div v-else class="text-center py-2 text-gray-400 text-sm">
+									Drop a person here
+								</div>
 							</div>
-						</UCard>
+						</div>
+
+						<!-- Right: People (Draggable) -->
+						<div class="space-y-3">
+							<h3 class="font-semibold text-sm text-gray-700 mb-3">👥 People</h3>
+							<div class="space-y-2">
+								<div
+									v-for="member in groupMembers"
+									:key="member.userId"
+									:draggable="true"
+									@dragstart="handleDragStart(member.userId)"
+									@dragend="handleDragEnd"
+									:class="[
+										'flex items-center gap-3 p-3 rounded-lg cursor-move transition-all',
+										'bg-white dark:bg-gray-800 border border-gray-200 hover:border-purple-400 hover:shadow-md',
+										draggedUserId === member.userId ? 'opacity-50 scale-95' : ''
+									]"
+								>
+									<UAvatar
+										:src="member.avatarUrl"
+										:alt="member.username"
+										size="md"
+									/>
+									<span class="font-medium">{{ member.username }}</span>
+									<div class="ml-auto">
+										<UIcon name="i-heroicons-bars-3" class="w-4 h-4 text-gray-400" />
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 
 					<UButton
 						@click="handleSubmitGuesses"
 						:loading="loading"
+						:disabled="Object.values(guessForm).some(v => !v)"
 						block
 						size="lg"
 					>
