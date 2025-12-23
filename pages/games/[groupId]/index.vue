@@ -120,6 +120,13 @@
 								>
 									Make Custom Game
 								</UButton>
+							<UButton
+								variant="outline"
+								icon="i-heroicons-puzzle-piece"
+								@click="showManagePromptsModal = true"
+							>
+								Manage Prompts
+							</UButton>
 							</div>
 						</div>
 
@@ -419,6 +426,13 @@
 					/>
 				</template>
 			</UModal>
+
+			<!-- Manage Prompts Modal -->
+			<GamesManagePromptsModal
+				:group-id="groupId"
+				:is-open="showManagePromptsModal"
+				@close="showManagePromptsModal = false"
+			/>
 		</div>
 	</div>
 </template>
@@ -487,6 +501,7 @@ const error = computed(() => groupError.value || membersError.value);
 const activeGame = ref<any>(null);
 const loadingGame = ref(false);
 const showCustomGameModal = ref(false);
+const showManagePromptsModal = ref(false);
 
 // Chat state
 const supabase = useSupabaseClient<Database>();
