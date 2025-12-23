@@ -13,10 +13,13 @@ DECLARE
   v_deleted_count INTEGER;
 BEGIN
   -- Delete all games created today for this group
-  DELETE FROM game_instances
-  WHERE group_id = p_group_id
-    AND created_at::DATE = CURRENT_DATE
-  RETURNING COUNT(*) INTO v_deleted_count;
+  WITH deleted AS (
+    DELETE FROM game_instances
+    WHERE group_id = p_group_id
+      AND created_at::DATE = CURRENT_DATE
+    RETURNING id
+  )
+  SELECT COUNT(*) INTO v_deleted_count FROM deleted;
 
   RETURN jsonb_build_object(
     'success', true,
