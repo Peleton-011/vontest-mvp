@@ -235,6 +235,53 @@ If you need to force create a game for a specific group:
 SELECT create_scheduled_game('GROUP_UUID_HERE');
 ```
 
+## Testing Helpers
+
+When testing game creation, you might hit the "one game per day" limit. Use these helpers:
+
+### Debug Why Game Won't Create
+
+```sql
+-- See detailed status for a group
+SELECT debug_game_creation('GROUP_UUID_HERE');
+```
+
+This shows:
+- Current time in the group's timezone
+- Whether a game was already created today
+- Whether within the 1-hour time window
+- What's blocking game creation
+
+### Reset for Testing
+
+```sql
+-- Delete today's games for a group (allows creating another)
+SELECT reset_todays_games('GROUP_UUID_HERE');
+
+-- Clear all active games for a group
+SELECT clear_active_games('GROUP_UUID_HERE');
+
+-- Force create a game (bypasses time checks, but still checks for active games)
+SELECT force_create_game('GROUP_UUID_HERE');
+```
+
+### Testing Workflow
+
+To repeatedly test game creation:
+
+```sql
+-- 1. Debug to see what's blocking
+SELECT debug_game_creation('GROUP_UUID_HERE');
+
+-- 2. Clear today's games
+SELECT reset_todays_games('GROUP_UUID_HERE');
+
+-- 3. Try creating again
+SELECT create_scheduled_game('GROUP_UUID_HERE');
+```
+
+Or just use the **"Start Game Now"** button in the UI - it bypasses all these checks!
+
 ## Logs and Monitoring
 
 Monitor in Supabase Dashboard:
