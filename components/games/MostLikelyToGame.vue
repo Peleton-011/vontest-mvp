@@ -18,13 +18,13 @@ const {
 	completeGame,
 } = useMostLikelyTo(props.groupId);
 
+const { isAdmin } = useGroupMembers(computed(() => props.groupId));
 const supabase = useSupabaseClient();
 
 const selectedUserId = ref('');
 const results = ref<any>(null);
 const responseCount = ref(0);
 const groupMembers = ref<any[]>([]);
-const isAdmin = ref(true); // TODO: Check actual admin status
 
 const gameMetadata = computed(() => GAME_TYPES['most_likely_to']);
 

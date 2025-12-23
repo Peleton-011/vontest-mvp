@@ -18,6 +18,8 @@ const {
 	completeGame,
 } = useHotTakes(props.groupId);
 
+const { isAdmin } = useGroupMembers(computed(() => props.groupId));
+
 const responseForm = reactive({
 	stance: '' as 'agree' | 'disagree' | 'neutral' | '',
 	reasoning: '',
@@ -25,7 +27,6 @@ const responseForm = reactive({
 
 const results = ref<any>(null);
 const responseCount = ref(0);
-const isAdmin = ref(true); // TODO: Check actual admin status
 
 const gameMetadata = computed(() => GAME_TYPES['hot_takes']);
 

@@ -20,6 +20,7 @@ const {
 	completeGame,
 } = useGuessWhoSaidIt(props.groupId);
 
+const { isAdmin } = useGroupMembers(computed(() => props.groupId));
 const supabase = useSupabaseClient();
 
 // Form states
@@ -32,7 +33,6 @@ const guessForm = ref<Record<string, string>>({});
 const results = ref<any>(null);
 const responseCount = ref(0);
 const groupMembers = ref<any[]>([]);
-const isAdmin = ref(true); // TODO: Check actual admin status
 
 const gameMetadata = computed(() => GAME_TYPES['guess_who_said_it']);
 
@@ -125,7 +125,36 @@ const handleCompleteGame = async () => {
 	}
 };
 
-onMounted(loadActiveGame);
+onMounted(async () => {
+	await loadActiveGame();
+
+	// Subscribe to game instance changes for automatic phase transitions
+	if (currentGame.value) {
+		const channel = supabase
+			.channel(`game-${currentGame.value.id}`)
+			.on(
+				'postgres_changes',
+				{
+					event: 'UPDATE',
+					schema: 'public',
+					table: 'game_instances',
+					filter: `id=eq.${currentGame.value.id}`,
+				},
+				async (payload) => {
+					// Reload game when phase changes
+					if (payload.new.current_phase !== currentGame.value?.current_phase) {
+						await loadActiveGame();
+					}
+				}
+			)
+			.subscribe();
+
+		// Cleanup on unmount
+		onUnmounted(() => {
+			supabase.removeChannel(channel);
+		});
+	}
+});
 </script>
 
 <template>
