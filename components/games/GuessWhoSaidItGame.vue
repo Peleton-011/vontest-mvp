@@ -50,15 +50,39 @@ const loadGroupMembers = async () => {
 	})) || [];
 };
 
-// Drag and drop state
-const draggedUserId = ref<string | null>(null);
+// Drag and drop state for reordering lists
+const draggedResponseIndex = ref<number | null>(null);
+const draggedUserIndex = ref<number | null>(null);
 const user = useSupabaseUser();
+
+// Ordered lists for matching
+const orderedResponses = ref<any[]>([]);
+const orderedUsers = ref<any[]>([]);
 
 // Find user's own response ID
 const userOwnResponseId = computed(() => {
 	if (!results.value || !user.value) return null;
 	const ownResponse = results.value.responses.find((r: any) => r.actualUserId === user.value.id);
 	return ownResponse?.responseId || null;
+});
+
+// Compute guesses from ordered lists
+const computedGuesses = computed(() => {
+	const guesses: Record<string, string> = {};
+
+	// Pre-fill user's own answer
+	if (userOwnResponseId.value && user.value) {
+		guesses[userOwnResponseId.value] = user.value.id;
+	}
+
+	// Match by position
+	orderedResponses.value.forEach((response, index) => {
+		if (orderedUsers.value[index]) {
+			guesses[response.responseId] = orderedUsers.value[index].userId;
+		}
+	});
+
+	return guesses;
 });
 
 // Load active game and user response
@@ -83,18 +107,32 @@ const loadActiveGame = async () => {
 		if (game.current_phase === 'guessing') {
 			await loadGroupMembers();
 
-			// Initialize guess form
+			// Initialize ordered lists
 			if (gameResults) {
-				const initialGuesses: Record<string, string> = {};
-				gameResults.responses.forEach((r: any) => {
-					// Pre-fill user's own answer
-					if (user.value && r.actualUserId === user.value.id) {
-						initialGuesses[r.responseId] = user.value.id;
-					} else {
-						initialGuesses[r.responseId] = userResponse.value?.guesses?.[r.responseId] || '';
-					}
-				});
-				guessForm.value = initialGuesses;
+				// Filter out user's own response
+				orderedResponses.value = gameResults.responses.filter(
+					(r: any) => r.responseId !== userOwnResponseId.value
+				);
+
+				// Filter out current user from the list
+				orderedUsers.value = groupMembers.value.filter(
+					(m: any) => m.userId !== user.value?.id
+				);
+
+				// If user has already submitted guesses, restore their order
+				if (userResponse.value?.guesses) {
+					// Try to restore previous order based on saved guesses
+					const savedGuesses = userResponse.value.guesses;
+
+					// Sort responses based on saved guesses if possible
+					orderedResponses.value.sort((a, b) => {
+						const aUserId = savedGuesses[a.responseId];
+						const bUserId = savedGuesses[b.responseId];
+						const aIndex = orderedUsers.value.findIndex(u => u.userId === aUserId);
+						const bIndex = orderedUsers.value.findIndex(u => u.userId === bUserId);
+						return aIndex - bIndex;
+					});
+				}
 			}
 		}
 	}
@@ -115,7 +153,7 @@ const handleSubmitAnswer = async () => {
 const handleSubmitGuesses = async () => {
 	if (!currentGame.value) return;
 
-	const result = await submitGuesses(currentGame.value.id, guessForm.value);
+	const result = await submitGuesses(currentGame.value.id, computedGuesses.value);
 
 	if (result.success) {
 		await loadActiveGame();
@@ -142,47 +180,50 @@ const handleCompleteGame = async () => {
 	}
 };
 
-// Drag and drop handlers
-const handleDragStart = (userId: string) => {
-	draggedUserId.value = userId;
+// Drag and drop handlers for responses list
+const handleResponseDragStart = (index: number) => {
+	draggedResponseIndex.value = index;
 };
 
-const handleDragEnd = () => {
-	draggedUserId.value = null;
+const handleResponseDragOver = (event: DragEvent, index: number) => {
+	event.preventDefault();
 };
 
-const handleDragOver = (event: DragEvent) => {
-	event.preventDefault(); // Allow drop
+const handleResponseDrop = (targetIndex: number) => {
+	if (draggedResponseIndex.value === null) return;
+
+	const item = orderedResponses.value[draggedResponseIndex.value];
+	orderedResponses.value.splice(draggedResponseIndex.value, 1);
+	orderedResponses.value.splice(targetIndex, 0, item);
+
+	draggedResponseIndex.value = null;
 };
 
-const handleDrop = (responseId: string) => {
-	if (draggedUserId.value) {
-		// Don't allow changing user's own answer
-		if (responseId === userOwnResponseId.value) {
-			return;
-		}
-		guessForm.value[responseId] = draggedUserId.value;
-	}
+const handleResponseDragEnd = () => {
+	draggedResponseIndex.value = null;
 };
 
-const clearGuess = (responseId: string) => {
-	// Don't allow clearing user's own answer
-	if (responseId === userOwnResponseId.value) {
-		return;
-	}
-	guessForm.value[responseId] = '';
+// Drag and drop handlers for users list
+const handleUserDragStart = (index: number) => {
+	draggedUserIndex.value = index;
 };
 
-// Get username by ID
-const getUsernameById = (userId: string) => {
-	const member = groupMembers.value.find(m => m.userId === userId);
-	return member?.username || 'Unknown';
+const handleUserDragOver = (event: DragEvent, index: number) => {
+	event.preventDefault();
 };
 
-// Get avatar URL by ID
-const getAvatarUrlById = (userId: string) => {
-	const member = groupMembers.value.find(m => m.userId === userId);
-	return member?.avatarUrl || '';
+const handleUserDrop = (targetIndex: number) => {
+	if (draggedUserIndex.value === null) return;
+
+	const item = orderedUsers.value[draggedUserIndex.value];
+	orderedUsers.value.splice(draggedUserIndex.value, 1);
+	orderedUsers.value.splice(targetIndex, 0, item);
+
+	draggedUserIndex.value = null;
+};
+
+const handleUserDragEnd = () => {
+	draggedUserIndex.value = null;
 };
 
 onMounted(async () => {
@@ -349,7 +390,7 @@ onMounted(async () => {
 				<div v-if="results && currentGame.status === 'active'" class="space-y-6">
 					<div class="text-center">
 						<p class="text-sm text-gray-600 mb-2">
-							Drag people from the right to match them with their answers on the left
+							Drag items vertically to reorder both lists. The first answer matches the first person, second to second, etc.
 						</p>
 						<p class="text-xs text-gray-500">
 							💡 Your own answer is already matched
@@ -357,7 +398,7 @@ onMounted(async () => {
 					</div>
 
 					<!-- Your Own Answer (Separated at Top) -->
-					<div v-if="userOwnResponseId" class="pb-4 border-b-2 border-dashed border-blue-300">
+					<div v-if="userOwnResponseId" class="pb-4 mb-4 border-b-2 border-dashed border-blue-300">
 						<div class="grid grid-cols-2 gap-4">
 							<!-- Your Response -->
 							<div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300">
@@ -386,85 +427,80 @@ onMounted(async () => {
 						</div>
 					</div>
 
-					<!-- Other Answers and People (Matching Grid) -->
-					<div class="space-y-3">
-						<div
-							v-for="(response, index) in results.responses.filter(r => r.responseId !== userOwnResponseId)"
-							:key="response.responseId"
-							class="relative"
-						>
-							<div class="grid grid-cols-2 gap-4 items-stretch">
-								<!-- Left: Response (Drop Zone) -->
-								<div
-									@dragover="handleDragOver"
-									@drop.prevent="handleDrop(response.responseId)"
-									:class="[
-										'relative p-4 rounded-lg border-2 transition-all min-h-[80px] flex items-center',
-										guessForm[response.responseId]
-											? 'bg-green-50 dark:bg-green-900/20 border-green-400'
-											: 'bg-white dark:bg-gray-800 border-gray-300 hover:border-purple-400 hover:shadow-sm'
-									]"
-								>
-									<div class="flex-1">
-										<p class="text-sm italic text-gray-700 dark:text-gray-300 mb-2">
-											"{{ response.answer }}"
-										</p>
-
-										<!-- Matched User Info (Small) -->
-										<div v-if="guessForm[response.responseId]" class="flex items-center gap-2 mt-2">
-											<UAvatar
-												:src="getAvatarUrlById(guessForm[response.responseId])"
-												:alt="getUsernameById(guessForm[response.responseId])"
-												size="xs"
-											/>
-											<span class="text-xs text-gray-600">
-												{{ getUsernameById(guessForm[response.responseId]) }}
-											</span>
-											<UButton
-												@click="clearGuess(response.responseId)"
-												variant="ghost"
-												size="xs"
-												icon="i-heroicons-x-mark"
-												color="gray"
-											/>
-										</div>
-										<div v-else class="text-xs text-gray-400 mt-2">
-											← Drop person here
-										</div>
+					<!-- Two Sortable Lists -->
+					<div class="grid grid-cols-2 gap-4">
+						<!-- Left Column: Responses (Sortable) -->
+						<div class="space-y-2">
+							<div class="text-center mb-3">
+								<UBadge color="purple">Answers</UBadge>
+							</div>
+							<div
+								v-for="(response, index) in orderedResponses"
+								:key="response.responseId"
+								:draggable="true"
+								@dragstart="handleResponseDragStart(index)"
+								@dragover.prevent="handleResponseDragOver($event, index)"
+								@drop.prevent="handleResponseDrop(index)"
+								@dragend="handleResponseDragEnd"
+								:class="[
+									'relative p-4 rounded-lg border-2 transition-all min-h-[80px] cursor-move',
+									'bg-white dark:bg-gray-800 border-gray-300 hover:border-purple-400 hover:shadow-md',
+									draggedResponseIndex === index ? 'opacity-50 scale-95' : ''
+								]"
+							>
+								<div class="flex items-start gap-2">
+									<div class="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-xs font-bold text-purple-600">
+										{{ index + 1 }}
 									</div>
-
-									<!-- Connecting Line Indicator -->
-									<div v-if="guessForm[response.responseId]" class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-0.5 bg-green-400"></div>
+									<p class="text-sm italic text-gray-700 dark:text-gray-300 flex-1">
+										"{{ response.answer }}"
+									</p>
+									<div class="flex-shrink-0">
+										<UIcon name="i-heroicons-bars-3" class="w-4 h-4 text-gray-400" />
+									</div>
 								</div>
 
-								<!-- Right: Person (Draggable) -->
-								<div
-									:draggable="true"
-									@dragstart="handleDragStart(groupMembers.filter(m => m.userId !== user?.id)[index]?.userId)"
-									@dragend="handleDragEnd"
-									:class="[
-										'relative p-4 rounded-lg border-2 transition-all min-h-[80px] flex items-center cursor-move',
-										'bg-white dark:bg-gray-800 border-gray-300 hover:border-purple-400 hover:shadow-md',
-										draggedUserId === groupMembers.filter(m => m.userId !== user?.id)[index]?.userId ? 'opacity-50 scale-95' : ''
-									]"
-								>
-									<!-- Connecting Line Start -->
-									<div class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-0.5 bg-gray-300"></div>
+								<!-- Connecting Line -->
+								<div class="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-0.5 bg-purple-300"></div>
+							</div>
+						</div>
 
-									<div class="flex items-center gap-3 flex-1 ml-2">
-										<UAvatar
-											:src="groupMembers.filter(m => m.userId !== user?.id)[index]?.avatarUrl"
-											:alt="groupMembers.filter(m => m.userId !== user?.id)[index]?.username"
-											size="md"
-										/>
-										<div>
-											<p class="font-semibold text-sm">
-												{{ groupMembers.filter(m => m.userId !== user?.id)[index]?.username }}
-											</p>
-										</div>
-										<div class="ml-auto">
-											<UIcon name="i-heroicons-bars-3" class="w-4 h-4 text-gray-400" />
-										</div>
+						<!-- Right Column: Users (Sortable) -->
+						<div class="space-y-2">
+							<div class="text-center mb-3">
+								<UBadge color="green">People</UBadge>
+							</div>
+							<div
+								v-for="(member, index) in orderedUsers"
+								:key="member.userId"
+								:draggable="true"
+								@dragstart="handleUserDragStart(index)"
+								@dragover.prevent="handleUserDragOver($event, index)"
+								@drop.prevent="handleUserDrop(index)"
+								@dragend="handleUserDragEnd"
+								:class="[
+									'relative p-4 rounded-lg border-2 transition-all min-h-[80px] cursor-move',
+									'bg-white dark:bg-gray-800 border-gray-300 hover:border-green-400 hover:shadow-md',
+									draggedUserIndex === index ? 'opacity-50 scale-95' : ''
+								]"
+							>
+								<!-- Connecting Line -->
+								<div class="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-0.5 bg-green-300"></div>
+
+								<div class="flex items-center gap-3 ml-1">
+									<div class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center text-xs font-bold text-green-600">
+										{{ index + 1 }}
+									</div>
+									<UAvatar
+										:src="member.avatarUrl"
+										:alt="member.username"
+										size="sm"
+									/>
+									<p class="font-semibold text-sm flex-1">
+										{{ member.username }}
+									</p>
+									<div class="flex-shrink-0">
+										<UIcon name="i-heroicons-bars-3" class="w-4 h-4 text-gray-400" />
 									</div>
 								</div>
 							</div>
@@ -474,7 +510,6 @@ onMounted(async () => {
 					<UButton
 						@click="handleSubmitGuesses"
 						:loading="loading"
-						:disabled="Object.values(guessForm).some(v => !v)"
 						block
 						size="lg"
 						class="mt-6"
