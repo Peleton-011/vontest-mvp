@@ -24,11 +24,12 @@ const messages = computed(() => {
 // Group messages by same user within 5 minutes
 const groupedMessages = computed(() => {
 	const grouped: Array<{
-		userId: string;
+		userId: string | null;
 		username: string | null;
 		avatarUrl: string;
 		messages: Array<{ id: string; comment: string; createdAt: Date }>;
 		timestamp: Date;
+		isSystem: boolean;
 	}> = [];
 
 	messages.value.forEach((msg, index) => {
@@ -37,9 +38,12 @@ const groupedMessages = computed(() => {
 			? (msg.createdAt.getTime() - prevMsg.createdAt.getTime()) / 1000 / 60
 			: Infinity;
 
+		// Check if this is a system message
+		const isSystem = !msg.author || msg.author.id === null;
+
 		// Group if same user and within 5 minutes
 		const shouldGroup = prevMsg
-			&& prevMsg.author.id === msg.author.id
+			&& prevMsg.author?.id === msg.author?.id
 			&& timeDiff < 5;
 
 		if (shouldGroup && grouped.length > 0) {
@@ -52,15 +56,16 @@ const groupedMessages = computed(() => {
 		} else {
 			// Start new group
 			grouped.push({
-				userId: msg.author.id,
-				username: msg.author.username,
-				avatarUrl: msg.author.avatarUrl,
+				userId: msg.author?.id || null,
+				username: isSystem ? 'System' : msg.author?.username || null,
+				avatarUrl: isSystem ? '/system-avatar.png' : (msg.author?.avatarUrl || ''),
 				messages: [{
 					id: msg.id,
 					comment: msg.comment,
 					createdAt: msg.createdAt,
 				}],
 				timestamp: msg.createdAt,
+				isSystem,
 			});
 		}
 	});
@@ -130,11 +135,19 @@ watch(() => groupedMessages.value.length, () => {
 				>
 					<!-- Avatar (shown once per group) -->
 					<UAvatar
+						v-if="!group.isSystem"
 						:src="group.avatarUrl"
 						:alt="group.username || 'User'"
 						size="sm"
 						class="flex-shrink-0"
 					/>
+					<!-- System icon for automated messages -->
+					<div
+						v-else
+						class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center"
+					>
+						<UIcon name="i-heroicons-cpu-chip" class="w-4 h-4 text-white" />
+					</div>
 
 					<!-- Message Group -->
 					<div class="flex-1 min-w-0 space-y-1">
@@ -143,7 +156,7 @@ watch(() => groupedMessages.value.length, () => {
 							<span class="font-semibold text-sm">
 								{{ group.username || "Unknown User" }}
 							</span>
-							<span class="text-xs text-gray-500">
+							<span class="text-xs text-gray-400">
 								{{
 									group.timestamp.toLocaleTimeString([], {
 										hour: "2-digit",
@@ -157,7 +170,7 @@ watch(() => groupedMessages.value.length, () => {
 						<div
 							v-for="msg in group.messages"
 							:key="msg.id"
-							class="text-sm text-gray-700"
+							class="text-sm text-gray-400"
 							v-html="msg.comment"
 						></div>
 					</div>
