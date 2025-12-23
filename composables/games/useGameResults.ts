@@ -185,7 +185,7 @@ function formatGuessWhoResults(prompt: any, results: any): string {
 		html += '<div style="margin-top: 0.5em; font-size: 0.9em;">';
 		html += '<div>Responses:</div>';
 		results.responses.forEach((r: any) => {
-			html += `<div>• ${r.text} - ${r.author}</div>`;
+			html += `<div>• ${r.actualUsername}: "${r.answer}"</div>`;
 		});
 		html += '</div>';
 	}
