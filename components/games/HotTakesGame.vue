@@ -25,6 +25,7 @@ const responseForm = reactive({
 
 const results = ref<any>(null);
 const responseCount = ref(0);
+const isAdmin = ref(true); // TODO: Check actual admin status
 
 const gameMetadata = computed(() => GAME_TYPES['hot_takes']);
 
@@ -325,14 +326,23 @@ onMounted(loadActiveGame);
 			</div>
 
 			<!-- Admin Controls -->
-			<div v-if="currentGame.status === 'active'" class="pt-4 border-t">
+			<div v-if="isAdmin && currentGame.status === 'active'" class="pt-6 border-t">
 				<UButton
-					@click="handleCompleteGame"
 					variant="outline"
-					size="sm"
+					color="neutral"
+					icon="i-heroicons-check-circle"
+					@click="handleCompleteGame"
 				>
-					End Game & Post Results
+					End Game & Post Results to Chat
 				</UButton>
+			</div>
+
+			<!-- Completed Message -->
+			<div v-if="currentGame.status === 'completed'" class="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded">
+				<UIcon name="i-heroicons-check-circle" class="w-6 h-6 inline text-green-600 mb-1" />
+				<p class="text-green-700 dark:text-green-400 font-semibold">
+					Game completed! Results have been posted to the chat.
+				</p>
 			</div>
 		</div>
 	</div>

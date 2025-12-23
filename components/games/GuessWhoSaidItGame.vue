@@ -31,6 +31,7 @@ const guessForm = ref<Record<string, string>>({});
 const results = ref<any>(null);
 const responseCount = ref(0);
 const groupMembers = ref<any[]>([]);
+const isAdmin = ref(true); // TODO: Check actual admin status
 
 const gameMetadata = computed(() => GAME_TYPES['guess_who_said_it']);
 
@@ -51,6 +52,9 @@ const loadGroupMembers = async () => {
 const loadActiveGame = async () => {
 	const game = await getActiveGame();
 	if (game) {
+		// Get user's response
+		await getUserResponse(game.id);
+
 		// Get results
 		const gameResults = await getResults(game.id);
 		if (gameResults) {
@@ -246,16 +250,6 @@ onMounted(loadActiveGame);
 					</UCard>
 				</div>
 
-				<!-- Admin: Start Guessing Phase -->
-				<div v-if="currentGame.status === 'active'" class="pt-4 border-t">
-					<UButton
-						@click="handleStartGuessingPhase"
-						variant="outline"
-						size="sm"
-					>
-						Start Guessing Phase
-					</UButton>
-				</div>
 			</div>
 
 			<!-- Phase 2: Guess Who Said What -->
@@ -313,16 +307,6 @@ onMounted(loadActiveGame);
 					</UCard>
 				</div>
 
-				<!-- Admin: Complete Game -->
-				<div v-if="currentGame.status === 'active'" class="pt-4 border-t">
-					<UButton
-						@click="handleCompleteGame"
-						variant="outline"
-						size="sm"
-					>
-						End Game & Post Results
-					</UButton>
-				</div>
 			</div>
 
 			<!-- Results (Game Completed) -->
@@ -380,6 +364,37 @@ onMounted(loadActiveGame);
 						</div>
 					</div>
 				</UCard>
+			</div>
+
+			<!-- Admin Controls -->
+			<div v-if="isAdmin && currentGame.status === 'active'" class="pt-6 border-t">
+				<div class="space-y-2">
+					<UButton
+						v-if="currentGame.current_phase === 'submission'"
+						variant="outline"
+						color="neutral"
+						icon="i-heroicons-arrow-right"
+						@click="handleStartGuessingPhase"
+					>
+						Start Guessing Phase
+					</UButton>
+					<UButton
+						variant="outline"
+						color="neutral"
+						icon="i-heroicons-check-circle"
+						@click="handleCompleteGame"
+					>
+						End Game & Post Results to Chat
+					</UButton>
+				</div>
+			</div>
+
+			<!-- Completed Message -->
+			<div v-if="currentGame.status === 'completed'" class="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded">
+				<UIcon name="i-heroicons-check-circle" class="w-6 h-6 inline text-green-600 mb-1" />
+				<p class="text-green-700 dark:text-green-400 font-semibold">
+					Game completed! Results have been posted to the chat.
+				</p>
 			</div>
 		</div>
 	</div>

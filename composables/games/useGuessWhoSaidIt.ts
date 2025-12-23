@@ -231,6 +231,36 @@ export const useGuessWhoSaidIt = (groupId: string) => {
 	};
 
 	/**
+	 * Get user's response for a game
+	 */
+	const getUserResponse = async (gameId: string): Promise<GuessWhoSaidItResponse | null> => {
+		if (!user.value) return null;
+
+		try {
+			const { data: response, error: fetchError } = await supabase
+				.from('game_responses')
+				.select('response_data')
+				.eq('game_instance_id', gameId)
+				.eq('user_id', user.value.id)
+				.single();
+
+			if (fetchError && fetchError.code !== 'PGRST116') {
+				throw fetchError;
+			}
+
+			if (response) {
+				userResponse.value = response.response_data as GuessWhoSaidItResponse;
+				return userResponse.value;
+			}
+
+			return null;
+		} catch (e: any) {
+			error.value = e.message;
+			return null;
+		}
+	};
+
+	/**
 	 * Calculate and get game results
 	 */
 	const getResults = async (gameId: string): Promise<GuessWhoSaidItResults | null> => {
@@ -363,6 +393,7 @@ export const useGuessWhoSaidIt = (groupId: string) => {
 		submitGuesses,
 		startGuessingPhase,
 		getActiveGame,
+		getUserResponse,
 		getResults,
 		completeGame,
 	};
