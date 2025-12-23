@@ -32,14 +32,17 @@ export function buildCommentTree(
 	for (const raw of rawComments) {
 		const parentIds = parentsMap.get(raw.id) || [];
 
+		// Handle system messages (NULL user_id/profiles)
+		const isSystemMessage = !raw.user_id || !raw.profiles;
+
 		nodeMap.set(raw.id, {
 			id: raw.id,
 			comment: raw.comment,
 			createdAt: new Date(raw.created_at),
 			author: {
-				id: raw.user_id,
-				username: raw.profiles.username,
-				avatarUrl: raw.profiles.avatar_url,
+				id: raw.user_id || 'system',
+				username: isSystemMessage ? 'System' : raw.profiles!.username,
+				avatarUrl: isSystemMessage ? '' : raw.profiles!.avatar_url,
 			},
 			parentIds,
 			primaryParentId: null,

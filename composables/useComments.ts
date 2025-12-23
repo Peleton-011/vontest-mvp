@@ -12,11 +12,11 @@ export interface RawComment {
 	id: string;
 	comment: string;
 	created_at: string;
-	user_id: string;
+	user_id: string | null;
 	profiles: {
 		username: string;
 		avatar_url: string;
-	};
+	} | null;
 }
 
 export interface CommentLink {
