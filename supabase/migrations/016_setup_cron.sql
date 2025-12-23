@@ -10,10 +10,20 @@ CREATE EXTENSION IF NOT EXISTS pg_cron;
 GRANT USAGE ON SCHEMA cron TO postgres;
 
 -- Remove any existing job with this name (idempotent)
-SELECT cron.unschedule('daily-game-generator')
-WHERE jobid IN (
-  SELECT jobid FROM cron.job WHERE jobname = 'daily-game-generator'
-);
+DO $$
+DECLARE
+  v_jobid BIGINT;
+BEGIN
+  -- Find the job by name
+  SELECT jobid INTO v_jobid
+  FROM cron.job
+  WHERE jobname = 'daily-game-generator';
+
+  -- If found, unschedule it
+  IF v_jobid IS NOT NULL THEN
+    PERFORM cron.unschedule(v_jobid);
+  END IF;
+END $$;
 
 -- Schedule the job to run every minute
 -- In production, you'd change this to run once daily at a specific time
