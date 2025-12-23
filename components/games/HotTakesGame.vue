@@ -19,6 +19,7 @@ const {
 } = useHotTakes(props.groupId);
 
 const { isAdmin } = useGroupMembers(computed(() => props.groupId));
+const supabase = useSupabaseClient();
 
 const responseForm = reactive({
 	stance: '' as 'agree' | 'disagree' | 'neutral' | '',
@@ -73,7 +74,36 @@ const handleCompleteGame = async () => {
 	}
 };
 
-onMounted(loadActiveGame);
+onMounted(async () => {
+	await loadActiveGame();
+
+	// Subscribe to game instance changes for automatic completion
+	if (currentGame.value) {
+		const channel = supabase
+			.channel(`game-${currentGame.value.id}`)
+			.on(
+				'postgres_changes',
+				{
+					event: 'UPDATE',
+					schema: 'public',
+					table: 'game_instances',
+					filter: `id=eq.${currentGame.value.id}`,
+				},
+				async (payload) => {
+					// Reload game when status changes
+					if (payload.new.status !== currentGame.value?.status) {
+						await loadActiveGame();
+					}
+				}
+			)
+			.subscribe();
+
+		// Cleanup on unmount
+		onUnmounted(() => {
+			supabase.removeChannel(channel);
+		});
+	}
+});
 </script>
 
 <template>

@@ -141,8 +141,9 @@ onMounted(async () => {
 					filter: `id=eq.${currentGame.value.id}`,
 				},
 				async (payload) => {
-					// Reload game when phase changes
-					if (payload.new.current_phase !== currentGame.value?.current_phase) {
+					// Reload game when phase or status changes
+					if (payload.new.current_phase !== currentGame.value?.current_phase ||
+					    payload.new.status !== currentGame.value?.status) {
 						await loadActiveGame();
 					}
 				}

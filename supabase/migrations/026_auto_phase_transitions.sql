@@ -1,6 +1,6 @@
--- Add automatic phase transitions for games when all users have responded
+-- Add automatic phase transitions and game completion when all users have responded
 
--- Function to check and auto-advance game phases
+-- Function to check and auto-advance game phases or complete games
 CREATE OR REPLACE FUNCTION check_and_advance_game_phase()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -11,6 +11,7 @@ DECLARE
   v_game_instance RECORD;
   v_total_members INTEGER;
   v_total_responses INTEGER;
+  v_responses_with_guesses INTEGER;
 BEGIN
   -- Get the game instance
   SELECT * INTO v_game_instance
@@ -34,11 +35,12 @@ BEGIN
 
   -- Check if all members have responded
   IF v_total_responses >= v_total_members THEN
-    -- Auto-advance phase based on game type
+    -- Handle based on game type
     CASE v_game_instance.game_type
-      -- Guess Who Said It: submission -> guessing
+      -- Guess Who Said It: two-phase game
       WHEN 'guess_who_said_it' THEN
         IF v_game_instance.current_phase = 'submission' THEN
+          -- Auto-advance to guessing phase
           UPDATE game_instances
           SET current_phase = 'guessing',
               metadata = jsonb_set(
@@ -49,9 +51,41 @@ BEGIN
           WHERE id = v_game_instance.id;
 
           RAISE NOTICE 'Auto-advanced Guess Who Said It game % to guessing phase', v_game_instance.id;
+        ELSIF v_game_instance.current_phase = 'guessing' THEN
+          -- Check if all users have submitted guesses
+          SELECT COUNT(*) INTO v_responses_with_guesses
+          FROM game_responses
+          WHERE game_instance_id = v_game_instance.id
+            AND response_data ? 'guesses';
+
+          -- If all members have guesses, complete the game
+          IF v_responses_with_guesses >= v_total_members THEN
+            UPDATE game_instances
+            SET status = 'completed',
+                metadata = jsonb_set(
+                  COALESCE(metadata, '{}'::jsonb),
+                  '{auto_completed}',
+                  'true'::jsonb
+                )
+            WHERE id = v_game_instance.id;
+
+            RAISE NOTICE 'Auto-completed Guess Who Said It game %', v_game_instance.id;
+          END IF;
         END IF;
 
-      -- For other game types, no auto-advance needed (they complete when everyone responds)
+      -- Single-phase games: auto-complete when everyone responds
+      WHEN 'would_you_rather', 'hot_takes', 'most_likely_to' THEN
+        UPDATE game_instances
+        SET status = 'completed',
+            metadata = jsonb_set(
+              COALESCE(metadata, '{}'::jsonb),
+              '{auto_completed}',
+              'true'::jsonb
+            )
+        WHERE id = v_game_instance.id;
+
+        RAISE NOTICE 'Auto-completed % game %', v_game_instance.game_type, v_game_instance.id;
+
       ELSE
         NULL;
     END CASE;
