@@ -24,16 +24,16 @@ CREATE INDEX IF NOT EXISTS idx_game_prompts_type_active
 
 -- Seed some Would You Rather prompts
 INSERT INTO game_prompts (game_type, prompt_data, tags) VALUES
-  ('would_you_rather', '{"option_a": "Have the ability to fly", "option_b": "Have the ability to become invisible"}', ARRAY['superpowers', 'fun']),
-  ('would_you_rather', '{"option_a": "Always have to tell the truth", "option_b": "Always have to lie"}', ARRAY['ethics', 'deep']),
-  ('would_you_rather', '{"option_a": "Live without internet for a year", "option_b": "Live without your phone for a year"}', ARRAY['technology', 'lifestyle']),
-  ('would_you_rather', '{"option_a": "Be able to speak all languages", "option_b": "Be able to talk to animals"}', ARRAY['superpowers', 'communication']),
-  ('would_you_rather', '{"option_a": "Always be 10 minutes late", "option_b": "Always be 20 minutes early"}', ARRAY['lifestyle', 'funny']),
-  ('would_you_rather', '{"option_a": "Have unlimited free time", "option_b": "Have unlimited money"}', ARRAY['deep', 'lifestyle']),
-  ('would_you_rather', '{"option_a": "Know how you die", "option_b": "Know when you die"}', ARRAY['deep', 'philosophical']),
-  ('would_you_rather', '{"option_a": "Be famous but poor", "option_b": "Be rich but unknown"}', ARRAY['lifestyle', 'values']),
-  ('would_you_rather', '{"option_a": "Relive the same day for a year", "option_b": "Skip a year of your life"}', ARRAY['time', 'philosophical']),
-  ('would_you_rather', '{"option_a": "Have a rewind button for your life", "option_b": "Have a pause button for your life"}', ARRAY['superpowers', 'time'])
+  ('would_you_rather', '{"option_a": "Have the ability to fly", "option_b": "Have the ability to become invisible", "option_a_visual": {"type": "emoji", "value": "🦅"}, "option_b_visual": {"type": "emoji", "value": "👻"}}', ARRAY['superpowers', 'fun']),
+  ('would_you_rather', '{"option_a": "Always have to tell the truth", "option_b": "Always have to lie", "option_a_visual": {"type": "emoji", "value": "😇"}, "option_b_visual": {"type": "emoji", "value": "🤥"}}', ARRAY['ethics', 'deep']),
+  ('would_you_rather', '{"option_a": "Live without internet for a year", "option_b": "Live without your phone for a year", "option_a_visual": {"type": "emoji", "value": "🌐"}, "option_b_visual": {"type": "emoji", "value": "📱"}}', ARRAY['technology', 'lifestyle']),
+  ('would_you_rather', '{"option_a": "Be able to speak all languages", "option_b": "Be able to talk to animals", "option_a_visual": {"type": "emoji", "value": "🗣️"}, "option_b_visual": {"type": "emoji", "value": "🐾"}}', ARRAY['superpowers', 'communication']),
+  ('would_you_rather', '{"option_a": "Always be 10 minutes late", "option_b": "Always be 20 minutes early", "option_a_visual": {"type": "emoji", "value": "⏰"}, "option_b_visual": {"type": "emoji", "value": "⏱️"}}', ARRAY['lifestyle', 'funny']),
+  ('would_you_rather', '{"option_a": "Have unlimited free time", "option_b": "Have unlimited money", "option_a_visual": {"type": "emoji", "value": "🏖️"}, "option_b_visual": {"type": "emoji", "value": "💰"}}', ARRAY['deep', 'lifestyle']),
+  ('would_you_rather', '{"option_a": "Know how you die", "option_b": "Know when you die", "option_a_visual": {"type": "emoji", "value": "🔮"}, "option_b_visual": {"type": "emoji", "value": "📅"}}', ARRAY['deep', 'philosophical']),
+  ('would_you_rather', '{"option_a": "Be famous but poor", "option_b": "Be rich but unknown", "option_a_visual": {"type": "emoji", "value": "⭐"}, "option_b_visual": {"type": "emoji", "value": "💵"}}', ARRAY['lifestyle', 'values']),
+  ('would_you_rather', '{"option_a": "Relive the same day for a year", "option_b": "Skip a year of your life", "option_a_visual": {"type": "emoji", "value": "🔁"}, "option_b_visual": {"type": "emoji", "value": "⏩"}}', ARRAY['time', 'philosophical']),
+  ('would_you_rather', '{"option_a": "Have a rewind button for your life", "option_b": "Have a pause button for your life", "option_a_visual": {"type": "emoji", "value": "⏮️"}, "option_b_visual": {"type": "emoji", "value": "⏸️"}}', ARRAY['superpowers', 'time'])
 ON CONFLICT DO NOTHING;
 
 -- Function to create a scheduled game for a group

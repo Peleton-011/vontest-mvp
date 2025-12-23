@@ -158,14 +158,31 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 				<!-- Option A -->
 				<UCard
 					:class="[
-						'cursor-pointer transition-all',
+						'cursor-pointer transition-all overflow-hidden relative',
 						!userResponse ? 'hover:scale-105' : '',
 						responseForm.choice === 'a' && !userResponse ? 'ring-2 ring-blue-500' : '',
 						userResponse?.choice === 'a' ? 'bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500' : ''
 					]"
 					@click="!userResponse ? responseForm.choice = 'a' : null"
 				>
-					<div class="text-center p-4">
+					<!-- Background Image (if provided) -->
+					<div
+						v-if="(currentGame.prompt as WouldYouRatherPrompt).option_a_visual?.type === 'image'"
+						class="absolute inset-0 bg-cover bg-center opacity-30"
+						:style="{
+							backgroundImage: `url(${(currentGame.prompt as WouldYouRatherPrompt).option_a_visual?.value})`
+						}"
+					></div>
+
+					<div class="text-center p-4 relative z-10">
+						<!-- Emoji Visual (if provided) -->
+						<div
+							v-if="(currentGame.prompt as WouldYouRatherPrompt).option_a_visual?.type === 'emoji'"
+							class="text-6xl mb-4"
+						>
+							{{ (currentGame.prompt as WouldYouRatherPrompt).option_a_visual?.value }}
+						</div>
+
 						<div class="text-4xl font-bold text-blue-600 mb-3">A</div>
 						<div class="text-lg font-semibold">{{ (currentGame.prompt as WouldYouRatherPrompt).option_a }}</div>
 						<div v-if="userResponse?.choice === 'a'" class="text-blue-600 mt-3 font-semibold">
@@ -177,14 +194,31 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 				<!-- Option B -->
 				<UCard
 					:class="[
-						'cursor-pointer transition-all',
+						'cursor-pointer transition-all overflow-hidden relative',
 						!userResponse ? 'hover:scale-105' : '',
 						responseForm.choice === 'b' && !userResponse ? 'ring-2 ring-purple-500' : '',
 						userResponse?.choice === 'b' ? 'bg-purple-50 dark:bg-purple-900/20 ring-2 ring-purple-500' : ''
 					]"
 					@click="!userResponse ? responseForm.choice = 'b' : null"
 				>
-					<div class="text-center p-4">
+					<!-- Background Image (if provided) -->
+					<div
+						v-if="(currentGame.prompt as WouldYouRatherPrompt).option_b_visual?.type === 'image'"
+						class="absolute inset-0 bg-cover bg-center opacity-30"
+						:style="{
+							backgroundImage: `url(${(currentGame.prompt as WouldYouRatherPrompt).option_b_visual?.value})`
+						}"
+					></div>
+
+					<div class="text-center p-4 relative z-10">
+						<!-- Emoji Visual (if provided) -->
+						<div
+							v-if="(currentGame.prompt as WouldYouRatherPrompt).option_b_visual?.type === 'emoji'"
+							class="text-6xl mb-4"
+						>
+							{{ (currentGame.prompt as WouldYouRatherPrompt).option_b_visual?.value }}
+						</div>
+
 						<div class="text-4xl font-bold text-purple-600 mb-3">B</div>
 						<div class="text-lg font-semibold">{{ (currentGame.prompt as WouldYouRatherPrompt).option_b }}</div>
 						<div v-if="userResponse?.choice === 'b'" class="text-purple-600 mt-3 font-semibold">

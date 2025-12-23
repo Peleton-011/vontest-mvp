@@ -3,9 +3,16 @@ import type { Database } from '~/types/supabase';
 type GameInstance = Database['public']['Tables']['game_instances']['Row'];
 type GameResponse = Database['public']['Tables']['game_responses']['Row'];
 
+export interface VisualElement {
+	type: 'emoji' | 'image';
+	value: string; // emoji character or image URL
+}
+
 export interface WouldYouRatherPrompt {
 	option_a: string;
 	option_b: string;
+	option_a_visual?: VisualElement;
+	option_b_visual?: VisualElement;
 }
 
 export interface WouldYouRatherResponse {
