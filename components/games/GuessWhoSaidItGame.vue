@@ -66,6 +66,16 @@ const userOwnResponseId = computed(() => {
 	return ownResponse?.responseId || null;
 });
 
+// Shuffle array helper (Fisher-Yates algorithm)
+const shuffleArray = <T>(array: T[]): T[] => {
+	const shuffled = [...array];
+	for (let i = shuffled.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+	}
+	return shuffled;
+};
+
 // Compute guesses from ordered lists
 const computedGuesses = computed(() => {
 	const guesses: Record<string, string> = {};
@@ -110,28 +120,35 @@ const loadActiveGame = async () => {
 			// Initialize ordered lists
 			if (gameResults) {
 				// Filter out user's own response
-				orderedResponses.value = gameResults.responses.filter(
+				const filteredResponses = gameResults.responses.filter(
 					(r: any) => r.responseId !== userOwnResponseId.value
 				);
 
 				// Filter out current user from the list
-				orderedUsers.value = groupMembers.value.filter(
+				const filteredUsers = groupMembers.value.filter(
 					(m: any) => m.userId !== user.value?.id
 				);
 
 				// If user has already submitted guesses, restore their order
 				if (userResponse.value?.guesses) {
-					// Try to restore previous order based on saved guesses
+					// Don't shuffle - restore previous order based on saved guesses
 					const savedGuesses = userResponse.value.guesses;
 
-					// Sort responses based on saved guesses if possible
-					orderedResponses.value.sort((a, b) => {
+					// Keep users in default order
+					orderedUsers.value = filteredUsers;
+
+					// Sort responses to match saved guesses
+					orderedResponses.value = filteredResponses.slice().sort((a, b) => {
 						const aUserId = savedGuesses[a.responseId];
 						const bUserId = savedGuesses[b.responseId];
 						const aIndex = orderedUsers.value.findIndex(u => u.userId === aUserId);
 						const bIndex = orderedUsers.value.findIndex(u => u.userId === bUserId);
 						return aIndex - bIndex;
 					});
+				} else {
+					// First time - randomize both lists to avoid any correlation
+					orderedResponses.value = shuffleArray(filteredResponses);
+					orderedUsers.value = shuffleArray(filteredUsers);
 				}
 			}
 		}
