@@ -349,93 +349,122 @@ onMounted(async () => {
 				<div v-if="results && currentGame.status === 'active'" class="space-y-6">
 					<div class="text-center">
 						<p class="text-sm text-gray-600 mb-2">
-							Drag a person from the right and drop them on an answer to match!
+							Drag people from the right to match them with their answers on the left
 						</p>
 						<p class="text-xs text-gray-500">
-							💡 Your own answer is pre-matched
+							💡 Your own answer is already matched
 						</p>
 					</div>
 
-					<!-- Two Column Layout -->
-					<div class="grid md:grid-cols-2 gap-6">
-						<!-- Left: Responses (Drop Zones) -->
-						<div class="space-y-3">
-							<h3 class="font-semibold text-sm text-gray-700 mb-3">📝 Responses</h3>
-							<div
-								v-for="response in results.responses"
-								:key="response.responseId"
-								@dragover="handleDragOver"
-								@drop.prevent="handleDrop(response.responseId)"
-								:class="[
-									'relative p-4 rounded-lg border-2 transition-all',
-									response.responseId === userOwnResponseId
-										? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 border-dashed'
-										: guessForm[response.responseId]
-											? 'bg-green-50 dark:bg-green-900/20 border-green-400'
-											: 'bg-white dark:bg-gray-800 border-gray-200 hover:border-purple-300'
-								]"
-							>
-								<!-- Response Text -->
-								<p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 italic">
-									"{{ response.answer }}"
-								</p>
-
-								<!-- Matched User -->
-								<div v-if="guessForm[response.responseId]" class="flex items-center justify-between">
-									<div class="flex items-center gap-2">
-										<UAvatar
-											:src="getAvatarUrlById(guessForm[response.responseId])"
-											:alt="getUsernameById(guessForm[response.responseId])"
-											size="sm"
-										/>
-										<span class="text-sm font-semibold">
-											{{ getUsernameById(guessForm[response.responseId]) }}
-										</span>
-										<UBadge v-if="response.responseId === userOwnResponseId" color="blue" size="xs">
-											You
-										</UBadge>
-									</div>
-									<UButton
-										v-if="response.responseId !== userOwnResponseId"
-										@click="clearGuess(response.responseId)"
-										variant="ghost"
-										size="xs"
-										icon="i-heroicons-x-mark"
-										color="gray"
-									/>
+					<!-- Your Own Answer (Separated at Top) -->
+					<div v-if="userOwnResponseId" class="pb-4 border-b-2 border-dashed border-blue-300">
+						<div class="grid grid-cols-2 gap-4">
+							<!-- Your Response -->
+							<div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300">
+								<div class="flex items-center gap-2 mb-2">
+									<UBadge color="blue" size="xs">Your Answer</UBadge>
 								</div>
+								<p class="text-sm italic text-gray-700 dark:text-gray-300">
+									"{{ results.responses.find(r => r.responseId === userOwnResponseId)?.answer }}"
+								</p>
+							</div>
 
-								<!-- Empty State -->
-								<div v-else class="text-center py-2 text-gray-400 text-sm">
-									Drop a person here
+							<!-- Your Profile -->
+							<div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300">
+								<div class="flex items-center gap-3">
+									<UAvatar
+										:src="user?.user_metadata?.avatar_url || ''"
+										:alt="user?.user_metadata?.username || 'You'"
+										size="md"
+									/>
+									<div>
+										<p class="font-semibold text-sm">{{ user?.user_metadata?.username || 'You' }}</p>
+										<UBadge color="blue" size="xs">You</UBadge>
+									</div>
 								</div>
 							</div>
 						</div>
+					</div>
 
-						<!-- Right: People (Draggable) -->
-						<div class="space-y-3">
-							<h3 class="font-semibold text-sm text-gray-700 mb-3">👥 People</h3>
-							<div class="space-y-2">
+					<!-- Other Answers and People (Matching Grid) -->
+					<div class="space-y-3">
+						<div
+							v-for="(response, index) in results.responses.filter(r => r.responseId !== userOwnResponseId)"
+							:key="response.responseId"
+							class="relative"
+						>
+							<div class="grid grid-cols-2 gap-4 items-stretch">
+								<!-- Left: Response (Drop Zone) -->
 								<div
-									v-for="member in groupMembers"
-									:key="member.userId"
-									:draggable="true"
-									@dragstart="handleDragStart(member.userId)"
-									@dragend="handleDragEnd"
+									@dragover="handleDragOver"
+									@drop.prevent="handleDrop(response.responseId)"
 									:class="[
-										'flex items-center gap-3 p-3 rounded-lg cursor-move transition-all',
-										'bg-white dark:bg-gray-800 border border-gray-200 hover:border-purple-400 hover:shadow-md',
-										draggedUserId === member.userId ? 'opacity-50 scale-95' : ''
+										'relative p-4 rounded-lg border-2 transition-all min-h-[80px] flex items-center',
+										guessForm[response.responseId]
+											? 'bg-green-50 dark:bg-green-900/20 border-green-400'
+											: 'bg-white dark:bg-gray-800 border-gray-300 hover:border-purple-400 hover:shadow-sm'
 									]"
 								>
-									<UAvatar
-										:src="member.avatarUrl"
-										:alt="member.username"
-										size="md"
-									/>
-									<span class="font-medium">{{ member.username }}</span>
-									<div class="ml-auto">
-										<UIcon name="i-heroicons-bars-3" class="w-4 h-4 text-gray-400" />
+									<div class="flex-1">
+										<p class="text-sm italic text-gray-700 dark:text-gray-300 mb-2">
+											"{{ response.answer }}"
+										</p>
+
+										<!-- Matched User Info (Small) -->
+										<div v-if="guessForm[response.responseId]" class="flex items-center gap-2 mt-2">
+											<UAvatar
+												:src="getAvatarUrlById(guessForm[response.responseId])"
+												:alt="getUsernameById(guessForm[response.responseId])"
+												size="xs"
+											/>
+											<span class="text-xs text-gray-600">
+												{{ getUsernameById(guessForm[response.responseId]) }}
+											</span>
+											<UButton
+												@click="clearGuess(response.responseId)"
+												variant="ghost"
+												size="xs"
+												icon="i-heroicons-x-mark"
+												color="gray"
+											/>
+										</div>
+										<div v-else class="text-xs text-gray-400 mt-2">
+											← Drop person here
+										</div>
+									</div>
+
+									<!-- Connecting Line Indicator -->
+									<div v-if="guessForm[response.responseId]" class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-0.5 bg-green-400"></div>
+								</div>
+
+								<!-- Right: Person (Draggable) -->
+								<div
+									:draggable="true"
+									@dragstart="handleDragStart(groupMembers.filter(m => m.userId !== user?.id)[index]?.userId)"
+									@dragend="handleDragEnd"
+									:class="[
+										'relative p-4 rounded-lg border-2 transition-all min-h-[80px] flex items-center cursor-move',
+										'bg-white dark:bg-gray-800 border-gray-300 hover:border-purple-400 hover:shadow-md',
+										draggedUserId === groupMembers.filter(m => m.userId !== user?.id)[index]?.userId ? 'opacity-50 scale-95' : ''
+									]"
+								>
+									<!-- Connecting Line Start -->
+									<div class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-0.5 bg-gray-300"></div>
+
+									<div class="flex items-center gap-3 flex-1 ml-2">
+										<UAvatar
+											:src="groupMembers.filter(m => m.userId !== user?.id)[index]?.avatarUrl"
+											:alt="groupMembers.filter(m => m.userId !== user?.id)[index]?.username"
+											size="md"
+										/>
+										<div>
+											<p class="font-semibold text-sm">
+												{{ groupMembers.filter(m => m.userId !== user?.id)[index]?.username }}
+											</p>
+										</div>
+										<div class="ml-auto">
+											<UIcon name="i-heroicons-bars-3" class="w-4 h-4 text-gray-400" />
+										</div>
 									</div>
 								</div>
 							</div>
@@ -448,6 +477,7 @@ onMounted(async () => {
 						:disabled="Object.values(guessForm).some(v => !v)"
 						block
 						size="lg"
+						class="mt-6"
 					>
 						Submit Guesses
 					</UButton>
