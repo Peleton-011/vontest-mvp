@@ -75,10 +75,15 @@ const promptForm = reactive({
 
 // Game type options
 const gameTypeOptions = [
-	{ value: 'would_you_rather', label: 'Would You Rather', icon: GAME_TYPES.would_you_rather.icon },
-	{ value: 'hot_takes', label: 'Hot Takes', icon: GAME_TYPES.hot_takes.icon },
-	{ value: 'guess_who_said_it', label: 'Guess Who Said It', icon: GAME_TYPES.guess_who_said_it.icon },
-	{ value: 'most_likely_to', label: 'Most Likely To', icon: GAME_TYPES.most_likely_to.icon },
+	{ value: 'would_you_rather', label: 'Would You Rather', icon: GAME_TYPES.would_you_rather.icon, disabled: false },
+	{ value: 'hot_takes', label: 'Hot Takes', icon: GAME_TYPES.hot_takes.icon, disabled: false },
+	{ value: 'guess_who_said_it', label: 'Guess Who Said It', icon: GAME_TYPES.guess_who_said_it.icon, disabled: false },
+	{ value: 'most_likely_to', label: 'Most Likely To', icon: GAME_TYPES.most_likely_to.icon, disabled: false },
+	{ value: 'predict_your_friends', label: 'Predict Your Friends (Coming Soon)', icon: GAME_TYPES.predict_your_friends.icon, disabled: true },
+	{ value: 'dinner_party_dilemmas', label: 'Dinner Party Dilemmas (Coming Soon)', icon: GAME_TYPES.dinner_party_dilemmas.icon, disabled: true },
+	{ value: 'two_truths_roulette', label: 'Two Truths Roulette (Coming Soon)', icon: GAME_TYPES.two_truths_roulette.icon, disabled: true },
+	{ value: 'compliment_economy', label: 'The Compliment Economy (Coming Soon)', icon: GAME_TYPES.compliment_economy.icon, disabled: true },
+	{ value: 'bracket_battle', label: 'Bracket Battle Royale (Coming Soon)', icon: GAME_TYPES.bracket_battle.icon, disabled: true },
 ];
 
 // Reset form

@@ -5,7 +5,12 @@ export type GameType =
   | 'would_you_rather'
   | 'hot_takes'
   | 'guess_who_said_it'
-  | 'most_likely_to';
+  | 'most_likely_to'
+  | 'predict_your_friends'
+  | 'dinner_party_dilemmas'
+  | 'two_truths_roulette'
+  | 'compliment_economy'
+  | 'bracket_battle';
 
 export interface GameTypeMetadata {
   id: GameType;
@@ -18,6 +23,8 @@ export interface GameTypeMetadata {
   minPlayers: number;
   estimatedTime: string; // e.g., "2-5 minutes"
   howToPlay: string[]; // Step-by-step instructions
+  disabled?: boolean; // If true, game is not yet implemented
+  comingSoon?: boolean; // Show "Coming Soon" badge
 }
 
 export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
@@ -88,6 +95,101 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'You can vote for yourself!',
       'See who "wins" each scenario'
     ],
+  },
+  predict_your_friends: {
+    id: 'predict_your_friends',
+    name: 'Predict Your Friends',
+    shortName: 'Predict',
+    description: 'Predict what your friends will do or think. Test how well you know them!',
+    detailedDescription: 'Daily prediction question about group members. Everyone predicts, then one person gives the true answer. Points for accuracy and discussion about why people predicted what they did.',
+    icon: 'i-heroicons-light-bulb',
+    color: 'cyan',
+    minPlayers: 3,
+    estimatedTime: '5-10 minutes',
+    howToPlay: [
+      'Daily prediction question posted',
+      'Everyone makes their predictions',
+      'Oracle reveals the truth',
+      'Earn points for correct predictions'
+    ],
+    disabled: true,
+    comingSoon: true,
+  },
+  dinner_party_dilemmas: {
+    id: 'dinner_party_dilemmas',
+    name: 'Dinner Party Dilemmas',
+    shortName: 'Dinner Party',
+    description: 'Curate the most interesting dinner party guest list.',
+    detailedDescription: 'Weekly challenge: invite 3 out of 8 figures to your dinner party from historical figures, fictional characters, or celebrities. Submit picks with reasoning and group votes on whose party would be most interesting.',
+    icon: 'i-heroicons-user-group',
+    color: 'pink',
+    minPlayers: 3,
+    estimatedTime: '10-15 minutes',
+    howToPlay: [
+      'Choose 3 guests from 8 options',
+      'Explain your reasoning',
+      'Group votes on best party',
+      'Debate in dedicated threads'
+    ],
+    disabled: true,
+    comingSoon: true,
+  },
+  two_truths_roulette: {
+    id: 'two_truths_roulette',
+    name: 'Two Truths Roulette',
+    shortName: 'Two Truths',
+    description: 'Submit two truths and a lie about your week. Can friends spot the lie?',
+    detailedDescription: 'Weekly game where everyone submits two truths and one lie about their week. Group votes on which is the lie. Points for fooling friends and guessing correctly!',
+    icon: 'i-heroicons-sparkles',
+    color: 'indigo',
+    minPlayers: 3,
+    estimatedTime: '5-10 minutes',
+    howToPlay: [
+      'Submit two truths and one lie',
+      'Friends vote on the lie',
+      'Reveal correct answer',
+      'Share stories in chat'
+    ],
+    disabled: true,
+    comingSoon: true,
+  },
+  compliment_economy: {
+    id: 'compliment_economy',
+    name: 'The Compliment Economy',
+    shortName: 'Compliments',
+    description: 'Award compliment coins to friends for specific moments. Make appreciation intentional.',
+    detailedDescription: 'Each week you get 5 compliment coins to award to friends for specific things. Must include explanation. Public feed of compliments with reactions. Coins expire weekly!',
+    icon: 'i-heroicons-heart',
+    color: 'rose',
+    minPlayers: 2,
+    estimatedTime: 'Ongoing',
+    howToPlay: [
+      'Receive 5 coins per week',
+      'Award to friends with reasons',
+      'Read public compliment feed',
+      'Unused coins expire'
+    ],
+    disabled: true,
+    comingSoon: true,
+  },
+  bracket_battle: {
+    id: 'bracket_battle',
+    name: 'Bracket Battle Royale',
+    shortName: 'Bracket',
+    description: 'Settle debates tournament-style with single-elimination brackets.',
+    detailedDescription: 'Create 8 or 16-competitor tournaments for any topic. Group debates each matchup before voting. Winners advance until final champion. Perfect for settling those ongoing arguments!',
+    icon: 'i-heroicons-trophy',
+    color: 'orange',
+    minPlayers: 3,
+    estimatedTime: '7-10 days',
+    howToPlay: [
+      'Nominate tournament entries',
+      'Seed top competitors',
+      'Debate each matchup',
+      'Vote to advance winners'
+    ],
+    disabled: true,
+    comingSoon: true,
   },
 };
 
