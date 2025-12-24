@@ -173,9 +173,24 @@ onMounted(async () => {
 			</div>
 
 			<!-- Game Prompt -->
-			<UCard>
-				<div class="text-center py-6">
-					<div class="text-3xl mb-2">🔥</div>
+			<UCard class="overflow-hidden relative">
+				<!-- Background Image (if provided) -->
+				<div
+					v-if="(currentGame.prompt as HotTakesPrompt).visual?.type === 'image'"
+					class="absolute inset-0 bg-cover bg-center opacity-20"
+					:style="{
+						backgroundImage: `url(${(currentGame.prompt as HotTakesPrompt).visual?.value})`
+					}"
+				></div>
+
+				<div class="text-center py-6 relative z-10">
+					<!-- Custom Emoji Visual (if provided) -->
+					<div v-if="(currentGame.prompt as HotTakesPrompt).visual?.type === 'emoji'" class="text-6xl mb-4">
+						{{ (currentGame.prompt as HotTakesPrompt).visual?.value }}
+					</div>
+					<!-- Default Emoji (if no visual) -->
+					<div v-else class="text-3xl mb-2">🔥</div>
+
 					<p class="text-xl font-semibold">
 						{{ (currentGame.prompt as HotTakesPrompt).statement }}
 					</p>

@@ -120,6 +120,7 @@
 								>
 									Make Custom Game
 								</UButton>
+								<GamesManagePromptsModal :group-id="groupId" />
 							</div>
 						</div>
 

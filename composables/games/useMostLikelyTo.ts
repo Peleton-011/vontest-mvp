@@ -1,10 +1,12 @@
 import type { Database } from '~/types/supabase';
+import type { VisualElement } from './useWouldYouRather';
 
 type GameInstance = Database['public']['Tables']['game_instances']['Row'];
 type GameResponse = Database['public']['Tables']['game_responses']['Row'];
 
 export interface MostLikelyToPrompt {
 	scenario: string;
+	visual?: VisualElement;
 }
 
 export interface MostLikelyToResponse {
