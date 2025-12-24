@@ -12,8 +12,7 @@ const props = defineProps<{
 	groupId: string;
 }>();
 
-// Use defineModel for v-model:open support
-const open = defineModel<boolean>('open', { default: false });
+const open = ref(false);
 
 const {
 	loading,
@@ -219,295 +218,305 @@ const getGameTypeInfo = (gameType: string) => {
 </script>
 
 <template>
-	<UModal v-model:open="open" :ui="{ width: 'sm:max-w-3xl' }">
-		<UCard>
-			<template #header>
-				<div class="flex items-center justify-between">
-					<div class="flex items-center gap-3">
-						<UIcon name="i-heroicons-sparkles" class="w-6 h-6 text-primary-600" />
-						<h2 class="text-xl font-bold">Manage Custom Prompts</h2>
-					</div>
-					<UButton
-						variant="ghost"
-						icon="i-heroicons-x-mark"
-						size="sm"
-						@click="open = false"
-					/>
-				</div>
+	<div>
+		<UButton
+			variant="outline"
+			icon="i-heroicons-puzzle-piece"
+			@click="open = true"
+		>
+			Manage Prompts
+		</UButton>
 
-				<!-- Stats Bar -->
-				<div v-if="stats" class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-					<div class="flex items-center justify-between text-sm">
-						<div>
-							<span class="font-semibold">{{ stats.total }}</span> total custom prompts
+		<UModal v-model:open="open" :ui="{ width: 'sm:max-w-3xl' }">
+			<UCard>
+				<template #header>
+					<div class="flex items-center justify-between">
+						<div class="flex items-center gap-3">
+							<UIcon name="i-heroicons-sparkles" class="w-6 h-6 text-primary-600" />
+							<h2 class="text-xl font-bold">Manage Custom Prompts</h2>
 						</div>
-						<div>
-							<span class="font-semibold">{{ stats.this_week }}</span> created this week
-						</div>
-						<div>
-							<span class="font-semibold text-green-600">{{ stats.remaining_this_week }}</span>
-							remaining this week
-						</div>
-					</div>
-				</div>
-			</template>
-
-			<!-- Tabs -->
-			<UTabs v-model="activeTab" :items="tabs">
-				<!-- Tab 1: Create Custom Prompt -->
-				<template #create>
-					<div class="space-y-6 py-4">
-						<!-- Rate Limit Warning -->
-						<UAlert
-							v-if="stats && stats.remaining_this_week === 0"
-							color="red"
-							icon="i-heroicons-exclamation-triangle"
-							title="Rate Limit Reached"
-							description="You've reached the maximum of 10 custom prompts per week. Try again next week!"
+						<UButton
+							variant="ghost"
+							icon="i-heroicons-x-mark"
+							size="sm"
+							@click="open = false"
 						/>
+					</div>
 
-						<div v-else class="space-y-6">
-							<!-- Game Type Selection -->
-							<UFormField label="Game Type" required>
-								<USelectMenu
-									v-model="selectedGameType"
-									:options="gameTypeOptions"
-									option-attribute="label"
-									value-attribute="value"
-								>
-									<template #label>
-										<div class="flex items-center gap-2">
-											<UIcon :name="getGameTypeInfo(selectedGameType).icon" />
-											<span>{{ getGameTypeInfo(selectedGameType).label }}</span>
-										</div>
-									</template>
-								</USelectMenu>
-							</UFormField>
-
-							<!-- Would You Rather Form -->
-							<div v-if="selectedGameType === 'would_you_rather'" class="space-y-4">
-								<UFormField label="Option A" required>
-									<UInput v-model="promptForm.option_a" placeholder="First option..." />
-								</UFormField>
-
-								<div class="grid grid-cols-2 gap-4">
-									<UFormField label="Option A Visual">
-										<USelectMenu
-											v-model="promptForm.option_a_visual_type"
-											:options="visualTypeOptions"
-											option-attribute="label"
-											value-attribute="value"
-										/>
-									</UFormField>
-									<UFormField
-										v-if="promptForm.option_a_visual_type"
-										:label="promptForm.option_a_visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
-									>
-										<UInput
-											v-model="promptForm.option_a_visual_value"
-											:placeholder="promptForm.option_a_visual_type === 'emoji' ? '🎯' : 'https://...'"
-										/>
-									</UFormField>
-								</div>
-
-								<UFormField label="Option B" required>
-									<UInput v-model="promptForm.option_b" placeholder="Second option..." />
-								</UFormField>
-
-								<div class="grid grid-cols-2 gap-4">
-									<UFormField label="Option B Visual">
-										<USelectMenu
-											v-model="promptForm.option_b_visual_type"
-											:options="visualTypeOptions"
-											option-attribute="label"
-											value-attribute="value"
-										/>
-									</UFormField>
-									<UFormField
-										v-if="promptForm.option_b_visual_type"
-										:label="promptForm.option_b_visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
-									>
-										<UInput
-											v-model="promptForm.option_b_visual_value"
-											:placeholder="promptForm.option_b_visual_type === 'emoji' ? '🎯' : 'https://...'"
-										/>
-									</UFormField>
-								</div>
+					<!-- Stats Bar -->
+					<div v-if="stats" class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+						<div class="flex items-center justify-between text-sm">
+							<div>
+								<span class="font-semibold">{{ stats.total }}</span> total custom prompts
 							</div>
-
-							<!-- Hot Takes Form -->
-							<div v-if="selectedGameType === 'hot_takes'" class="space-y-4">
-								<UFormField label="Statement" required>
-									<UTextarea
-										v-model="promptForm.statement"
-										placeholder="Enter a controversial statement..."
-										:rows="3"
-									/>
-								</UFormField>
-
-								<div class="grid grid-cols-2 gap-4">
-									<UFormField label="Visual Element">
-										<USelectMenu
-											v-model="promptForm.visual_type"
-											:options="visualTypeOptions"
-											option-attribute="label"
-											value-attribute="value"
-										/>
-									</UFormField>
-									<UFormField
-										v-if="promptForm.visual_type"
-										:label="promptForm.visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
-									>
-										<UInput
-											v-model="promptForm.visual_value"
-											:placeholder="promptForm.visual_type === 'emoji' ? '🔥' : 'https://...'"
-										/>
-									</UFormField>
-								</div>
+							<div>
+								<span class="font-semibold">{{ stats.this_week }}</span> created this week
 							</div>
-
-							<!-- Guess Who Said It Form -->
-							<div v-if="selectedGameType === 'guess_who_said_it'" class="space-y-4">
-								<UFormField label="Question" required>
-									<UTextarea
-										v-model="promptForm.question"
-										placeholder="Enter a question for players to answer..."
-										:rows="3"
-									/>
-								</UFormField>
-
-								<div class="grid grid-cols-2 gap-4">
-									<UFormField label="Visual Element">
-										<USelectMenu
-											v-model="promptForm.visual_type"
-											:options="visualTypeOptions"
-											option-attribute="label"
-											value-attribute="value"
-										/>
-									</UFormField>
-									<UFormField
-										v-if="promptForm.visual_type"
-										:label="promptForm.visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
-									>
-										<UInput
-											v-model="promptForm.visual_value"
-											:placeholder="promptForm.visual_type === 'emoji' ? '❓' : 'https://...'"
-										/>
-									</UFormField>
-								</div>
+							<div>
+								<span class="font-semibold text-green-600">{{ stats.remaining_this_week }}</span>
+								remaining this week
 							</div>
+						</div>
+					</div>
+				</template>
 
-							<!-- Most Likely To Form -->
-							<div v-if="selectedGameType === 'most_likely_to'" class="space-y-4">
-								<UFormField label="Scenario" required>
-									<UTextarea
-										v-model="promptForm.scenario"
-										placeholder="Most likely to..."
-										:rows="3"
-									/>
-								</UFormField>
-
-								<div class="grid grid-cols-2 gap-4">
-									<UFormField label="Visual Element">
-										<USelectMenu
-											v-model="promptForm.visual_type"
-											:options="visualTypeOptions"
-											option-attribute="label"
-											value-attribute="value"
-										/>
-									</UFormField>
-									<UFormField
-										v-if="promptForm.visual_type"
-										:label="promptForm.visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
-									>
-										<UInput
-											v-model="promptForm.visual_value"
-											:placeholder="promptForm.visual_type === 'emoji' ? '👤' : 'https://...'"
-										/>
-									</UFormField>
-								</div>
-							</div>
-
-							<!-- Error Display -->
+				<!-- Tabs -->
+				<UTabs v-model="activeTab" :items="tabs">
+					<!-- Tab 1: Create Custom Prompt -->
+					<template #create>
+						<div class="space-y-6 py-4">
+							<!-- Rate Limit Warning -->
 							<UAlert
-								v-if="error"
+								v-if="stats && stats.remaining_this_week === 0"
 								color="red"
-								icon="i-heroicons-exclamation-circle"
-								:title="error"
+								icon="i-heroicons-exclamation-triangle"
+								title="Rate Limit Reached"
+								description="You've reached the maximum of 10 custom prompts per week. Try again next week!"
 							/>
 
-							<!-- Actions -->
-							<div class="flex justify-end gap-3">
-								<UButton variant="outline" @click="resetForm">
-									Clear
-								</UButton>
-								<UButton
-									@click="handleCreatePrompt"
-									:loading="loading"
-									:disabled="!isFormValid"
-								>
-									Create Prompt
-								</UButton>
-							</div>
-						</div>
-					</div>
-				</template>
+							<div v-else class="space-y-6">
+								<!-- Game Type Selection -->
+								<UFormField label="Game Type" required>
+									<USelectMenu
+										v-model="selectedGameType"
+										:options="gameTypeOptions"
+										option-attribute="label"
+										value-attribute="value"
+									>
+										<template #label>
+											<div class="flex items-center gap-2">
+												<UIcon :name="getGameTypeInfo(selectedGameType).icon" />
+												<span>{{ getGameTypeInfo(selectedGameType).label }}</span>
+											</div>
+										</template>
+									</USelectMenu>
+								</UFormField>
 
-				<!-- Tab 2: Your Custom Prompts -->
-				<template #view>
-					<div class="space-y-4 py-4">
-						<div v-if="prompts.length === 0" class="text-center py-12">
-							<UIcon name="i-heroicons-inbox" class="w-16 h-16 mx-auto text-gray-400 mb-4" />
-							<p class="text-gray-600">No custom prompts yet</p>
-							<p class="text-sm text-gray-500 mt-1">
-								Create your first custom prompt in the other tab!
-							</p>
-						</div>
+								<!-- Would You Rather Form -->
+								<div v-if="selectedGameType === 'would_you_rather'" class="space-y-4">
+									<UFormField label="Option A" required>
+										<UInput v-model="promptForm.option_a" placeholder="First option..." />
+									</UFormField>
 
-						<div v-else class="space-y-3">
-							<UCard
-								v-for="prompt in prompts"
-								:key="prompt.id"
-								class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-							>
-								<div class="flex items-start justify-between gap-4">
-									<div class="flex-1">
-										<div class="flex items-center gap-2 mb-2">
-											<UIcon
-												:name="getGameTypeInfo(prompt.game_type).icon"
-												class="w-4 h-4 text-gray-500"
+									<div class="grid grid-cols-2 gap-4">
+										<UFormField label="Option A Visual">
+											<USelectMenu
+												v-model="promptForm.option_a_visual_type"
+												:options="visualTypeOptions"
+												option-attribute="label"
+												value-attribute="value"
 											/>
-											<span class="text-xs font-semibold text-gray-500 uppercase">
-												{{ getGameTypeInfo(prompt.game_type).label }}
-											</span>
-											<UBadge size="xs" color="blue">Custom</UBadge>
-										</div>
-
-										<p class="text-sm">{{ getPromptDisplayText(prompt) }}</p>
-
-										<div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
-											<span>Created by {{ prompt.created_by_username }}</span>
-											<span>•</span>
-											<span>{{ new Date(prompt.created_at).toLocaleDateString() }}</span>
-											<span>•</span>
-											<span>Used {{ prompt.usage_count }} times</span>
-										</div>
+										</UFormField>
+										<UFormField
+											v-if="promptForm.option_a_visual_type"
+											:label="promptForm.option_a_visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
+										>
+											<UInput
+												v-model="promptForm.option_a_visual_value"
+												:placeholder="promptForm.option_a_visual_type === 'emoji' ? '🎯' : 'https://...'"
+											/>
+										</UFormField>
 									</div>
 
-									<UButton
-										variant="ghost"
-										color="red"
-										icon="i-heroicons-trash"
-										size="sm"
-										@click="handleDeletePrompt(prompt.id)"
-										:loading="loading"
-									/>
+									<UFormField label="Option B" required>
+										<UInput v-model="promptForm.option_b" placeholder="Second option..." />
+									</UFormField>
+
+									<div class="grid grid-cols-2 gap-4">
+										<UFormField label="Option B Visual">
+											<USelectMenu
+												v-model="promptForm.option_b_visual_type"
+												:options="visualTypeOptions"
+												option-attribute="label"
+												value-attribute="value"
+											/>
+										</UFormField>
+										<UFormField
+											v-if="promptForm.option_b_visual_type"
+											:label="promptForm.option_b_visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
+										>
+											<UInput
+												v-model="promptForm.option_b_visual_value"
+												:placeholder="promptForm.option_b_visual_type === 'emoji' ? '🎯' : 'https://...'"
+											/>
+										</UFormField>
+									</div>
 								</div>
-							</UCard>
+
+								<!-- Hot Takes Form -->
+								<div v-if="selectedGameType === 'hot_takes'" class="space-y-4">
+									<UFormField label="Statement" required>
+										<UTextarea
+											v-model="promptForm.statement"
+											placeholder="Enter a controversial statement..."
+											:rows="3"
+										/>
+									</UFormField>
+
+									<div class="grid grid-cols-2 gap-4">
+										<UFormField label="Visual Element">
+											<USelectMenu
+												v-model="promptForm.visual_type"
+												:options="visualTypeOptions"
+												option-attribute="label"
+												value-attribute="value"
+											/>
+										</UFormField>
+										<UFormField
+											v-if="promptForm.visual_type"
+											:label="promptForm.visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
+										>
+											<UInput
+												v-model="promptForm.visual_value"
+												:placeholder="promptForm.visual_type === 'emoji' ? '🔥' : 'https://...'"
+											/>
+										</UFormField>
+									</div>
+								</div>
+
+								<!-- Guess Who Said It Form -->
+								<div v-if="selectedGameType === 'guess_who_said_it'" class="space-y-4">
+									<UFormField label="Question" required>
+										<UTextarea
+											v-model="promptForm.question"
+											placeholder="Enter a question for players to answer..."
+											:rows="3"
+										/>
+									</UFormField>
+
+									<div class="grid grid-cols-2 gap-4">
+										<UFormField label="Visual Element">
+											<USelectMenu
+												v-model="promptForm.visual_type"
+												:options="visualTypeOptions"
+												option-attribute="label"
+												value-attribute="value"
+											/>
+										</UFormField>
+										<UFormField
+											v-if="promptForm.visual_type"
+											:label="promptForm.visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
+										>
+											<UInput
+												v-model="promptForm.visual_value"
+												:placeholder="promptForm.visual_type === 'emoji' ? '❓' : 'https://...'"
+											/>
+										</UFormField>
+									</div>
+								</div>
+
+								<!-- Most Likely To Form -->
+								<div v-if="selectedGameType === 'most_likely_to'" class="space-y-4">
+									<UFormField label="Scenario" required>
+										<UTextarea
+											v-model="promptForm.scenario"
+											placeholder="Most likely to..."
+											:rows="3"
+										/>
+									</UFormField>
+
+									<div class="grid grid-cols-2 gap-4">
+										<UFormField label="Visual Element">
+											<USelectMenu
+												v-model="promptForm.visual_type"
+												:options="visualTypeOptions"
+												option-attribute="label"
+												value-attribute="value"
+											/>
+										</UFormField>
+										<UFormField
+											v-if="promptForm.visual_type"
+											:label="promptForm.visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
+										>
+											<UInput
+												v-model="promptForm.visual_value"
+												:placeholder="promptForm.visual_type === 'emoji' ? '👤' : 'https://...'"
+											/>
+										</UFormField>
+									</div>
+								</div>
+
+								<!-- Error Display -->
+								<UAlert
+									v-if="error"
+									color="red"
+									icon="i-heroicons-exclamation-circle"
+									:title="error"
+								/>
+
+								<!-- Actions -->
+								<div class="flex justify-end gap-3">
+									<UButton variant="outline" @click="resetForm">
+										Clear
+									</UButton>
+									<UButton
+										@click="handleCreatePrompt"
+										:loading="loading"
+										:disabled="!isFormValid"
+									>
+										Create Prompt
+									</UButton>
+								</div>
+							</div>
 						</div>
-					</div>
-				</template>
-			</UTabs>
-		</UCard>
-	</UModal>
+					</template>
+
+					<!-- Tab 2: Your Custom Prompts -->
+					<template #view>
+						<div class="space-y-4 py-4">
+							<div v-if="prompts.length === 0" class="text-center py-12">
+								<UIcon name="i-heroicons-inbox" class="w-16 h-16 mx-auto text-gray-400 mb-4" />
+								<p class="text-gray-600">No custom prompts yet</p>
+								<p class="text-sm text-gray-500 mt-1">
+									Create your first custom prompt in the other tab!
+								</p>
+							</div>
+
+							<div v-else class="space-y-3">
+								<UCard
+									v-for="prompt in prompts"
+									:key="prompt.id"
+									class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+								>
+									<div class="flex items-start justify-between gap-4">
+										<div class="flex-1">
+											<div class="flex items-center gap-2 mb-2">
+												<UIcon
+													:name="getGameTypeInfo(prompt.game_type).icon"
+													class="w-4 h-4 text-gray-500"
+												/>
+												<span class="text-xs font-semibold text-gray-500 uppercase">
+													{{ getGameTypeInfo(prompt.game_type).label }}
+												</span>
+												<UBadge size="xs" color="blue">Custom</UBadge>
+											</div>
+
+											<p class="text-sm">{{ getPromptDisplayText(prompt) }}</p>
+
+											<div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+												<span>Created by {{ prompt.created_by_username }}</span>
+												<span>•</span>
+												<span>{{ new Date(prompt.created_at).toLocaleDateString() }}</span>
+												<span>•</span>
+												<span>Used {{ prompt.usage_count }} times</span>
+											</div>
+										</div>
+
+										<UButton
+											variant="ghost"
+											color="red"
+											icon="i-heroicons-trash"
+											size="sm"
+											@click="handleDeletePrompt(prompt.id)"
+											:loading="loading"
+										/>
+									</div>
+								</UCard>
+							</div>
+						</div>
+					</template>
+				</UTabs>
+			</UCard>
+		</UModal>
+	</div>
 </template>

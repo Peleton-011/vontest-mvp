@@ -120,13 +120,7 @@
 								>
 									Make Custom Game
 								</UButton>
-							<UButton
-								variant="outline"
-								icon="i-heroicons-puzzle-piece"
-								@click="showManagePromptsModal = true"
-							>
-								Manage Prompts
-							</UButton>
+								<GamesManagePromptsModal :group-id="groupId" />
 							</div>
 						</div>
 
@@ -426,12 +420,6 @@
 					/>
 				</template>
 			</UModal>
-
-			<!-- Manage Prompts Modal -->
-			<GamesManagePromptsModal
-				:group-id="groupId"
-				v-model:open="showManagePromptsModal"
-			/>
 		</div>
 	</div>
 </template>
@@ -500,7 +488,6 @@ const error = computed(() => groupError.value || membersError.value);
 const activeGame = ref<any>(null);
 const loadingGame = ref(false);
 const showCustomGameModal = ref(false);
-const showManagePromptsModal = ref(false);
 
 // Chat state
 const supabase = useSupabaseClient<Database>();
