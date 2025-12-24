@@ -81,7 +81,6 @@ const gameTypeOptions = [
 
 // Visual type options
 const visualTypeOptions = [
-	{ value: '', label: 'None' },
 	{ value: 'emoji', label: 'Emoji' },
 	{ value: 'image', label: 'Image URL' },
 ];
@@ -284,10 +283,11 @@ const getGameTypeInfo = (gameType: string) => {
 									</UFormField>
 
 									<div class="grid grid-cols-2 gap-4">
-										<UFormField label="Option A Visual">
+										<UFormField label="Option A Visual (Optional)">
 											<USelect
 												v-model="promptForm.option_a_visual_type"
 												:items="visualTypeOptions"
+												placeholder="No visual"
 											/>
 										</UFormField>
 										<UFormField
@@ -306,10 +306,11 @@ const getGameTypeInfo = (gameType: string) => {
 									</UFormField>
 
 									<div class="grid grid-cols-2 gap-4">
-										<UFormField label="Option B Visual">
+										<UFormField label="Option B Visual (Optional)">
 											<USelect
 												v-model="promptForm.option_b_visual_type"
 												:items="visualTypeOptions"
+												placeholder="No visual"
 											/>
 										</UFormField>
 										<UFormField
@@ -335,10 +336,11 @@ const getGameTypeInfo = (gameType: string) => {
 									</UFormField>
 
 									<div class="grid grid-cols-2 gap-4">
-										<UFormField label="Visual Element">
+										<UFormField label="Visual Element (Optional)">
 											<USelect
 												v-model="promptForm.visual_type"
 												:items="visualTypeOptions"
+												placeholder="No visual"
 											/>
 										</UFormField>
 										<UFormField
@@ -364,10 +366,11 @@ const getGameTypeInfo = (gameType: string) => {
 									</UFormField>
 
 									<div class="grid grid-cols-2 gap-4">
-										<UFormField label="Visual Element">
+										<UFormField label="Visual Element (Optional)">
 											<USelect
 												v-model="promptForm.visual_type"
 												:items="visualTypeOptions"
+												placeholder="No visual"
 											/>
 										</UFormField>
 										<UFormField
@@ -393,10 +396,11 @@ const getGameTypeInfo = (gameType: string) => {
 									</UFormField>
 
 									<div class="grid grid-cols-2 gap-4">
-										<UFormField label="Visual Element">
+										<UFormField label="Visual Element (Optional)">
 											<USelect
 												v-model="promptForm.visual_type"
 												:items="visualTypeOptions"
+												placeholder="No visual"
 											/>
 										</UFormField>
 										<UFormField
