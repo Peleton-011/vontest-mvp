@@ -33,8 +33,16 @@ const {
 // Tabs
 const activeTab = ref(0);
 const tabs = [
-	{ label: 'Create Custom Prompt', icon: 'i-heroicons-plus-circle' },
-	{ label: 'Your Custom Prompts', icon: 'i-heroicons-queue-list' },
+	{
+		key: 'create',
+		label: 'Create Custom Prompt',
+		icon: 'i-heroicons-plus-circle'
+	},
+	{
+		key: 'view',
+		label: 'Your Custom Prompts',
+		icon: 'i-heroicons-queue-list'
+	},
 ];
 
 // Form state
@@ -214,7 +222,7 @@ const getGameTypeInfo = (gameType: string) => {
 </script>
 
 <template>
-	<UModal :model-value="isOpen" @update:model-value="emit('close')" :ui="{ width: 'sm:max-w-3xl' }">
+	<UModal :open="isOpen" @update:open="(value) => !value && emit('close')" :ui="{ width: 'sm:max-w-3xl' }">
 		<UCard>
 			<template #header>
 				<div class="flex items-center justify-between">
@@ -248,10 +256,10 @@ const getGameTypeInfo = (gameType: string) => {
 			</template>
 
 			<!-- Tabs -->
-			<UTabs v-model="activeTab" :items="tabs" class="mb-6">
+			<UTabs v-model="activeTab" :items="tabs">
 				<!-- Tab 1: Create Custom Prompt -->
-				<template #item="{ item }">
-					<div v-if="item.label === 'Create Custom Prompt'" class="space-y-6 py-4">
+				<template #create>
+					<div class="space-y-6 py-4">
 						<!-- Rate Limit Warning -->
 						<UAlert
 							v-if="stats && stats.remaining_this_week === 0"
@@ -446,9 +454,11 @@ const getGameTypeInfo = (gameType: string) => {
 							</div>
 						</div>
 					</div>
+				</template>
 
-					<!-- Tab 2: Your Custom Prompts -->
-					<div v-if="item.label === 'Your Custom Prompts'" class="space-y-4 py-4">
+				<!-- Tab 2: Your Custom Prompts -->
+				<template #view>
+					<div class="space-y-4 py-4">
 						<div v-if="prompts.length === 0" class="text-center py-12">
 							<UIcon name="i-heroicons-inbox" class="w-16 h-16 mx-auto text-gray-400 mb-4" />
 							<p class="text-gray-600">No custom prompts yet</p>
