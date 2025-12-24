@@ -227,38 +227,23 @@ const getGameTypeInfo = (gameType: string) => {
 			Manage Prompts
 		</UButton>
 
-		<UModal v-model:open="open" :ui="{ width: 'sm:max-w-3xl' }">
-			<UCard>
-				<template #header>
-					<div class="flex items-center justify-between">
-						<div class="flex items-center gap-3">
-							<UIcon name="i-heroicons-sparkles" class="w-6 h-6 text-primary-600" />
-							<h2 class="text-xl font-bold">Manage Custom Prompts</h2>
+		<UModal v-model:open="open" title="Manage Custom Prompts" :ui="{ width: 'sm:max-w-3xl' }">
+			<template #body>
+				<!-- Stats Bar -->
+				<div v-if="stats" class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+					<div class="flex items-center justify-between text-sm">
+						<div>
+							<span class="font-semibold">{{ stats.total }}</span> total custom prompts
 						</div>
-						<UButton
-							variant="ghost"
-							icon="i-heroicons-x-mark"
-							size="sm"
-							@click="open = false"
-						/>
-					</div>
-
-					<!-- Stats Bar -->
-					<div v-if="stats" class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-						<div class="flex items-center justify-between text-sm">
-							<div>
-								<span class="font-semibold">{{ stats.total }}</span> total custom prompts
-							</div>
-							<div>
-								<span class="font-semibold">{{ stats.this_week }}</span> created this week
-							</div>
-							<div>
-								<span class="font-semibold text-green-600">{{ stats.remaining_this_week }}</span>
-								remaining this week
-							</div>
+						<div>
+							<span class="font-semibold">{{ stats.this_week }}</span> created this week
+						</div>
+						<div>
+							<span class="font-semibold text-green-600">{{ stats.remaining_this_week }}</span>
+							remaining this week
 						</div>
 					</div>
-				</template>
+				</div>
 
 				<!-- Tabs -->
 				<UTabs v-model="activeTab" :items="tabs">
@@ -516,7 +501,7 @@ const getGameTypeInfo = (gameType: string) => {
 						</div>
 					</template>
 				</UTabs>
-			</UCard>
+			</template>
 		</UModal>
 	</div>
 </template>
