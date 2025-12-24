@@ -30,12 +30,14 @@ const {
 const activeTab = ref(0);
 const tabs = [
 	{
-		key: 'create',
+		slot: 'create',
+		value: 0,
 		label: 'Create Custom Prompt',
 		icon: 'i-heroicons-plus-circle'
 	},
 	{
-		key: 'view',
+		slot: 'view',
+		value: 1,
 		label: 'Your Custom Prompts',
 		icon: 'i-heroicons-queue-list'
 	},
