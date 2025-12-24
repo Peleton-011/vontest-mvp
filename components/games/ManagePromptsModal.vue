@@ -264,11 +264,9 @@ const getGameTypeInfo = (gameType: string) => {
 							<div v-else class="space-y-6">
 								<!-- Game Type Selection -->
 								<UFormField label="Game Type" required>
-									<USelectMenu
+									<USelect
 										v-model="selectedGameType"
-										:options="gameTypeOptions"
-										option-attribute="label"
-										value-attribute="value"
+										:items="gameTypeOptions"
 									>
 										<template #label>
 											<div class="flex items-center gap-2">
@@ -276,7 +274,7 @@ const getGameTypeInfo = (gameType: string) => {
 												<span>{{ getGameTypeInfo(selectedGameType).label }}</span>
 											</div>
 										</template>
-									</USelectMenu>
+									</USelect>
 								</UFormField>
 
 								<!-- Would You Rather Form -->
@@ -287,11 +285,9 @@ const getGameTypeInfo = (gameType: string) => {
 
 									<div class="grid grid-cols-2 gap-4">
 										<UFormField label="Option A Visual">
-											<USelectMenu
+											<USelect
 												v-model="promptForm.option_a_visual_type"
-												:options="visualTypeOptions"
-												option-attribute="label"
-												value-attribute="value"
+												:items="visualTypeOptions"
 											/>
 										</UFormField>
 										<UFormField
@@ -311,11 +307,9 @@ const getGameTypeInfo = (gameType: string) => {
 
 									<div class="grid grid-cols-2 gap-4">
 										<UFormField label="Option B Visual">
-											<USelectMenu
+											<USelect
 												v-model="promptForm.option_b_visual_type"
-												:options="visualTypeOptions"
-												option-attribute="label"
-												value-attribute="value"
+												:items="visualTypeOptions"
 											/>
 										</UFormField>
 										<UFormField
@@ -342,11 +336,9 @@ const getGameTypeInfo = (gameType: string) => {
 
 									<div class="grid grid-cols-2 gap-4">
 										<UFormField label="Visual Element">
-											<USelectMenu
+											<USelect
 												v-model="promptForm.visual_type"
-												:options="visualTypeOptions"
-												option-attribute="label"
-												value-attribute="value"
+												:items="visualTypeOptions"
 											/>
 										</UFormField>
 										<UFormField
@@ -373,11 +365,9 @@ const getGameTypeInfo = (gameType: string) => {
 
 									<div class="grid grid-cols-2 gap-4">
 										<UFormField label="Visual Element">
-											<USelectMenu
+											<USelect
 												v-model="promptForm.visual_type"
-												:options="visualTypeOptions"
-												option-attribute="label"
-												value-attribute="value"
+												:items="visualTypeOptions"
 											/>
 										</UFormField>
 										<UFormField
@@ -404,11 +394,9 @@ const getGameTypeInfo = (gameType: string) => {
 
 									<div class="grid grid-cols-2 gap-4">
 										<UFormField label="Visual Element">
-											<USelectMenu
+											<USelect
 												v-model="promptForm.visual_type"
-												:options="visualTypeOptions"
-												option-attribute="label"
-												value-attribute="value"
+												:items="visualTypeOptions"
 											/>
 										</UFormField>
 										<UFormField
