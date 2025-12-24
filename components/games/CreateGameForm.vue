@@ -135,8 +135,13 @@ const handleCancel = () => {
 						<UCard
 							v-for="gameType in availableGameTypes"
 							:key="gameType.id"
-							class="cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all"
-							@click="selectGameType(gameType.id)"
+							:class="[
+								gameType.disabled
+									? 'opacity-60 cursor-not-allowed'
+									: 'cursor-pointer hover:ring-2 hover:ring-primary-500',
+								'transition-all relative'
+							]"
+							@click="gameType.disabled ? null : selectGameType(gameType.id)"
 						>
 							<div class="flex items-start gap-4">
 								<div
@@ -154,9 +159,18 @@ const handleCancel = () => {
 									/>
 								</div>
 								<div class="flex-1">
-									<h4 class="font-semibold text-lg">
-										{{ gameType.name }}
-									</h4>
+									<div class="flex items-center gap-2">
+										<h4 class="font-semibold text-lg">
+											{{ gameType.name }}
+										</h4>
+										<UBadge
+											v-if="gameType.comingSoon"
+											color="yellow"
+											size="xs"
+										>
+											Coming Soon
+										</UBadge>
+									</div>
 									<p class="text-sm text-gray-600 mt-1">
 										{{ gameType.description }}
 									</p>
