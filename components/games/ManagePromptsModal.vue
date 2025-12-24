@@ -18,6 +18,16 @@ const emit = defineEmits<{
 	close: [];
 }>();
 
+// Create a local ref synced with the prop
+const modalOpen = computed({
+	get: () => props.isOpen,
+	set: (value) => {
+		if (!value) {
+			emit('close');
+		}
+	}
+});
+
 const {
 	loading,
 	error,
@@ -222,7 +232,7 @@ const getGameTypeInfo = (gameType: string) => {
 </script>
 
 <template>
-	<UModal :open="isOpen" @update:open="(value) => !value && emit('close')" :ui="{ width: 'sm:max-w-3xl' }">
+	<UModal v-model="modalOpen" :ui="{ width: 'sm:max-w-3xl' }">
 		<UCard>
 			<template #header>
 				<div class="flex items-center justify-between">
@@ -234,7 +244,7 @@ const getGameTypeInfo = (gameType: string) => {
 						variant="ghost"
 						icon="i-heroicons-x-mark"
 						size="sm"
-						@click="emit('close')"
+						@click="modalOpen = false"
 					/>
 				</div>
 
