@@ -430,8 +430,7 @@
 			<!-- Manage Prompts Modal -->
 			<GamesManagePromptsModal
 				:group-id="groupId"
-				:is-open="showManagePromptsModal"
-				@close="showManagePromptsModal = false"
+				v-model:open="showManagePromptsModal"
 			/>
 		</div>
 	</div>

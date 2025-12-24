@@ -7,26 +7,13 @@ import type {
 	GuessWhoSaidItData,
 	MostLikelyToData,
 } from '~/composables/games/useCustomPrompts';
-import type { VisualElement } from '~/composables/games/useWouldYouRather';
 
 const props = defineProps<{
 	groupId: string;
-	isOpen: boolean;
 }>();
 
-const emit = defineEmits<{
-	close: [];
-}>();
-
-// Create a local ref synced with the prop
-const modalOpen = computed({
-	get: () => props.isOpen,
-	set: (value) => {
-		if (!value) {
-			emit('close');
-		}
-	}
-});
+// Use defineModel for v-model:open support
+const open = defineModel<boolean>('open', { default: false });
 
 const {
 	loading,
@@ -202,7 +189,7 @@ const handleDeletePrompt = async (promptId: string) => {
 };
 
 // Load prompts and stats when modal opens
-watch(() => props.isOpen, async (isOpen) => {
+watch(open, async (isOpen) => {
 	if (isOpen) {
 		await Promise.all([fetchPrompts(), fetchStats()]);
 	}
@@ -232,7 +219,7 @@ const getGameTypeInfo = (gameType: string) => {
 </script>
 
 <template>
-	<UModal v-model="modalOpen" :ui="{ width: 'sm:max-w-3xl' }">
+	<UModal v-model:open="open" :ui="{ width: 'sm:max-w-3xl' }">
 		<UCard>
 			<template #header>
 				<div class="flex items-center justify-between">
@@ -244,7 +231,7 @@ const getGameTypeInfo = (gameType: string) => {
 						variant="ghost"
 						icon="i-heroicons-x-mark"
 						size="sm"
-						@click="modalOpen = false"
+						@click="open = false"
 					/>
 				</div>
 
