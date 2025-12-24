@@ -49,23 +49,25 @@ const promptForm = reactive({
 	// Would You Rather
 	option_a: '',
 	option_b: '',
-	option_a_visual_type: '' as 'emoji' | 'image' | '',
-	option_a_visual_value: '',
-	option_b_visual_type: '' as 'emoji' | 'image' | '',
-	option_b_visual_value: '',
+	option_a_emoji: '',
+	option_a_image: '',
+	option_b_emoji: '',
+	option_b_image: '',
 
 	// Hot Takes
 	statement: '',
+	statement_emoji: '',
+	statement_image: '',
 
 	// Guess Who Said It
 	question: '',
+	question_emoji: '',
+	question_image: '',
 
 	// Most Likely To
 	scenario: '',
-
-	// Shared visual (for non-WYR games)
-	visual_type: '' as 'emoji' | 'image' | '',
-	visual_value: '',
+	scenario_emoji: '',
+	scenario_image: '',
 
 	// Tags
 	tags: [] as string[],
@@ -79,26 +81,24 @@ const gameTypeOptions = [
 	{ value: 'most_likely_to', label: 'Most Likely To', icon: GAME_TYPES.most_likely_to.icon },
 ];
 
-// Visual type options
-const visualTypeOptions = [
-	{ value: 'emoji', label: 'Emoji' },
-	{ value: 'image', label: 'Image URL' },
-];
-
 // Reset form
 const resetForm = () => {
 	Object.assign(promptForm, {
 		option_a: '',
 		option_b: '',
-		option_a_visual_type: '',
-		option_a_visual_value: '',
-		option_b_visual_type: '',
-		option_b_visual_value: '',
+		option_a_emoji: '',
+		option_a_image: '',
+		option_b_emoji: '',
+		option_b_image: '',
 		statement: '',
+		statement_emoji: '',
+		statement_image: '',
 		question: '',
+		question_emoji: '',
+		question_image: '',
 		scenario: '',
-		visual_type: '',
-		visual_value: '',
+		scenario_emoji: '',
+		scenario_image: '',
 		tags: [],
 	});
 };
@@ -115,18 +115,24 @@ const handleCreatePrompt = async () => {
 				option_b: promptForm.option_b,
 			} as WouldYouRatherData;
 
-			// Add visuals if provided
-			if (promptForm.option_a_visual_type && promptForm.option_a_visual_value) {
-				(promptData as WouldYouRatherData).option_a_visual = {
-					type: promptForm.option_a_visual_type,
-					value: promptForm.option_a_visual_value,
-				};
+			// Add visuals if provided - can have both emoji and image
+			if (promptForm.option_a_emoji || promptForm.option_a_image) {
+				(promptData as WouldYouRatherData).option_a_visual = {} as any;
+				if (promptForm.option_a_emoji) {
+					(promptData as WouldYouRatherData).option_a_visual!.emoji = promptForm.option_a_emoji;
+				}
+				if (promptForm.option_a_image) {
+					(promptData as WouldYouRatherData).option_a_visual!.image = promptForm.option_a_image;
+				}
 			}
-			if (promptForm.option_b_visual_type && promptForm.option_b_visual_value) {
-				(promptData as WouldYouRatherData).option_b_visual = {
-					type: promptForm.option_b_visual_type,
-					value: promptForm.option_b_visual_value,
-				};
+			if (promptForm.option_b_emoji || promptForm.option_b_image) {
+				(promptData as WouldYouRatherData).option_b_visual = {} as any;
+				if (promptForm.option_b_emoji) {
+					(promptData as WouldYouRatherData).option_b_visual!.emoji = promptForm.option_b_emoji;
+				}
+				if (promptForm.option_b_image) {
+					(promptData as WouldYouRatherData).option_b_visual!.image = promptForm.option_b_image;
+				}
 			}
 			break;
 
@@ -135,11 +141,14 @@ const handleCreatePrompt = async () => {
 				statement: promptForm.statement,
 			} as HotTakesData;
 
-			if (promptForm.visual_type && promptForm.visual_value) {
-				(promptData as HotTakesData).visual = {
-					type: promptForm.visual_type,
-					value: promptForm.visual_value,
-				};
+			if (promptForm.statement_emoji || promptForm.statement_image) {
+				(promptData as HotTakesData).visual = {} as any;
+				if (promptForm.statement_emoji) {
+					(promptData as HotTakesData).visual!.emoji = promptForm.statement_emoji;
+				}
+				if (promptForm.statement_image) {
+					(promptData as HotTakesData).visual!.image = promptForm.statement_image;
+				}
 			}
 			break;
 
@@ -148,11 +157,14 @@ const handleCreatePrompt = async () => {
 				question: promptForm.question,
 			} as GuessWhoSaidItData;
 
-			if (promptForm.visual_type && promptForm.visual_value) {
-				(promptData as GuessWhoSaidItData).visual = {
-					type: promptForm.visual_type,
-					value: promptForm.visual_value,
-				};
+			if (promptForm.question_emoji || promptForm.question_image) {
+				(promptData as GuessWhoSaidItData).visual = {} as any;
+				if (promptForm.question_emoji) {
+					(promptData as GuessWhoSaidItData).visual!.emoji = promptForm.question_emoji;
+				}
+				if (promptForm.question_image) {
+					(promptData as GuessWhoSaidItData).visual!.image = promptForm.question_image;
+				}
 			}
 			break;
 
@@ -161,11 +173,14 @@ const handleCreatePrompt = async () => {
 				scenario: promptForm.scenario,
 			} as MostLikelyToData;
 
-			if (promptForm.visual_type && promptForm.visual_value) {
-				(promptData as MostLikelyToData).visual = {
-					type: promptForm.visual_type,
-					value: promptForm.visual_value,
-				};
+			if (promptForm.scenario_emoji || promptForm.scenario_image) {
+				(promptData as MostLikelyToData).visual = {} as any;
+				if (promptForm.scenario_emoji) {
+					(promptData as MostLikelyToData).visual!.emoji = promptForm.scenario_emoji;
+				}
+				if (promptForm.scenario_image) {
+					(promptData as MostLikelyToData).visual!.image = promptForm.scenario_image;
+				}
 			}
 			break;
 
@@ -283,20 +298,16 @@ const getGameTypeInfo = (gameType: string) => {
 									</UFormField>
 
 									<div class="grid grid-cols-2 gap-4">
-										<UFormField label="Option A Visual (Optional)">
-											<USelect
-												v-model="promptForm.option_a_visual_type"
-												:items="visualTypeOptions"
-												placeholder="No visual"
+										<UFormField label="Option A Emoji (Optional)">
+											<UInput
+												v-model="promptForm.option_a_emoji"
+												placeholder="🎯"
 											/>
 										</UFormField>
-										<UFormField
-											v-if="promptForm.option_a_visual_type"
-											:label="promptForm.option_a_visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
-										>
+										<UFormField label="Option A Image (Optional)">
 											<UInput
-												v-model="promptForm.option_a_visual_value"
-												:placeholder="promptForm.option_a_visual_type === 'emoji' ? '🎯' : 'https://...'"
+												v-model="promptForm.option_a_image"
+												placeholder="https://..."
 											/>
 										</UFormField>
 									</div>
@@ -306,20 +317,16 @@ const getGameTypeInfo = (gameType: string) => {
 									</UFormField>
 
 									<div class="grid grid-cols-2 gap-4">
-										<UFormField label="Option B Visual (Optional)">
-											<USelect
-												v-model="promptForm.option_b_visual_type"
-												:items="visualTypeOptions"
-												placeholder="No visual"
+										<UFormField label="Option B Emoji (Optional)">
+											<UInput
+												v-model="promptForm.option_b_emoji"
+												placeholder="🎯"
 											/>
 										</UFormField>
-										<UFormField
-											v-if="promptForm.option_b_visual_type"
-											:label="promptForm.option_b_visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
-										>
+										<UFormField label="Option B Image (Optional)">
 											<UInput
-												v-model="promptForm.option_b_visual_value"
-												:placeholder="promptForm.option_b_visual_type === 'emoji' ? '🎯' : 'https://...'"
+												v-model="promptForm.option_b_image"
+												placeholder="https://..."
 											/>
 										</UFormField>
 									</div>
@@ -336,20 +343,16 @@ const getGameTypeInfo = (gameType: string) => {
 									</UFormField>
 
 									<div class="grid grid-cols-2 gap-4">
-										<UFormField label="Visual Element (Optional)">
-											<USelect
-												v-model="promptForm.visual_type"
-												:items="visualTypeOptions"
-												placeholder="No visual"
+										<UFormField label="Emoji (Optional)">
+											<UInput
+												v-model="promptForm.statement_emoji"
+												placeholder="🔥"
 											/>
 										</UFormField>
-										<UFormField
-											v-if="promptForm.visual_type"
-											:label="promptForm.visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
-										>
+										<UFormField label="Image (Optional)">
 											<UInput
-												v-model="promptForm.visual_value"
-												:placeholder="promptForm.visual_type === 'emoji' ? '🔥' : 'https://...'"
+												v-model="promptForm.statement_image"
+												placeholder="https://..."
 											/>
 										</UFormField>
 									</div>
@@ -366,20 +369,16 @@ const getGameTypeInfo = (gameType: string) => {
 									</UFormField>
 
 									<div class="grid grid-cols-2 gap-4">
-										<UFormField label="Visual Element (Optional)">
-											<USelect
-												v-model="promptForm.visual_type"
-												:items="visualTypeOptions"
-												placeholder="No visual"
+										<UFormField label="Emoji (Optional)">
+											<UInput
+												v-model="promptForm.question_emoji"
+												placeholder="❓"
 											/>
 										</UFormField>
-										<UFormField
-											v-if="promptForm.visual_type"
-											:label="promptForm.visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
-										>
+										<UFormField label="Image (Optional)">
 											<UInput
-												v-model="promptForm.visual_value"
-												:placeholder="promptForm.visual_type === 'emoji' ? '❓' : 'https://...'"
+												v-model="promptForm.question_image"
+												placeholder="https://..."
 											/>
 										</UFormField>
 									</div>
@@ -396,20 +395,16 @@ const getGameTypeInfo = (gameType: string) => {
 									</UFormField>
 
 									<div class="grid grid-cols-2 gap-4">
-										<UFormField label="Visual Element (Optional)">
-											<USelect
-												v-model="promptForm.visual_type"
-												:items="visualTypeOptions"
-												placeholder="No visual"
+										<UFormField label="Emoji (Optional)">
+											<UInput
+												v-model="promptForm.scenario_emoji"
+												placeholder="👤"
 											/>
 										</UFormField>
-										<UFormField
-											v-if="promptForm.visual_type"
-											:label="promptForm.visual_type === 'emoji' ? 'Emoji' : 'Image URL'"
-										>
+										<UFormField label="Image (Optional)">
 											<UInput
-												v-model="promptForm.visual_value"
-												:placeholder="promptForm.visual_type === 'emoji' ? '👤' : 'https://...'"
+												v-model="promptForm.scenario_image"
+												placeholder="https://..."
 											/>
 										</UFormField>
 									</div>
