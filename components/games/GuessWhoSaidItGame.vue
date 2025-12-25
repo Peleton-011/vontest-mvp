@@ -286,7 +286,7 @@ onMounted(async () => {
 				</div>
 				<div class="flex-1">
 					<h2 class="text-2xl font-bold">{{ gameMetadata.name }}</h2>
-					<p class="text-gray-600 dark:text-gray-400 mt-1">
+					<p class="text-gray-400 dark:text-gray-400 mt-1">
 						{{ gameMetadata.description }}
 					</p>
 				</div>
@@ -320,7 +320,7 @@ onMounted(async () => {
 		<!-- No Active Game -->
 		<div v-if="!currentGame" class="text-center py-12">
 			<UIcon name="i-heroicons-question-mark-circle" class="w-16 h-16 mx-auto text-gray-400 mb-4" />
-			<p class="text-gray-600">Loading game...</p>
+			<p class="text-gray-400">Loading game...</p>
 		</div>
 
 		<!-- Active Game -->
@@ -346,7 +346,7 @@ onMounted(async () => {
 						<div class="text-lg font-semibold mb-1">
 							{{ responseCount === 1 ? 'Response' : 'Responses' }}
 						</div>
-						<div class="text-sm text-gray-600">
+						<div class="text-sm text-gray-400">
 							Submit your answer to continue!
 						</div>
 					</div>
@@ -407,7 +407,7 @@ onMounted(async () => {
 						<div class="text-center py-6">
 							<div class="text-3xl mb-3">✅</div>
 							<p class="font-semibold mb-2">Answer Submitted!</p>
-							<p class="text-sm text-gray-600">
+							<p class="text-sm text-gray-400">
 								Waiting for everyone to submit their answers...
 							</p>
 						</div>
@@ -421,7 +421,7 @@ onMounted(async () => {
 				<!-- Drag and Drop Guessing Interface -->
 				<div v-if="results && currentGame.status === 'active'" class="space-y-6">
 					<div class="text-center">
-						<p class="text-sm text-gray-600 mb-2">
+						<p class="text-sm text-gray-400 mb-2">
 							Drag items vertically to reorder both lists. The first answer matches the first person, second to second, etc.
 						</p>
 						<p class="text-xs text-gray-500">
@@ -556,7 +556,7 @@ onMounted(async () => {
 						<div class="text-center py-6">
 							<div class="text-3xl mb-3">✅</div>
 							<p class="font-semibold mb-2">Guesses Submitted!</p>
-							<p class="text-sm text-gray-600">
+							<p class="text-sm text-gray-400">
 								Waiting for the game to end to see results...
 							</p>
 						</div>
@@ -573,7 +573,7 @@ onMounted(async () => {
 						<div class="text-4xl mb-3">🏆</div>
 						<p class="text-lg font-semibold mb-1">Top Guesser</p>
 						<p class="text-2xl font-bold text-yellow-600">{{ results.topGuesser.username }}</p>
-						<p class="text-sm text-gray-600 mt-1">
+						<p class="text-sm text-gray-400 mt-1">
 							{{ results.topGuesser.correct }} correct guesses
 						</p>
 					</div>
@@ -590,7 +590,7 @@ onMounted(async () => {
 						>
 							<span class="font-semibold">{{ guesser.guesserUsername }}</span>
 							<div class="flex items-center gap-3">
-								<span class="text-sm text-gray-600">
+								<span class="text-sm text-gray-400">
 									{{ guesser.correctGuesses }}/{{ guesser.totalGuesses }} correct
 								</span>
 								<UBadge :color="guesser.accuracy >= 70 ? 'green' : guesser.accuracy >= 40 ? 'yellow' : 'red'">
@@ -612,9 +612,9 @@ onMounted(async () => {
 						>
 							<div class="flex items-center gap-2 mb-1">
 								<span class="font-semibold">{{ response.actualUsername }}</span>
-								<span class="text-sm text-gray-600">said:</span>
+								<span class="text-sm text-gray-400">said:</span>
 							</div>
-							<p class="text-sm text-gray-600 italic">
+							<p class="text-sm text-gray-400 italic">
 								"{{ response.answer }}"
 							</p>
 						</div>

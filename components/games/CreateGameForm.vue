@@ -171,7 +171,7 @@ const handleCancel = () => {
 											Coming Soon
 										</UBadge>
 									</div>
-									<p class="text-sm text-gray-600 mt-1">
+									<p class="text-sm text-gray-400 mt-1">
 										{{ gameType.description }}
 									</p>
 									<div class="flex gap-4 mt-2 text-xs text-gray-500">
@@ -212,7 +212,7 @@ const handleCancel = () => {
 						</div>
 						<div class="flex-1">
 							<h3 class="text-lg font-bold">{{ gameTypeMetadata?.name }}</h3>
-							<p class="text-sm text-gray-600 mt-1">
+							<p class="text-sm text-gray-400 mt-1">
 								{{ gameTypeMetadata?.detailedDescription }}
 							</p>
 						</div>
@@ -270,7 +270,7 @@ const handleCancel = () => {
 							/>
 						</div>
 						<div>
-							<p class="text-sm text-gray-600">Game Type</p>
+							<p class="text-sm text-gray-400">Game Type</p>
 							<p class="font-semibold">{{ gameTypeMetadata?.name }}</p>
 						</div>
 					</div>
@@ -278,7 +278,7 @@ const handleCancel = () => {
 					<!-- Would You Rather Preview -->
 					<div v-if="selectedGameType === 'would_you_rather'" class="space-y-4">
 						<div>
-							<p class="text-sm text-gray-600 mb-2">Your Question</p>
+							<p class="text-sm text-gray-400 mb-2">Your Question</p>
 							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
 									<div class="text-2xl font-bold text-blue-600 mb-2">A</div>
@@ -294,7 +294,7 @@ const handleCancel = () => {
 						<!-- How to Play -->
 						<div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
 							<p class="font-semibold mb-2">How This Works:</p>
-							<ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+							<ol class="text-sm text-gray-400 space-y-1 list-decimal list-inside">
 								<li v-for="(s, index) in gameTypeMetadata?.howToPlay" :key="index">
 									{{ s }}
 								</li>

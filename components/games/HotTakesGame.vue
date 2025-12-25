@@ -116,7 +116,7 @@ onMounted(async () => {
 				</div>
 				<div class="flex-1">
 					<h2 class="text-2xl font-bold">{{ gameMetadata.name }}</h2>
-					<p class="text-gray-600 dark:text-gray-400 mt-1">
+					<p class="text-gray-400 dark:text-gray-400 mt-1">
 						{{ gameMetadata.description }}
 					</p>
 				</div>
@@ -150,7 +150,7 @@ onMounted(async () => {
 		<!-- No Active Game -->
 		<div v-if="!currentGame" class="text-center py-12">
 			<UIcon name="i-heroicons-fire" class="w-16 h-16 mx-auto text-gray-400 mb-4" />
-			<p class="text-gray-600">Loading game...</p>
+			<p class="text-gray-400">Loading game...</p>
 		</div>
 
 		<!-- Active Game -->
@@ -165,7 +165,7 @@ onMounted(async () => {
 						<div class="text-lg font-semibold mb-1">
 							{{ responseCount === 1 ? 'Response' : 'Responses' }}
 						</div>
-						<div class="text-sm text-gray-600">
+						<div class="text-sm text-gray-400">
 							Share your stance to see how others voted!
 						</div>
 					</div>
@@ -266,7 +266,7 @@ onMounted(async () => {
 							<p class="font-semibold">
 								You {{ userResponse.stance === 'agree' ? 'agreed' : userResponse.stance === 'disagree' ? 'disagreed' : 'stayed neutral' }}
 							</p>
-							<p v-if="userResponse.reasoning" class="text-sm text-gray-600 mt-1">
+							<p v-if="userResponse.reasoning" class="text-sm text-gray-400 mt-1">
 								"{{ userResponse.reasoning }}"
 							</p>
 						</div>
@@ -362,7 +362,7 @@ onMounted(async () => {
 									<span class="font-semibold">{{ response.username }}</span>
 									<span>{{ response.stance === 'agree' ? 'agrees' : response.stance === 'disagree' ? 'disagrees' : 'is neutral' }}</span>
 								</div>
-								<p v-if="response.reasoning" class="text-sm text-gray-600 italic">
+								<p v-if="response.reasoning" class="text-sm text-gray-400 italic">
 									"{{ response.reasoning }}"
 								</p>
 							</div>

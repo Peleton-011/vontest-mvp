@@ -97,7 +97,7 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 				</div>
 				<div>
 					<h2 class="text-2xl font-bold">{{ gameMetadata.name }}</h2>
-					<p class="text-sm text-gray-600 mt-1">
+					<p class="text-sm text-gray-400 mt-1">
 						{{ gameMetadata.description }}
 					</p>
 				</div>
@@ -131,7 +131,7 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 		<!-- No Active Game (shouldn't happen as this component only renders with active game) -->
 		<div v-if="!currentGame" class="text-center py-12">
 			<UIcon name="i-heroicons-puzzle-piece" class="w-16 h-16 mx-auto text-gray-400 mb-4" />
-			<p class="text-gray-600">Loading game...</p>
+			<p class="text-gray-400">Loading game...</p>
 		</div>
 
 		<!-- Active Game -->
@@ -146,7 +146,7 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 						<div class="text-lg font-semibold mb-1">
 							{{ responseCount === 1 ? 'Response' : 'Responses' }}
 						</div>
-						<div class="text-sm text-gray-600">
+						<div class="text-sm text-gray-400">
 							Give your take to see how others voted!
 						</div>
 					</div>
@@ -232,7 +232,7 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 			<div v-if="!userResponse && currentGame.status === 'active'" class="space-y-4">
 				<UFormField label="How strongly do you feel about this choice?">
 					<div class="flex items-center gap-4">
-						<span class="text-sm text-gray-600 w-12">Weak</span>
+						<span class="text-sm text-gray-400 w-12">Weak</span>
 						<input
 							v-model="responseForm.intensity"
 							type="range"
@@ -240,7 +240,7 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 							max="10"
 							class="flex-1"
 						>
-						<span class="text-sm text-gray-600 w-12">Strong</span>
+						<span class="text-sm text-gray-400 w-12">Strong</span>
 						<div class="w-12 text-center">
 							<span class="font-bold text-lg">{{ responseForm.intensity }}</span>
 							<span class="text-xs text-gray-500">/10</span>
@@ -267,7 +267,7 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 						<div>
 							<div class="flex justify-between items-center mb-2">
 								<span class="font-semibold">Option A</span>
-								<span class="text-sm text-gray-600">
+								<span class="text-sm text-gray-400">
 									{{ results.votes.option_a }} votes • avg {{ results.avg_intensity_a.toFixed(1) }}/10
 								</span>
 							</div>
@@ -288,7 +288,7 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 						<div>
 							<div class="flex justify-between items-center mb-2">
 								<span class="font-semibold">Option B</span>
-								<span class="text-sm text-gray-600">
+								<span class="text-sm text-gray-400">
 									{{ results.votes.option_b }} votes • avg {{ results.avg_intensity_b.toFixed(1) }}/10
 								</span>
 							</div>
@@ -324,7 +324,7 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 									class="flex items-center justify-between p-2 bg-blue-50 dark:bg-blue-900/20 rounded"
 								>
 									<span class="text-sm">{{ response.username }}</span>
-									<span class="text-xs text-gray-600">
+									<span class="text-xs text-gray-400">
 										{{ response.intensity }}/10
 									</span>
 								</div>
@@ -343,7 +343,7 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 									class="flex items-center justify-between p-2 bg-purple-50 dark:bg-purple-900/20 rounded"
 								>
 									<span class="text-sm">{{ response.username }}</span>
-									<span class="text-xs text-gray-600">
+									<span class="text-xs text-gray-400">
 										{{ response.intensity }}/10
 									</span>
 								</div>

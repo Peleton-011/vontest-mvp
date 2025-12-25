@@ -125,7 +125,7 @@ onMounted(async () => {
 				</div>
 				<div class="flex-1">
 					<h2 class="text-2xl font-bold">{{ gameMetadata.name }}</h2>
-					<p class="text-gray-600 dark:text-gray-400 mt-1">
+					<p class="text-gray-400 dark:text-gray-400 mt-1">
 						{{ gameMetadata.description }}
 					</p>
 				</div>
@@ -159,7 +159,7 @@ onMounted(async () => {
 		<!-- No Active Game -->
 		<div v-if="!currentGame" class="text-center py-12">
 			<UIcon name="i-heroicons-users" class="w-16 h-16 mx-auto text-gray-400 mb-4" />
-			<p class="text-gray-600">Loading game...</p>
+			<p class="text-gray-400">Loading game...</p>
 		</div>
 
 		<!-- Active Game -->
@@ -174,7 +174,7 @@ onMounted(async () => {
 						<div class="text-lg font-semibold mb-1">
 							{{ responseCount === 1 ? 'Vote' : 'Votes' }}
 						</div>
-						<div class="text-sm text-gray-600">
+						<div class="text-sm text-gray-400">
 							Cast your vote to see the results!
 						</div>
 					</div>
@@ -209,7 +209,7 @@ onMounted(async () => {
 			<!-- Voting Form (if not already voted) -->
 			<div v-if="!userResponse && currentGame.status === 'active'" class="space-y-4">
 				<div class="text-center mb-4">
-					<p class="text-sm text-gray-600">
+					<p class="text-sm text-gray-400">
 						Select who you think fits this scenario best
 					</p>
 				</div>
@@ -265,7 +265,7 @@ onMounted(async () => {
 							<div class="text-4xl mb-3">🏆</div>
 							<p class="text-lg font-semibold mb-1">Winner</p>
 							<p class="text-2xl font-bold text-yellow-600">{{ results.winner.username }}</p>
-							<p class="text-sm text-gray-600 mt-1">
+							<p class="text-sm text-gray-400 mt-1">
 								{{ results.winner.votes }} {{ results.winner.votes === 1 ? 'vote' : 'votes' }}
 							</p>
 						</div>
@@ -285,7 +285,7 @@ onMounted(async () => {
 									<span class="font-semibold">{{ person.username }}</span>
 								</div>
 								<div class="flex items-center gap-2">
-									<span class="text-sm text-gray-600">{{ person.votes }} votes</span>
+									<span class="text-sm text-gray-400">{{ person.votes }} votes</span>
 									<div class="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
 										<div
 											class="bg-blue-500 h-2 rounded-full transition-all duration-1000 ease-out"
@@ -306,7 +306,7 @@ onMounted(async () => {
 								:key="`${response.voterUserId}-${response.votedUserId}`"
 								class="flex items-center gap-2 text-sm p-2 bg-gray-50 dark:bg-gray-800 rounded"
 							>
-								<span class="text-gray-600">{{ response.voterUsername }}</span>
+								<span class="text-gray-400">{{ response.voterUsername }}</span>
 								<span class="text-gray-400">→</span>
 								<span class="font-semibold">{{ response.votedUsername }}</span>
 							</div>

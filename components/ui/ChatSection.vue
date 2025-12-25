@@ -11,6 +11,7 @@ const {
 	loadComments,
 } = useComments(props.threadId);
 
+const user = useSupabaseUser();
 const messagesContainer = ref<HTMLElement | null>(null);
 const isSubmitting = ref(false);
 
@@ -30,6 +31,7 @@ const groupedMessages = computed(() => {
 		messages: Array<{ id: string; comment: string; createdAt: Date }>;
 		timestamp: Date;
 		isSystem: boolean;
+		isCurrentUser: boolean;
 	}> = [];
 
 	messages.value.forEach((msg, index) => {
@@ -40,6 +42,9 @@ const groupedMessages = computed(() => {
 
 		// Check if this is a system message
 		const isSystem = !msg.author || msg.author.id === null;
+
+		// Check if this is the current user's message
+		const isCurrentUser = user.value?.id === msg.author?.id;
 
 		// Group if same user and within 5 minutes
 		const shouldGroup = prevMsg
@@ -66,6 +71,7 @@ const groupedMessages = computed(() => {
 				}],
 				timestamp: msg.createdAt,
 				isSystem,
+				isCurrentUser,
 			});
 		}
 	});
@@ -113,7 +119,7 @@ watch(() => groupedMessages.value.length, () => {
 <template>
 	<div class="flex flex-col h-[600px] bg-neutral-950 rounded-2xl">
 		<!-- Messages Area (scrollable) -->
-		<div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
+		<div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
 			<!-- Empty State -->
 			<UiEmptyState
 				v-if="groupedMessages.length === 0"
@@ -123,36 +129,47 @@ watch(() => groupedMessages.value.length, () => {
 			/>
 
 			<!-- Messages List (Grouped) -->
-			<div v-else class="space-y-4">
+			<div v-else class="space-y-3">
+				<!-- Message Group -->
 				<div
 					v-for="group in groupedMessages"
 					:key="group.userId + group.timestamp"
-					class="flex gap-3 bg-neutral-900 rounded-lg p-3"
+					:class="[
+						'flex gap-3',
+						group.isCurrentUser ? 'flex-row-reverse' : 'flex-row'
+					]"
 				>
-					<!-- Avatar (shown once per group) -->
+					<!-- Avatar (only for other users, not current user or system) -->
 					<UAvatar
-						v-if="!group.isSystem"
+						v-if="!group.isSystem && !group.isCurrentUser"
 						:src="group.avatarUrl"
 						:alt="group.username || 'User'"
 						size="sm"
-						class="flex-shrink-0"
+						class="flex-shrink-0 mt-1"
 					/>
+
 					<!-- System icon for automated messages -->
 					<div
-						v-else
-						class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center"
+						v-else-if="group.isSystem"
+						class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center mt-1"
 					>
 						<UIcon name="i-heroicons-cpu-chip" class="w-4 h-4 text-white" />
 					</div>
 
-					<!-- Message Group -->
-					<div class="flex-1 min-w-0 space-y-1">
-						<!-- Username and timestamp (shown once per group) -->
-						<div class="flex items-baseline gap-2">
-							<span class="font-semibold text-sm">
-								{{ group.username || "Unknown User" }}
+					<!-- Spacer for current user messages (to keep alignment) -->
+					<div v-else class="w-8 flex-shrink-0"></div>
+
+					<!-- Message Group Container -->
+					<div :class="['flex-1 min-w-0 max-w-[75%] space-y-1']">
+						<!-- Username and timestamp (only for other users) -->
+						<div
+							v-if="!group.isCurrentUser"
+							class="flex items-baseline gap-2 px-1"
+						>
+							<span class="font-semibold text-sm text-gray-200">
+								{{ group.isSystem ? 'System' : (group.username || "Unknown User") }}
 							</span>
-							<span class="text-xs text-gray-400">
+							<span class="text-xs text-gray-500">
 								{{
 									group.timestamp.toLocaleTimeString([], {
 										hour: "2-digit",
@@ -166,16 +183,36 @@ watch(() => groupedMessages.value.length, () => {
 						<div
 							v-for="msg in group.messages"
 							:key="msg.id"
-							class="text-sm text-gray-400"
+							:class="[
+								'rounded-2xl px-4 py-2 text-sm break-words',
+								group.isCurrentUser
+									? 'bg-primary-600 text-white ml-auto'
+									: group.isSystem
+										? 'bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 text-gray-200'
+										: 'bg-neutral-800 text-gray-200'
+							]"
 							v-html="msg.comment"
 						></div>
+
+						<!-- Timestamp for current user (shown after messages) -->
+						<div
+							v-if="group.isCurrentUser"
+							class="text-xs text-gray-500 text-right px-1"
+						>
+							{{
+								group.timestamp.toLocaleTimeString([], {
+									hour: "2-digit",
+									minute: "2-digit",
+								})
+							}}
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
 		<!-- Message Input (fixed bottom) -->
-		<div class="border-t-4 border-t-neutral-900 p-4 ">
+		<div class="border-t border-neutral-800 p-4">
 			<form class="flex gap-2" @submit.prevent="postMessage">
 				<UInput
 					v-model="form.comment.value"
