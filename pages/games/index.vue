@@ -17,10 +17,7 @@
 		</div>
 
 		<!-- Loading state -->
-		<div v-if="loading" class="text-center py-12">
-			<UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin mx-auto" />
-			<p class="mt-4 text-gray-600">Loading groups...</p>
-		</div>
+		<UiLoading v-if="loading" message="Loading groups..." />
 
 		<!-- Error state -->
 		<UAlert
@@ -33,21 +30,22 @@
 		/>
 
 		<!-- Empty state -->
-		<div v-else-if="groups.length === 0" class="text-center py-12">
-			<UIcon name="i-heroicons-user-group" class="w-16 h-16 mx-auto text-gray-400" />
-			<h3 class="text-xl font-semibold mt-4">No groups yet</h3>
-			<p class="text-gray-600 mt-2">
-				Create your first group to start playing daily games with friends
-			</p>
-			<UButton
-				to="/games/new"
-				size="lg"
-				class="mt-6"
-				icon="i-heroicons-plus"
-			>
-				Create Your First Group
-			</UButton>
-		</div>
+		<UiEmptyState
+			v-else-if="groups.length === 0"
+			icon="i-heroicons-user-group"
+			title="No groups yet"
+			description="Create your first group to start playing daily games with friends"
+		>
+			<template #action>
+				<UButton
+					to="/games/new"
+					size="lg"
+					icon="i-heroicons-plus"
+				>
+					Create Your First Group
+				</UButton>
+			</template>
+		</UiEmptyState>
 
 		<!-- Groups grid -->
 		<div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -286,9 +286,9 @@ onMounted(async () => {
 										<span>Agree</span>
 										<span class="font-semibold">{{ results.breakdown.agree }}</span>
 									</div>
-									<div class="w-full bg-gray-200 rounded-full h-2">
+									<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
 										<div
-											class="bg-green-500 h-2 rounded-full"
+											class="bg-green-500 h-2 rounded-full transition-all duration-1000 ease-out"
 											:style="{ width: `${(results.breakdown.agree / responseCount) * 100}%` }"
 										></div>
 									</div>
@@ -302,9 +302,9 @@ onMounted(async () => {
 										<span>Neutral</span>
 										<span class="font-semibold">{{ results.breakdown.neutral }}</span>
 									</div>
-									<div class="w-full bg-gray-200 rounded-full h-2">
+									<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
 										<div
-											class="bg-gray-500 h-2 rounded-full"
+											class="bg-gray-500 h-2 rounded-full transition-all duration-1000 ease-out"
 											:style="{ width: `${(results.breakdown.neutral / responseCount) * 100}%` }"
 										></div>
 									</div>
@@ -318,9 +318,9 @@ onMounted(async () => {
 										<span>Disagree</span>
 										<span class="font-semibold">{{ results.breakdown.disagree }}</span>
 									</div>
-									<div class="w-full bg-gray-200 rounded-full h-2">
+									<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
 										<div
-											class="bg-red-500 h-2 rounded-full"
+											class="bg-red-500 h-2 rounded-full transition-all duration-1000 ease-out"
 											:style="{ width: `${(results.breakdown.disagree / responseCount) * 100}%` }"
 										></div>
 									</div>

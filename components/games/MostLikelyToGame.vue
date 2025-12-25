@@ -286,9 +286,9 @@ onMounted(async () => {
 								</div>
 								<div class="flex items-center gap-2">
 									<span class="text-sm text-gray-600">{{ person.votes }} votes</span>
-									<div class="w-24 bg-gray-200 rounded-full h-2">
+									<div class="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
 										<div
-											class="bg-blue-500 h-2 rounded-full"
+											class="bg-blue-500 h-2 rounded-full transition-all duration-1000 ease-out"
 											:style="{ width: `${(person.votes / responseCount) * 100}%` }"
 										></div>
 									</div>

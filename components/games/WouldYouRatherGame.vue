@@ -271,9 +271,9 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 									{{ results.votes.option_a }} votes • avg {{ results.avg_intensity_a.toFixed(1) }}/10
 								</span>
 							</div>
-							<div class="w-full bg-gray-200 rounded-full h-4">
+							<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
 								<div
-									class="bg-blue-500 h-4 rounded-full transition-all flex items-center justify-end pr-2"
+									class="bg-blue-500 h-4 rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
 									:style="{
 										width: `${(results.votes.option_a / (results.votes.option_a + results.votes.option_b) * 100) || 0}%`
 									}"
@@ -292,9 +292,9 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 									{{ results.votes.option_b }} votes • avg {{ results.avg_intensity_b.toFixed(1) }}/10
 								</span>
 							</div>
-							<div class="w-full bg-gray-200 rounded-full h-4">
+							<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
 								<div
-									class="bg-purple-500 h-4 rounded-full transition-all flex items-center justify-end pr-2"
+									class="bg-purple-500 h-4 rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
 									:style="{
 										width: `${(results.votes.option_b / (results.votes.option_a + results.votes.option_b) * 100) || 0}%`
 									}"

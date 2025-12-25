@@ -114,17 +114,13 @@ watch(() => groupedMessages.value.length, () => {
 	<div class="flex flex-col h-[600px] bg-neutral-950 rounded-2xl">
 		<!-- Messages Area (scrollable) -->
 		<div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
-			<!-- Loading State -->
-			<div v-if="groupedMessages.length === 0" class="text-center py-12">
-				<UIcon
-					name="i-heroicons-chat-bubble-left-right"
-					class="w-16 h-16 mx-auto text-gray-400"
-				/>
-				<h3 class="text-xl font-semibold mt-4">No messages yet</h3>
-				<p class="text-gray-400 mt-2">
-					Start the conversation!
-				</p>
-			</div>
+			<!-- Empty State -->
+			<UiEmptyState
+				v-if="groupedMessages.length === 0"
+				icon="i-heroicons-chat-bubble-left-right"
+				title="No messages yet"
+				description="Start the conversation!"
+			/>
 
 			<!-- Messages List (Grouped) -->
 			<div v-else class="space-y-4">
