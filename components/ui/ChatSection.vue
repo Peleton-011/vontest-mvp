@@ -136,7 +136,7 @@ watch(() => groupedMessages.value.length, () => {
 					:key="group.userId + group.timestamp"
 					:class="[
 						'flex gap-3',
-						group.isCurrentUser ? 'flex-row-reverse' : 'flex-row'
+						group.isCurrentUser ? 'justify-end' : 'justify-start'
 					]"
 				>
 					<!-- Avatar (only for other users, not current user or system) -->
@@ -156,18 +156,33 @@ watch(() => groupedMessages.value.length, () => {
 						<UIcon name="i-heroicons-cpu-chip" class="w-4 h-4 text-white" />
 					</div>
 
-					<!-- Spacer for current user messages (to keep alignment) -->
-					<div v-else class="w-8 flex-shrink-0"></div>
-
 					<!-- Message Group Container -->
-					<div :class="['flex-1 min-w-0 max-w-[75%] space-y-1']">
-						<!-- Username and timestamp (only for other users) -->
+					<div :class="['space-y-1', group.isCurrentUser ? 'max-w-[75%]' : 'flex-1 min-w-0 max-w-[75%]']">
+						<!-- Username and timestamp (only for other users, not system) -->
 						<div
-							v-if="!group.isCurrentUser"
+							v-if="!group.isCurrentUser && !group.isSystem"
 							class="flex items-baseline gap-2 px-1"
 						>
 							<span class="font-semibold text-sm text-gray-200">
-								{{ group.isSystem ? 'System' : (group.username || "Unknown User") }}
+								{{ group.username || "Unknown User" }}
+							</span>
+							<span class="text-xs text-gray-500">
+								{{
+									group.timestamp.toLocaleTimeString([], {
+										hour: "2-digit",
+										minute: "2-digit",
+									})
+								}}
+							</span>
+						</div>
+
+						<!-- System message header -->
+						<div
+							v-if="group.isSystem"
+							class="flex items-baseline gap-2 px-1"
+						>
+							<span class="font-semibold text-sm text-purple-400">
+								System
 							</span>
 							<span class="text-xs text-gray-500">
 								{{
@@ -184,12 +199,12 @@ watch(() => groupedMessages.value.length, () => {
 							v-for="msg in group.messages"
 							:key="msg.id"
 							:class="[
-								'rounded-2xl px-4 py-2 text-sm break-words',
+								'text-sm break-words',
 								group.isCurrentUser
-									? 'bg-primary-600 text-white ml-auto'
+									? 'bg-primary-600 text-white rounded-2xl px-4 py-2'
 									: group.isSystem
-										? 'bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 text-gray-200'
-										: 'bg-neutral-800 text-gray-200'
+										? 'text-gray-300'
+										: 'bg-neutral-800 text-gray-200 rounded-2xl px-4 py-2'
 							]"
 							v-html="msg.comment"
 						></div>
