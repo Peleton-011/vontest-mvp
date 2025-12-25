@@ -45,6 +45,7 @@
 						placeholder="What's this group about?"
 						:maxlength="500"
 						:rows="3"
+						size="lg"
 						:disabled="loading"
 					/>
 				</UFormGroup>
@@ -114,6 +115,7 @@
 					<UInput
 						v-model="form.notification_time.value"
 						type="time"
+						size="lg"
 						:disabled="loading"
 					/>
 				</UFormGroup>

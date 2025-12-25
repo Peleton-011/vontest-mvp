@@ -2,7 +2,7 @@
 	<div class="container mx-auto px-4 py-8">
 		<div class="flex justify-between items-center mb-8">
 			<div>
-				<h1 class="text-3xl font-bold">My Groups</h1>
+				<h1 class="text-2xl sm:text-3xl font-bold">My Groups</h1>
 				<p class="text-gray-600 mt-2">
 					Play daily social games with your friends
 				</p>

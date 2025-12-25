@@ -108,7 +108,7 @@ const signOut = async () => {
 <template>
 	<div class="container mx-auto px-4 py-8 max-w-2xl">
 		<div class="mb-6">
-			<h1 class="text-3xl font-bold">Profile Settings</h1>
+			<h1 class="text-2xl sm:text-3xl font-bold">Profile Settings</h1>
 			<p class="text-gray-400 mt-2">Manage your account settings</p>
 		</div>
 
@@ -130,6 +130,7 @@ const signOut = async () => {
 					<UInput
 						v-model="form.username"
 						placeholder="johndoe"
+						size="lg"
 						:disabled="loading"
 						autocomplete="username"
 					/>
@@ -143,6 +144,7 @@ const signOut = async () => {
 					<UInput
 						v-model="form.avatar_url"
 						placeholder="https://example.com/avatar.jpg"
+						size="lg"
 						:disabled="loading"
 						type="url"
 					/>
@@ -175,6 +177,7 @@ const signOut = async () => {
 				<div class="flex gap-3">
 					<UButton
 						type="submit"
+						size="lg"
 						:loading="loading"
 						:disabled="!form.username.trim()"
 					>
@@ -182,6 +185,7 @@ const signOut = async () => {
 					</UButton>
 					<UButton
 						variant="outline"
+						size="lg"
 						@click="router.push('/')"
 					>
 						Cancel

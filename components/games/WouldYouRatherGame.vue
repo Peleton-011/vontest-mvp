@@ -262,7 +262,7 @@ const isAdmin = ref(true); // TODO: Check actual admin status
 			<div v-if="results && (userResponse || currentGame.status === 'completed')" class="space-y-6">
 				<!-- Vote Summary -->
 				<div>
-					<h4 class="text-lg font-semibold mb-4">Results</h4>
+					<h3 class="text-lg font-semibold mb-4">Results</h3>
 					<div class="space-y-4">
 						<div>
 							<div class="flex justify-between items-center mb-2">

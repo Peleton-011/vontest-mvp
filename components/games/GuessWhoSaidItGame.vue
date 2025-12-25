@@ -581,7 +581,7 @@ onMounted(async () => {
 
 				<!-- All Guesses Performance -->
 				<UCard>
-					<h3 class="font-semibold mb-4">Guess Accuracy</h3>
+					<h3 class="text-lg font-semibold mb-4">Guess Accuracy</h3>
 					<div class="space-y-3">
 						<div
 							v-for="guesser in results.guesses"

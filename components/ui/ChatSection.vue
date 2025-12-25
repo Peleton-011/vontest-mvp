@@ -185,10 +185,12 @@ watch(() => groupedMessages.value.length, () => {
 					v-model="form.comment.value"
 					placeholder="Type a message..."
 					class="flex-1"
+					size="lg"
 					:disabled="isSubmitting"
 				/>
 				<UButton
 					type="submit"
+					size="lg"
 					icon="i-heroicons-paper-airplane"
 					:disabled="!form.comment.value.trim() || isSubmitting"
 					:loading="isSubmitting"

@@ -273,7 +273,7 @@ onMounted(async () => {
 
 					<!-- Top 3 -->
 					<UCard v-if="results.topThree.length > 0">
-						<h3 class="font-semibold mb-4">Top 3</h3>
+						<h3 class="text-lg font-semibold mb-4">Top 3</h3>
 						<div class="space-y-3">
 							<div
 								v-for="(person, index) in results.topThree"

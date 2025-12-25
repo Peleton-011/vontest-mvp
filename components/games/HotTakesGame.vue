@@ -277,7 +277,7 @@ onMounted(async () => {
 				<div v-if="results" class="space-y-4">
 					<!-- Vote Breakdown -->
 					<UCard>
-						<h3 class="font-semibold mb-4">Results</h3>
+						<h3 class="text-lg font-semibold mb-4">Results</h3>
 						<div class="space-y-3">
 							<div class="flex items-center gap-3">
 								<span class="text-2xl">✅</span>

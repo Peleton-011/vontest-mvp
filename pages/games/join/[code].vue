@@ -26,7 +26,7 @@
 		<UCard v-else-if="groupPreview && !groupPreview.error">
 			<template #header>
 				<div class="text-center">
-					<h1 class="text-3xl font-bold">You've been invited!</h1>
+					<h1 class="text-2xl sm:text-3xl font-bold">You've been invited!</h1>
 					<p class="text-gray-400 mt-2">
 						Join this group to start playing daily games
 					</p>

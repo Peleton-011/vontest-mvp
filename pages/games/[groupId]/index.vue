@@ -49,7 +49,7 @@
 			<div class="flex items-start gap-6 mb-8">
 				<UAvatar :src="group.avatar_url" :alt="group.name" size="2xl" />
 				<div class="flex-1">
-					<h1 class="text-3xl font-bold">{{ group.name }}</h1>
+					<h1 class="text-2xl sm:text-3xl font-bold">{{ group.name }}</h1>
 					<p v-if="group.description" class="text-gray-600 mt-2">
 						{{ group.description }}
 					</p>
@@ -105,8 +105,9 @@
 									Auto-created at {{ settings.notification_time }} ({{ settings.timezone }})
 								</p>
 							</div>
-							<div class="flex gap-2">
+							<div class="flex gap-3">
 								<UButton
+									size="md"
 									icon="i-heroicons-sparkles"
 									:loading="gameSchedulerLoading"
 									@click="handleStartGameNow"
@@ -114,6 +115,7 @@
 									Start Game Now
 								</UButton>
 								<UButton
+									size="md"
 									variant="outline"
 									icon="i-heroicons-pencil"
 									@click="showCustomGameModal = true"

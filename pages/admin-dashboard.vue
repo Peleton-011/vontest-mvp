@@ -54,7 +54,7 @@ const toggleAdminRole = async (user: User) => {
 
 <template>
 	<div class="p-8">
-		<h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
+		<h1 class="text-2xl sm:text-3xl font-bold mb-6">Admin Dashboard</h1>
 
 		<UCard>
 			<template #header>
