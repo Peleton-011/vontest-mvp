@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { getAllGameTypes, getGameMetadata, type GameType } from '~/types/games';
 import type { WouldYouRatherPrompt } from '~/composables/games/useWouldYouRather';
+import type { HotTakesPrompt } from '~/composables/games/useHotTakes';
+import type { GuessWhoSaidItPrompt } from '~/composables/games/useGuessWhoSaidIt';
+import type { MostLikelyToPrompt } from '~/composables/games/useMostLikelyTo';
 import type { StepperItem } from '@nuxt/ui';
 
 const props = defineProps<{
@@ -13,6 +16,9 @@ const emit = defineEmits<{
 }>();
 
 const { createGame: createWYRGame } = useWouldYouRather(props.groupId);
+const { createGame: createHotTakesGame } = useHotTakes(props.groupId);
+const { createGame: createGuessWhoGame } = useGuessWhoSaidIt(props.groupId);
+const { createGame: createMostLikelyGame } = useMostLikelyTo(props.groupId);
 
 // Form state
 const step = ref(0);
@@ -29,11 +35,23 @@ const wouldYouRatherForm = reactive({
 	option_b: '',
 });
 
+const hotTakesForm = reactive({
+	statement: '',
+});
+
+const guessWhoSaidItForm = reactive({
+	question: '',
+});
+
+const mostLikelyToForm = reactive({
+	scenario: '',
+});
+
 const loading = ref(false);
 const error = ref<string | null>(null);
 
-// Available game types
-const availableGameTypes = getAllGameTypes();
+// Available game types (only active ones)
+const availableGameTypes = getAllGameTypes().filter(g => !g.disabled);
 
 // Stepper items
 const stepperItems = ref<StepperItem[]>([
@@ -70,6 +88,12 @@ const isConfigureStepValid = computed(() => {
 				wouldYouRatherForm.option_a.trim().length > 0 &&
 				wouldYouRatherForm.option_b.trim().length > 0
 			);
+		case 'hot_takes':
+			return hotTakesForm.statement.trim().length > 0;
+		case 'guess_who_said_it':
+			return guessWhoSaidItForm.question.trim().length > 0;
+		case 'most_likely_to':
+			return mostLikelyToForm.scenario.trim().length > 0;
 		default:
 			return false;
 	}
@@ -91,6 +115,21 @@ const createGame = async () => {
 					option_a: wouldYouRatherForm.option_a,
 					option_b: wouldYouRatherForm.option_b,
 				} as WouldYouRatherPrompt);
+				break;
+			case 'hot_takes':
+				result = await createHotTakesGame({
+					statement: hotTakesForm.statement,
+				} as HotTakesPrompt);
+				break;
+			case 'guess_who_said_it':
+				result = await createGuessWhoGame({
+					question: guessWhoSaidItForm.question,
+				} as GuessWhoSaidItPrompt);
+				break;
+			case 'most_likely_to':
+				result = await createMostLikelyGame({
+					scenario: mostLikelyToForm.scenario,
+				} as MostLikelyToPrompt);
 				break;
 			default:
 				throw new Error('Game type not implemented');
@@ -116,7 +155,7 @@ const handleCancel = () => {
 <template>
 	<div class="create-game-form">
 		<!-- Error Display -->
-		<div v-if="error" class="mb-6 p-4 bg-red-50 text-red-600 rounded">
+		<div v-if="error" class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded">
 			{{ error }}
 		</div>
 
@@ -135,13 +174,8 @@ const handleCancel = () => {
 						<UCard
 							v-for="gameType in availableGameTypes"
 							:key="gameType.id"
-							:class="[
-								gameType.disabled
-									? 'opacity-60 cursor-not-allowed'
-									: 'cursor-pointer hover:ring-2 hover:ring-primary-500',
-								'transition-all relative'
-							]"
-							@click="gameType.disabled ? null : selectGameType(gameType.id)"
+							class="cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all"
+							@click="selectGameType(gameType.id)"
 						>
 							<div class="flex items-start gap-4">
 								<div
@@ -159,24 +193,13 @@ const handleCancel = () => {
 									/>
 								</div>
 								<div class="flex-1">
-									<div class="flex items-center gap-2">
-										<h4 class="font-semibold text-lg">
-											{{ gameType.name }}
-										</h4>
-										<UBadge
-											v-if="gameType.comingSoon"
-											color="yellow"
-											size="xs"
-										>
-											Coming Soon
-										</UBadge>
-									</div>
+									<h4 class="font-semibold text-lg">{{ gameType.name }}</h4>
 									<p class="text-sm text-gray-400 mt-1">
 										{{ gameType.description }}
 									</p>
-									<div class="flex gap-4 mt-2 text-xs text-gray-500">
+									<div class="flex gap-3 mt-2 text-xs text-gray-500">
 										<span>
-											<UIcon name="i-heroicons-users" class="w-3 h-3 inline" />
+											<UIcon name="i-heroicons-user-group" class="w-3 h-3 inline" />
 											{{ gameType.minPlayers }}+ players
 										</span>
 										<span>
@@ -241,9 +264,46 @@ const handleCancel = () => {
 						</UFormGroup>
 					</div>
 
-					<!-- Placeholder for other game types -->
-					<div v-else class="text-center py-12 text-gray-500">
-						<p>Configuration for {{ gameTypeMetadata?.name }} coming soon!</p>
+					<!-- Hot Takes Configuration -->
+					<div v-else-if="selectedGameType === 'hot_takes'" class="space-y-4">
+						<h4 class="font-semibold">Enter Your Statement</h4>
+
+						<UFormGroup label="Statement" required help="A bold or controversial statement for your group to react to">
+							<UTextarea
+								v-model="hotTakesForm.statement"
+								placeholder="e.g., Pineapple belongs on pizza"
+								:rows="3"
+								size="lg"
+							/>
+						</UFormGroup>
+					</div>
+
+					<!-- Guess Who Said It Configuration -->
+					<div v-else-if="selectedGameType === 'guess_who_said_it'" class="space-y-4">
+						<h4 class="font-semibold">Enter Your Question</h4>
+
+						<UFormGroup label="Question" required help="Everyone will answer anonymously, then try to guess who said what">
+							<UTextarea
+								v-model="guessWhoSaidItForm.question"
+								placeholder="e.g., What's your most unpopular opinion?"
+								:rows="3"
+								size="lg"
+							/>
+						</UFormGroup>
+					</div>
+
+					<!-- Most Likely To Configuration -->
+					<div v-else-if="selectedGameType === 'most_likely_to'" class="space-y-4">
+						<h4 class="font-semibold">Enter Your Scenario</h4>
+
+						<UFormGroup label="Scenario" required help="Who in the group is most likely to...">
+							<UTextarea
+								v-model="mostLikelyToForm.scenario"
+								placeholder="e.g., Win a dance competition"
+								:rows="3"
+								size="lg"
+							/>
+						</UFormGroup>
 					</div>
 				</div>
 			</template>
@@ -290,16 +350,52 @@ const handleCancel = () => {
 								</div>
 							</div>
 						</div>
+					</div>
 
-						<!-- How to Play -->
-						<div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-							<p class="font-semibold mb-2">How This Works:</p>
-							<ol class="text-sm text-gray-400 space-y-1 list-decimal list-inside">
-								<li v-for="(s, index) in gameTypeMetadata?.howToPlay" :key="index">
-									{{ s }}
-								</li>
-							</ol>
+					<!-- Hot Takes Preview -->
+					<div v-else-if="selectedGameType === 'hot_takes'" class="space-y-4">
+						<div>
+							<p class="text-sm text-gray-400 mb-2">Your Statement</p>
+							<div class="p-6 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-lg border-2 border-red-200 dark:border-red-800">
+								<div class="text-3xl mb-3">🔥</div>
+								<p class="text-lg font-semibold">{{ hotTakesForm.statement }}</p>
+							</div>
 						</div>
+					</div>
+
+					<!-- Guess Who Said It Preview -->
+					<div v-else-if="selectedGameType === 'guess_who_said_it'" class="space-y-4">
+						<div>
+							<p class="text-sm text-gray-400 mb-2">Your Question</p>
+							<div class="p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border-2 border-purple-200 dark:border-purple-800">
+								<div class="text-3xl mb-3">🤔</div>
+								<p class="text-lg font-semibold">{{ guessWhoSaidItForm.question }}</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Most Likely To Preview -->
+					<div v-else-if="selectedGameType === 'most_likely_to'" class="space-y-4">
+						<div>
+							<p class="text-sm text-gray-400 mb-2">Your Scenario</p>
+							<div class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border-2 border-blue-200 dark:border-blue-800">
+								<div class="text-3xl mb-3">👑</div>
+								<p class="text-lg">
+									<span class="font-semibold">Most Likely To:</span>
+									{{ mostLikelyToForm.scenario }}
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- How to Play -->
+					<div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+						<p class="font-semibold mb-2">How This Works:</p>
+						<ol class="text-sm text-gray-400 space-y-1 list-decimal list-inside">
+							<li v-for="(s, index) in gameTypeMetadata?.howToPlay" :key="index">
+								{{ s }}
+							</li>
+						</ol>
 					</div>
 				</div>
 			</template>

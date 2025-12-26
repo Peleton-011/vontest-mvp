@@ -413,7 +413,11 @@
 			</UTabs>
 
 			<!-- Custom Game Modal -->
-			<UModal v-model:open="showCustomGameModal" title="Create Custom Game">
+			<UModal
+				v-model:open="showCustomGameModal"
+				title="Create Custom Game"
+				:ui="{ width: 'sm:max-w-4xl' }"
+			>
 				<template #body>
 					<GamesCreateGameForm
 						:group-id="groupId"
