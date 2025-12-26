@@ -64,13 +64,15 @@
 				<UFormField
 					label="Group Avatar"
 					name="avatar"
-					help="Upload an image or enter a URL for your group's avatar"
+					help="Leave blank to use an auto-generated avatar based on your username"
 				>
-					<UiImageUpload
+                    <UInput
 						v-model="form.avatar_url.value"
-						:disabled="loading"
+						placeholder="https://example.com/avatar.jpg"
 						alt="Group Avatar"
-						bucket="group-avatars"
+						size="lg"
+						:disabled="loading"
+						type="url"
 					/>
 				</UFormField>
 
