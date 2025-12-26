@@ -1,12 +1,13 @@
 import type { Database } from "~/types/supabase";
 
+// Shared global state - all instances of useProfile share these refs
+const profile = ref<Database["public"]["Tables"]["profiles"]["Row"] | null>(null);
+const loading = ref(false);
+const error = ref<string | null>(null);
+
 export const useProfile = () => {
 	const supabase = useSupabaseClient<Database>();
 	const user = useSupabaseUser();
-
-	const profile = ref<Database["public"]["Tables"]["profiles"]["Row"] | null>(null);
-	const loading = ref(false);
-	const error = ref<string | null>(null);
 
 	const fetchProfile = async () => {
 		if (!user.value) return;
