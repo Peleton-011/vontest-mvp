@@ -18,7 +18,10 @@ const signup = async () => {
 	if (error) {
 		alert(error.message);
 	} else {
-		router.push("/confirm");
+		// Email confirmation disabled - redirect to login instead
+		// router.push("/confirm");
+		alert("Account created successfully! You can now log in.");
+		router.push("/login");
 	}
 	loading.value = false;
 };

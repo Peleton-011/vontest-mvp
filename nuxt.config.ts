@@ -5,6 +5,13 @@ export default defineNuxtConfig({
 				devtools: { enabled: true },
 
 				css: ["~/assets/css/main.css"],
+
+	runtimeConfig: {
+		public: {
+			siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+		},
+	},
+
 	modules: [
 		"@nuxt/content",
 		"@nuxt/ui",
@@ -26,7 +33,9 @@ export default defineNuxtConfig({
 	supabase: {
 		redirectOptions: {
 			login: "/login",
-			callback: "/confirm",
+			// Email confirmation disabled - redirect to home after auth
+			// callback: "/confirm",
+			callback: "/",
 			exclude: ["/login", "/signup", "/", "/logout", "/confirm"],
 		},
 	},

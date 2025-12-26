@@ -12,11 +12,12 @@ export interface RawComment {
 	id: string;
 	comment: string;
 	created_at: string;
-	user_id: string;
+	user_id: string | null;
+	message_type?: string;
 	profiles: {
 		username: string;
 		avatar_url: string;
-	};
+	} | null;
 }
 
 export interface CommentLink {
@@ -28,6 +29,7 @@ export interface CommentNode {
 	id: string;
 	comment: string;
 	createdAt: Date;
+	messageType?: string;
 	author: {
 		id: string;
 		username: string;
@@ -35,7 +37,7 @@ export interface CommentNode {
 	};
 	// All direct parent IDs
 	parentIds: string[];
-	// The one “primary” parent under which this node will be nested (or null for a root)
+	// The one "primary" parent under which this node will be nested (or null for a root)
 	primaryParentId: string | null;
 	// Any other parent IDs (secondary parents)
 	secondaryParentIds: string[];
@@ -94,6 +96,7 @@ export const useComments = (threadIdArg?: string) => {
         comment,
         created_at,
         user_id,
+        message_type,
         profiles (
           username,
           avatar_url

@@ -2,6 +2,63 @@
 @import "@nuxt/ui";
 @import "github-markdown-css/github-markdown-dark.css";
 
+/* Accessibility: Screen reader only content */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}
+
+/* Accessibility: Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* Global focus-visible styles for accessibility */
+*:focus-visible {
+	@apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-neutral-900;
+}
+
+/* Better focus styles for buttons */
+button:focus-visible,
+a:focus-visible {
+	@apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-neutral-900;
+}
+
+/* Smooth transitions for interactive elements */
+button,
+a,
+[role="button"],
+input,
+textarea,
+select {
+	@apply transition-colors duration-200 ease-in-out;
+}
+
+/* Card hover effects */
+.hover-lift:hover {
+	@apply transform -translate-y-1 shadow-lg transition-all duration-200;
+}
+
+/* Disabled state styling */
+[disabled],
+[aria-disabled="true"] {
+	@apply opacity-60 cursor-not-allowed;
+}
+
 .markdown-body {
 	box-sizing: border-box;
 	min-width: 100%;

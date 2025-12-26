@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const user = useSupabaseUser();
 const route = useRoute();
+const { profile, fetchProfile } = useProfile();
 
 const breakpoints = useBreakpoints({
 	sm: 640,
@@ -10,6 +11,16 @@ const breakpoints = useBreakpoints({
 });
 
 const isMobile = breakpoints.smaller("md");
+
+// Profile modal state
+const showProfileModal = ref(false);
+
+// Fetch profile when component mounts if user is logged in
+onMounted(async () => {
+	if (user.value) {
+		await fetchProfile();
+	}
+});
 </script>
 
 <template>
@@ -31,6 +42,13 @@ const isMobile = breakpoints.smaller("md");
 					class="text-lg font-semibold hover:text-primary-400 transition"
 				>
 					Dashboard
+				</NuxtLink>
+				<NuxtLink
+					v-if="user"
+					to="/games"
+					class="text-lg font-semibold hover:text-primary-400 transition"
+				>
+					Games
 				</NuxtLink>
 				<NuxtLink
 					v-if="user && !isMobile && false"
@@ -65,12 +83,20 @@ const isMobile = breakpoints.smaller("md");
 					</NuxtLink>
 				</template>
 				<template v-else-if="user">
-					<NuxtLink to="/logout">
-						<UButton class="font-bold" variant="outline">
-							Log Out
-							<UIcon name="i-lucide-log-out" class="ml-2" />
-						</UButton>
-					</NuxtLink>
+					<button
+						@click="showProfileModal = true"
+						class="focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-full"
+						aria-label="Open profile"
+					>
+						<UAvatar
+							:src="profile?.avatar_url || ''"
+							:alt="profile?.username || user?.email || 'User'"
+							size="md"
+							class="transition-transform hover:scale-110 cursor-pointer"
+						/>
+					</button>
+
+					<ProfileModal v-model:open="showProfileModal" />
 				</template>
 			</div>
 		</div>
