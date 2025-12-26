@@ -48,11 +48,74 @@ type GameResponse = Database['public']['Tables']['game_responses']['Row'];
 export const useDinnerPartyDilemmas = (groupId: string) => {
 	const supabase = useSupabaseClient<Database>();
 	const user = useSupabaseUser();
+	const { postResultsToChat } = useGameResults();
 
 	const loading = ref(false);
 	const error = ref<string | null>(null);
 	const currentGame = ref<GameInstance | null>(null);
 	const userResponse = ref<GameResponse | null>(null);
+
+	// Create a new Dinner Party Dilemmas game
+	const createGame = async (
+		prompt: DinnerPartyDilemmasPrompt,
+		expiresInHours: number = 24
+	): Promise<{ success: boolean; gameId?: string; error?: string }> => {
+		if (!user.value) {
+			return { success: false, error: 'User not authenticated' };
+		}
+
+		loading.value = true;
+		error.value = null;
+
+		try {
+			// Generate default guest options if not provided
+			let guestOptions = prompt.options;
+			if (!guestOptions || guestOptions.length === 0) {
+				const theme = prompt.theme || 'Famous People';
+				guestOptions = [
+					{ id: '1', name: `Guest from ${theme} #1` },
+					{ id: '2', name: `Guest from ${theme} #2` },
+					{ id: '3', name: `Guest from ${theme} #3` },
+					{ id: '4', name: `Guest from ${theme} #4` },
+					{ id: '5', name: `Guest from ${theme} #5` },
+					{ id: '6', name: `Guest from ${theme} #6` },
+					{ id: '7', name: `Guest from ${theme} #7` },
+					{ id: '8', name: `Guest from ${theme} #8` },
+				];
+			}
+
+			const expiresAt = new Date();
+			expiresAt.setHours(expiresAt.getHours() + expiresInHours);
+
+			const fullPrompt: DinnerPartyDilemmasPrompt = {
+				...prompt,
+				options: guestOptions,
+			};
+
+			const { data: game, error: createError } = await supabase
+				.from('game_instances')
+				.insert({
+					group_id: groupId,
+					game_type: 'dinner_party_dilemmas',
+					prompt: fullPrompt,
+					expires_at: expiresAt.toISOString(),
+					status: 'active',
+					current_phase: 'submission',
+					metadata: {},
+				})
+				.select()
+				.single();
+
+			if (createError) throw createError;
+
+			return { success: true, gameId: game.id };
+		} catch (e: any) {
+			error.value = e.message;
+			return { success: false, error: e.message };
+		} finally {
+			loading.value = false;
+		}
+	};
 
 	// Get active game for this group
 	const getActiveGame = async () => {
@@ -322,6 +385,7 @@ export const useDinnerPartyDilemmas = (groupId: string) => {
 		error,
 		currentGame,
 		userResponse,
+		createGame,
 		getActiveGame,
 		getUserResponse,
 		submitPartyLineup,
