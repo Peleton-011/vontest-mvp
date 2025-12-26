@@ -129,7 +129,7 @@ export const useTwoTruthsRoulette = (groupId: string) => {
 			const { data, error: fetchError } = await supabase
 				.from('game_responses')
 				.select('*')
-				.eq('game_id', gameId)
+				.eq('game_instance_id', gameId)
 				.eq('user_id', user.value.id)
 				.single();
 
@@ -158,7 +158,7 @@ export const useTwoTruthsRoulette = (groupId: string) => {
 			const { data, error: submitError } = await supabase
 				.from('game_responses')
 				.insert({
-					game_id: gameId,
+					game_instance_id: gameId,
 					user_id: user.value.id,
 					response_data: {
 						statements: [submission.statement1, submission.statement2, submission.statement3],
@@ -199,7 +199,7 @@ export const useTwoTruthsRoulette = (groupId: string) => {
 						votes,
 					},
 				})
-				.eq('game_id', gameId)
+				.eq('game_instance_id', gameId)
 				.eq('user_id', user.value.id)
 				.select()
 				.single();
@@ -279,7 +279,7 @@ export const useTwoTruthsRoulette = (groupId: string) => {
 					*,
 					profiles:user_id (username, avatar_url)
 				`)
-				.eq('game_id', gameId);
+				.eq('game_instance_id', gameId);
 
 			if (responsesError) throw responsesError;
 			if (!responses || responses.length === 0) {

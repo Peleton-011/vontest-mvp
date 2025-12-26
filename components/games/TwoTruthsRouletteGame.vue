@@ -31,8 +31,11 @@ const submissionForm = reactive({
 	statement1: '',
 	statement2: '',
 	statement3: '',
-	lieIndex: null as 1 | 2 | 3 | null,
+	lieIndex: 3 as 1 | 2 | 3, // Lie is always the third statement
 });
+
+// Track which card is being edited
+const editingCard = ref<1 | 2 | 3 | null>(null);
 
 // Voting form for guessing phase
 const votes = ref<Record<string, number>>({});
@@ -66,7 +69,7 @@ const loadActiveGame = async () => {
 
 // Submit statements (Phase 1)
 const handleSubmitStatements = async () => {
-	if (!currentGame.value || !submissionForm.statement1 || !submissionForm.statement2 || !submissionForm.statement3 || !submissionForm.lieIndex) {
+	if (!currentGame.value || !submissionForm.statement1 || !submissionForm.statement2 || !submissionForm.statement3) {
 		return;
 	}
 
@@ -80,6 +83,16 @@ const handleSubmitStatements = async () => {
 	if (result.success) {
 		await loadActiveGame();
 	}
+};
+
+// Handle card click to start editing
+const handleCardClick = (cardIndex: 1 | 2 | 3) => {
+	editingCard.value = cardIndex;
+};
+
+// Handle clicking outside to stop editing
+const handleCardBlur = () => {
+	editingCard.value = null;
 };
 
 // Submit votes (Phase 2)
@@ -211,75 +224,110 @@ const allVotesSubmitted = computed(() => {
 			<div v-if="currentGame.current_phase === 'submission'" class="space-y-4">
 				<div v-if="!userResponse && currentGame.status === 'active'">
 					<div class="space-y-4">
-						<!-- Statement 1 -->
-						<UFormField label="Statement 1">
-							<UInput
-								v-model="submissionForm.statement1"
-								placeholder="Enter your first statement..."
-								size="lg"
-							/>
-						</UFormField>
+						<p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-4">
+							Click each card to edit your statements. The first two are truths, the last one is the lie.
+						</p>
 
-						<!-- Statement 2 -->
-						<UFormField label="Statement 2">
-							<UInput
-								v-model="submissionForm.statement2"
-								placeholder="Enter your second statement..."
-								size="lg"
-							/>
-						</UFormField>
-
-						<!-- Statement 3 -->
-						<UFormField label="Statement 3">
-							<UInput
-								v-model="submissionForm.statement3"
-								placeholder="Enter your third statement..."
-								size="lg"
-							/>
-						</UFormField>
-
-						<!-- Select the lie -->
-						<UFormField label="Which statement is the LIE?" required>
-							<div class="grid grid-cols-3 gap-3">
-								<UCard
-									:class="[
-										'cursor-pointer transition-all text-center p-4',
-										submissionForm.lieIndex === 1 ? 'ring-2 ring-red-500 bg-red-50 dark:bg-red-900/20' : 'hover:scale-105'
-									]"
-									@click="submissionForm.lieIndex = 1"
-								>
-									<div class="text-2xl mb-1">1</div>
-									<div class="text-xs">Statement 1</div>
-								</UCard>
-
-								<UCard
-									:class="[
-										'cursor-pointer transition-all text-center p-4',
-										submissionForm.lieIndex === 2 ? 'ring-2 ring-red-500 bg-red-50 dark:bg-red-900/20' : 'hover:scale-105'
-									]"
-									@click="submissionForm.lieIndex = 2"
-								>
-									<div class="text-2xl mb-1">2</div>
-									<div class="text-xs">Statement 2</div>
-								</UCard>
-
-								<UCard
-									:class="[
-										'cursor-pointer transition-all text-center p-4',
-										submissionForm.lieIndex === 3 ? 'ring-2 ring-red-500 bg-red-50 dark:bg-red-900/20' : 'hover:scale-105'
-									]"
-									@click="submissionForm.lieIndex = 3"
-								>
-									<div class="text-2xl mb-1">3</div>
-									<div class="text-xs">Statement 3</div>
-								</UCard>
+						<!-- Truth Card 1 -->
+						<UCard
+							:class="[
+								'cursor-pointer transition-all p-6',
+								'bg-green-50 dark:bg-green-900/20 border-2 border-green-500',
+								editingCard === 1 ? 'ring-4 ring-green-400' : 'hover:scale-102'
+							]"
+							@click="handleCardClick(1)"
+						>
+							<div class="flex items-start gap-3">
+								<div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center font-bold text-green-700 dark:text-green-300">
+									1
+								</div>
+								<div class="flex-1">
+									<div class="flex items-center gap-2 mb-2">
+										<span class="text-xs font-semibold text-green-600 dark:text-green-400">TRUTH</span>
+									</div>
+									<UInput
+										v-if="editingCard === 1"
+										v-model="submissionForm.statement1"
+										placeholder="Enter your first truth..."
+										size="lg"
+										autofocus
+										@blur="handleCardBlur"
+									/>
+									<p v-else class="text-gray-700 dark:text-gray-300">
+										{{ submissionForm.statement1 || 'Click to add your first truth...' }}
+									</p>
+								</div>
 							</div>
-						</UFormField>
+						</UCard>
+
+						<!-- Truth Card 2 -->
+						<UCard
+							:class="[
+								'cursor-pointer transition-all p-6',
+								'bg-green-50 dark:bg-green-900/20 border-2 border-green-500',
+								editingCard === 2 ? 'ring-4 ring-green-400' : 'hover:scale-102'
+							]"
+							@click="handleCardClick(2)"
+						>
+							<div class="flex items-start gap-3">
+								<div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center font-bold text-green-700 dark:text-green-300">
+									2
+								</div>
+								<div class="flex-1">
+									<div class="flex items-center gap-2 mb-2">
+										<span class="text-xs font-semibold text-green-600 dark:text-green-400">TRUTH</span>
+									</div>
+									<UInput
+										v-if="editingCard === 2"
+										v-model="submissionForm.statement2"
+										placeholder="Enter your second truth..."
+										size="lg"
+										autofocus
+										@blur="handleCardBlur"
+									/>
+									<p v-else class="text-gray-700 dark:text-gray-300">
+										{{ submissionForm.statement2 || 'Click to add your second truth...' }}
+									</p>
+								</div>
+							</div>
+						</UCard>
+
+						<!-- Lie Card 3 -->
+						<UCard
+							:class="[
+								'cursor-pointer transition-all p-6',
+								'bg-red-50 dark:bg-red-900/20 border-2 border-red-500',
+								editingCard === 3 ? 'ring-4 ring-red-400' : 'hover:scale-102'
+							]"
+							@click="handleCardClick(3)"
+						>
+							<div class="flex items-start gap-3">
+								<div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center font-bold text-red-700 dark:text-red-300">
+									3
+								</div>
+								<div class="flex-1">
+									<div class="flex items-center gap-2 mb-2">
+										<span class="text-xs font-semibold text-red-600 dark:text-red-400">LIE</span>
+									</div>
+									<UInput
+										v-if="editingCard === 3"
+										v-model="submissionForm.statement3"
+										placeholder="Enter your lie..."
+										size="lg"
+										autofocus
+										@blur="handleCardBlur"
+									/>
+									<p v-else class="text-gray-700 dark:text-gray-300">
+										{{ submissionForm.statement3 || 'Click to add your lie...' }}
+									</p>
+								</div>
+							</div>
+						</UCard>
 
 						<UButton
 							@click="handleSubmitStatements"
 							:loading="loading"
-							:disabled="!submissionForm.statement1 || !submissionForm.statement2 || !submissionForm.statement3 || !submissionForm.lieIndex"
+							:disabled="!submissionForm.statement1 || !submissionForm.statement2 || !submissionForm.statement3"
 							block
 							size="lg"
 						>

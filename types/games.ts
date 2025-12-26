@@ -150,8 +150,6 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Reveal correct answer',
       'Share stories in chat'
     ],
-    disabled: true,
-    comingSoon: true,
   },
   compliment_economy: {
     id: 'compliment_economy',
