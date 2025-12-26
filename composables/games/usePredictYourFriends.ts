@@ -177,6 +177,67 @@ export const usePredictYourFriends = (groupId: string) => {
 		}
 	};
 
+	// Submit oracle selections (Phase 2: Oracle chooses which predictions are correct)
+	const submitOracleSelections = async (gameId: string, selectedUserIds: string[]) => {
+		if (!user.value) {
+			return { success: false, error: 'Not authenticated' };
+		}
+
+		loading.value = true;
+		error.value = null;
+
+		try {
+			// Update the oracle's response to include their selections
+			const { data, error: updateError } = await supabase
+				.from('game_responses')
+				.update({
+					response_data: {
+						...(userResponse.value?.response_data as any),
+						selectedUserIds,
+					},
+				})
+				.eq('game_id', gameId)
+				.eq('user_id', user.value.id)
+				.select()
+				.single();
+
+			if (updateError) throw updateError;
+
+			userResponse.value = data;
+			return { success: true, data };
+		} catch (err: any) {
+			error.value = err.message;
+			return { success: false, error: err.message };
+		} finally {
+			loading.value = false;
+		}
+	};
+
+	// Start oracle selection phase (admin only)
+	const startOracleSelectionPhase = async (gameId: string) => {
+		loading.value = true;
+		error.value = null;
+
+		try {
+			const { data, error: updateError } = await supabase
+				.from('game_instances')
+				.update({ current_phase: 'oracle_selection' })
+				.eq('id', gameId)
+				.select()
+				.single();
+
+			if (updateError) throw updateError;
+
+			currentGame.value = data;
+			return { success: true, data };
+		} catch (err: any) {
+			error.value = err.message;
+			return { success: false, error: err.message };
+		} finally {
+			loading.value = false;
+		}
+	};
+
 	// Complete game (admin only)
 	const completeGame = async (gameId: string) => {
 		loading.value = true;
@@ -242,16 +303,18 @@ export const usePredictYourFriends = (groupId: string) => {
 				};
 			}
 
-			// Find the oracle's answer
+			// Find the oracle's answer and selections
 			const oracleResponse = responses.find((r: any) => r.user_id === prompt.oracleUserId);
 			const correctAnswer = oracleResponse?.response_data?.oracleAnswer || '';
+			const selectedUserIds = oracleResponse?.response_data?.selectedUserIds || [];
 
 			// Build predictions array
 			const predictions = responses
 				.filter((r: any) => r.user_id !== prompt.oracleUserId) // Exclude oracle
 				.map((response: any) => {
 					const prediction = response.response_data?.prediction || '';
-					const isCorrect = prediction.toLowerCase().trim() === correctAnswer.toLowerCase().trim();
+					// Use oracle's selections to determine correctness
+					const isCorrect = selectedUserIds.includes(response.user_id);
 					const points = isCorrect ? 10 : 0;
 
 					return {
@@ -299,6 +362,8 @@ export const usePredictYourFriends = (groupId: string) => {
 		getUserResponse,
 		submitPrediction,
 		submitOracleAnswer,
+		submitOracleSelections,
+		startOracleSelectionPhase,
 		completeGame,
 		getResults,
 	};
