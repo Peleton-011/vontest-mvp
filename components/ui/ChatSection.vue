@@ -22,16 +22,23 @@ const messages = computed(() => {
 		.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 });
 
+// Extract game type from announcement HTML
+const parseGameType = (html: string): string | null => {
+	const match = html.match(/>(Would You Rather|Hot Takes|Guess Who Said It|Most Likely To)</);
+	return match ? match[1] : null;
+};
+
 // Group messages by same user within 5 minutes
 const groupedMessages = computed(() => {
 	const grouped: Array<{
 		userId: string | null;
 		username: string | null;
 		avatarUrl: string;
-		messages: Array<{ id: string; comment: string; createdAt: Date }>;
+		messages: Array<{ id: string; comment: string; createdAt: Date; messageType?: string; gameType?: string | null }>;
 		timestamp: Date;
 		isSystem: boolean;
 		isCurrentUser: boolean;
+		isGameAnnouncement: boolean;
 	}> = [];
 
 	messages.value.forEach((msg, index) => {
@@ -43,11 +50,14 @@ const groupedMessages = computed(() => {
 		// Check if this is a system message
 		const isSystem = !msg.author || msg.author.id === null;
 
+		// Check if this is a game announcement
+		const isGameAnnouncement = msg.messageType === 'game_announcement';
+
 		// Check if this is the current user's message
 		const isCurrentUser = user.value?.id === msg.author?.id;
 
-		// Group if same user and within 5 minutes
-		const shouldGroup = prevMsg
+		// Group if same user and within 5 minutes, but never group game announcements
+		const shouldGroup = !isGameAnnouncement && prevMsg
 			&& prevMsg.author?.id === msg.author?.id
 			&& timeDiff < 5;
 
@@ -57,6 +67,8 @@ const groupedMessages = computed(() => {
 				id: msg.id,
 				comment: msg.comment,
 				createdAt: msg.createdAt,
+				messageType: msg.messageType,
+				gameType: isGameAnnouncement ? parseGameType(msg.comment) : null,
 			});
 		} else {
 			// Start new group
@@ -68,10 +80,13 @@ const groupedMessages = computed(() => {
 					id: msg.id,
 					comment: msg.comment,
 					createdAt: msg.createdAt,
+					messageType: msg.messageType,
+					gameType: isGameAnnouncement ? parseGameType(msg.comment) : null,
 				}],
 				timestamp: msg.createdAt,
 				isSystem,
 				isCurrentUser,
+				isGameAnnouncement,
 			});
 		}
 	});
@@ -148,16 +163,16 @@ watch(() => groupedMessages.value.length, () => {
 						class="flex-shrink-0 mt-1"
 					/>
 
-					<!-- System icon for automated messages -->
+					<!-- System icon for automated messages (not game announcements) -->
 					<div
-						v-else-if="group.isSystem"
+						v-else-if="group.isSystem && !group.isGameAnnouncement"
 						class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center mt-1"
 					>
 						<UIcon name="i-heroicons-cpu-chip" class="w-4 h-4 text-white" />
 					</div>
 
 					<!-- Message Group Container -->
-					<div :class="['space-y-1', group.isCurrentUser ? 'max-w-[75%]' : 'flex-1 min-w-0 max-w-[75%]']">
+					<div :class="['space-y-1', group.isGameAnnouncement ? 'w-full' : (group.isCurrentUser ? 'max-w-[75%]' : 'flex-1 min-w-0 max-w-[75%]')]">
 						<!-- Username and timestamp (only for other users, not system) -->
 						<div
 							v-if="!group.isCurrentUser && !group.isSystem"
@@ -176,9 +191,9 @@ watch(() => groupedMessages.value.length, () => {
 							</span>
 						</div>
 
-						<!-- System message header -->
+						<!-- System message header (not for game announcements) -->
 						<div
-							v-if="group.isSystem"
+							v-if="group.isSystem && !group.isGameAnnouncement"
 							class="flex items-baseline gap-2 px-1"
 						>
 							<span class="font-semibold text-sm text-purple-400">
@@ -198,16 +213,35 @@ watch(() => groupedMessages.value.length, () => {
 						<div
 							v-for="msg in group.messages"
 							:key="msg.id"
-							:class="[
-								'text-sm break-words',
-								group.isCurrentUser
-									? 'bg-primary-600 text-white rounded-2xl px-4 py-2'
-									: group.isSystem
-										? 'text-gray-300'
-										: 'bg-neutral-800 text-gray-200 rounded-2xl px-4 py-2'
-							]"
-							v-html="msg.comment"
-						></div>
+						>
+							<!-- Game Announcement Card -->
+							<UCard
+								v-if="msg.messageType === 'game_announcement'"
+								class="bg-gradient-to-br from-purple-500/20 to-blue-500/20 border-2 border-purple-500/30"
+							>
+								<div class="text-center py-2">
+									<div class="text-2xl mb-2">🎲</div>
+									<div class="font-bold text-lg mb-1">New Daily Game!</div>
+									<div class="text-sm">
+										{{ msg.gameType }} is now live! Check the Games tab to play.
+									</div>
+								</div>
+							</UCard>
+
+							<!-- Regular Message -->
+							<div
+								v-else
+								:class="[
+									'text-sm break-words',
+									group.isCurrentUser
+										? 'bg-primary-600 text-white rounded-2xl px-4 py-2'
+										: group.isSystem
+											? 'text-gray-300'
+											: 'bg-neutral-800 text-gray-200 rounded-2xl px-4 py-2'
+								]"
+								v-html="msg.comment"
+							></div>
+						</div>
 
 						<!-- Timestamp for current user (shown after messages) -->
 						<div

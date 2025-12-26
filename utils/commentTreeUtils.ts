@@ -39,6 +39,7 @@ export function buildCommentTree(
 			id: raw.id,
 			comment: raw.comment,
 			createdAt: new Date(raw.created_at),
+			messageType: raw.message_type,
 			author: {
 				id: raw.user_id || 'system',
 				username: isSystemMessage ? 'System' : raw.profiles!.username,
