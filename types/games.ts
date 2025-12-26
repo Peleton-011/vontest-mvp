@@ -103,7 +103,7 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
     description: 'Predict what your friends will do or think. Test how well you know them!',
     detailedDescription: 'Daily prediction question about group members. Everyone predicts, then one person gives the true answer. Points for accuracy and discussion about why people predicted what they did.',
     icon: 'i-heroicons-light-bulb',
-    color: 'cyan',
+    color: 'indigo',
     minPlayers: 3,
     estimatedTime: '5-10 minutes',
     howToPlay: [
@@ -112,6 +112,8 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Oracle reveals the truth',
       'Earn points for correct predictions'
     ],
+    disabled: true,
+    comingSoon: true,
   },
   dinner_party_dilemmas: {
     id: 'dinner_party_dilemmas',
@@ -129,6 +131,8 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Group votes on best party',
       'Debate in dedicated threads'
     ],
+    disabled: true,
+    comingSoon: true,
   },
   two_truths_roulette: {
     id: 'two_truths_roulette',
@@ -137,7 +141,7 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
     description: 'Submit two truths and a lie about your week. Can friends spot the lie?',
     detailedDescription: 'Weekly game where everyone submits two truths and one lie about their week. Group votes on which is the lie. Points for fooling friends and guessing correctly!',
     icon: 'i-heroicons-sparkles',
-    color: 'indigo',
+    color: 'cyan',
     minPlayers: 3,
     estimatedTime: '5-10 minutes',
     howToPlay: [
@@ -146,6 +150,8 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Reveal correct answer',
       'Share stories in chat'
     ],
+    disabled: true,
+    comingSoon: true,
   },
   compliment_economy: {
     id: 'compliment_economy',
@@ -163,6 +169,8 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Read public compliment feed',
       'Unused coins expire'
     ],
+    disabled: true,
+    comingSoon: true,
   },
   bracket_battle: {
     id: 'bracket_battle',
@@ -180,12 +188,14 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Debate each matchup',
       'Vote to advance winners'
     ],
+    disabled: true,
+    comingSoon: true,
   },
 };
 
 // Helper to get all game types as array
 export const getAllGameTypes = (): GameTypeMetadata[] => {
-  return Object.values(GAME_TYPES);
+  return Object.values(GAME_TYPES).filter(game => !game.disabled);
 };
 
 // Helper to validate game type
