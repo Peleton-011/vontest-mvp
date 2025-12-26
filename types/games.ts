@@ -197,3 +197,75 @@ export const isValidGameType = (type: string): type is GameType => {
 export const getGameMetadata = (type: GameType): GameTypeMetadata => {
   return GAME_TYPES[type];
 };
+
+// Helper to get color classes for a game type (Tailwind needs static classes)
+export const getGameColorClasses = (color: string) => {
+  const colorMap: Record<string, { icon: string; iconLarge: string; bg: string; bgDark: string; border: string; borderDark: string }> = {
+    blue: {
+      icon: 'text-blue-600',
+      iconLarge: 'text-blue-500',
+      bg: 'bg-blue-100',
+      bgDark: 'dark:bg-blue-900/20',
+      border: 'border-blue-200',
+      borderDark: 'dark:border-blue-800',
+    },
+    red: {
+      icon: 'text-red-600',
+      iconLarge: 'text-red-500',
+      bg: 'bg-red-100',
+      bgDark: 'dark:bg-red-900/20',
+      border: 'border-red-200',
+      borderDark: 'dark:border-red-800',
+    },
+    purple: {
+      icon: 'text-purple-600',
+      iconLarge: 'text-purple-500',
+      bg: 'bg-purple-100',
+      bgDark: 'dark:bg-purple-900/20',
+      border: 'border-purple-200',
+      borderDark: 'dark:border-purple-800',
+    },
+    cyan: {
+      icon: 'text-cyan-600',
+      iconLarge: 'text-cyan-500',
+      bg: 'bg-cyan-100',
+      bgDark: 'dark:bg-cyan-900/20',
+      border: 'border-cyan-200',
+      borderDark: 'dark:border-cyan-800',
+    },
+    indigo: {
+      icon: 'text-indigo-600',
+      iconLarge: 'text-indigo-500',
+      bg: 'bg-indigo-100',
+      bgDark: 'dark:bg-indigo-900/20',
+      border: 'border-indigo-200',
+      borderDark: 'dark:border-indigo-800',
+    },
+    pink: {
+      icon: 'text-pink-600',
+      iconLarge: 'text-pink-500',
+      bg: 'bg-pink-100',
+      bgDark: 'dark:bg-pink-900/20',
+      border: 'border-pink-200',
+      borderDark: 'dark:border-pink-800',
+    },
+    rose: {
+      icon: 'text-rose-600',
+      iconLarge: 'text-rose-500',
+      bg: 'bg-rose-100',
+      bgDark: 'dark:bg-rose-900/20',
+      border: 'border-rose-200',
+      borderDark: 'dark:border-rose-800',
+    },
+    orange: {
+      icon: 'text-orange-600',
+      iconLarge: 'text-orange-500',
+      bg: 'bg-orange-100',
+      bgDark: 'dark:bg-orange-900/20',
+      border: 'border-orange-200',
+      borderDark: 'dark:border-orange-800',
+    },
+  };
+
+  return colorMap[color] || colorMap.blue; // Default to blue if color not found
+};

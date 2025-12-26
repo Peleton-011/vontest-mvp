@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getAllGameTypes, getGameMetadata, type GameType } from '~/types/games';
+import { getAllGameTypes, getGameMetadata, getGameColorClasses, type GameType } from '~/types/games';
 import type { WouldYouRatherPrompt } from '~/composables/games/useWouldYouRather';
 import type { HotTakesPrompt } from '~/composables/games/useHotTakes';
 import type { GuessWhoSaidItPrompt } from '~/composables/games/useGuessWhoSaidIt';
@@ -250,14 +250,15 @@ const handleCancel = () => {
 								<div
 									:class="[
 										'p-3 rounded-lg',
-										`bg-${gameType.color}-100 dark:bg-${gameType.color}-900/20`,
+										getGameColorClasses(gameType.color).bg,
+										getGameColorClasses(gameType.color).bgDark,
 									]"
 								>
 									<UIcon
 										:name="gameType.icon"
 										:class="[
 											'w-6 h-6',
-											`text-${gameType.color}-600`,
+											getGameColorClasses(gameType.color).icon,
 										]"
 									/>
 								</div>
@@ -291,14 +292,15 @@ const handleCancel = () => {
 						<div
 							:class="[
 								'p-3 rounded-lg',
-								`bg-${gameTypeMetadata?.color}-100 dark:bg-${gameTypeMetadata?.color}-900/20`,
+								getGameColorClasses(gameTypeMetadata?.color || 'blue').bg,
+								getGameColorClasses(gameTypeMetadata?.color || 'blue').bgDark,
 							]"
 						>
 							<UIcon
 								:name="gameTypeMetadata?.icon || ''"
 								:class="[
 									'w-6 h-6',
-									`text-${gameTypeMetadata?.color}-600`,
+									getGameColorClasses(gameTypeMetadata?.color || 'blue').icon,
 								]"
 							/>
 						</div>
@@ -466,14 +468,15 @@ const handleCancel = () => {
 						<div
 							:class="[
 								'p-3 rounded-lg',
-								`bg-${gameTypeMetadata?.color}-100 dark:bg-${gameTypeMetadata?.color}-900/20`,
+								getGameColorClasses(gameTypeMetadata?.color || 'blue').bg,
+								getGameColorClasses(gameTypeMetadata?.color || 'blue').bgDark,
 							]"
 						>
 							<UIcon
 								:name="gameTypeMetadata?.icon || ''"
 								:class="[
 									'w-6 h-6',
-									`text-${gameTypeMetadata?.color}-600`,
+									getGameColorClasses(gameTypeMetadata?.color || 'blue').icon,
 								]"
 							/>
 						</div>

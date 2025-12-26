@@ -87,7 +87,7 @@
 										<UIcon
 											:name="gameType.icon"
 											class="w-5 h-5"
-											:class="`text-${gameType.color}-500`"
+											:class="getGameColorClasses(gameType.color).iconLarge"
 										/>
 										<span class="font-medium text-sm">{{ gameType.name }}</span>
 									</div>
@@ -179,7 +179,7 @@
 </template>
 
 <script setup lang="ts">
-import { getAllGameTypes, type GameType } from '~/types/games';
+import { getAllGameTypes, getGameColorClasses, type GameType } from '~/types/games';
 
 definePageMeta({
 	middleware: 'auth',
