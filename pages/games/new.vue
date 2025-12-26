@@ -204,8 +204,8 @@ const { form, createGroup, loading, error, isFormValid, resetForm } = useGroups(
 
 const successMessage = ref('');
 
-// Get all available game types
-const availableGames = getAllGameTypes();
+// Get all available game types (filter out disabled/coming soon games)
+const availableGames = getAllGameTypes().filter(game => !game.disabled && !game.comingSoon);
 
 // Helper to check if a game is selected
 const isGameSelected = (gameId: GameType): boolean => {
