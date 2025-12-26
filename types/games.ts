@@ -195,7 +195,7 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
 
 // Helper to get all game types as array
 export const getAllGameTypes = (): GameTypeMetadata[] => {
-  return Object.values(GAME_TYPES).filter(game => !game.disabled);
+  return Object.values(GAME_TYPES);
 };
 
 // Helper to validate game type
