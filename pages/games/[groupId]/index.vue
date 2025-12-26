@@ -446,6 +446,40 @@
 					/>
 				</template>
 			</UModal>
+
+			<!-- End Game Confirmation Modal -->
+			<UModal
+				v-model:open="showEndGameModal"
+				title="End Current Game?"
+			>
+				<template #body>
+					<div class="py-4">
+						<p class="text-gray-700 dark:text-gray-300 mb-2">
+							There is currently an active game in progress.
+						</p>
+						<p class="text-gray-600 dark:text-gray-400">
+							Would you like to end it and start a new one? This action cannot be undone.
+						</p>
+					</div>
+				</template>
+				<template #footer>
+					<div class="flex justify-end gap-3">
+						<UButton
+							variant="ghost"
+							color="neutral"
+							@click="handleEndGameCancel"
+						>
+							Cancel
+						</UButton>
+						<UButton
+							color="error"
+							@click="handleEndGameConfirm"
+						>
+							Yes, End Game
+						</UButton>
+					</div>
+				</template>
+			</UModal>
 		</div>
 	</div>
 </template>
@@ -514,6 +548,8 @@ const error = computed(() => groupError.value || membersError.value);
 const activeGame = ref<any>(null);
 const loadingGame = ref(false);
 const showCustomGameModal = ref(false);
+const showEndGameModal = ref(false);
+const endGameResolve = ref<((value: boolean) => void) | null>(null);
 
 // Chat state
 const supabase = useSupabaseClient<Database>();
@@ -721,13 +757,30 @@ const endActiveGame = async () => {
 const confirmEndCurrentGame = async (): Promise<boolean> => {
 	if (!activeGame.value) return true;
 
-	const confirmed = confirm(
-		'There is currently an active game. Do you want to end it and start a new one?'
-	);
+	// Show modal and wait for user response
+	return new Promise((resolve) => {
+		endGameResolve.value = resolve;
+		showEndGameModal.value = true;
+	});
+};
 
-	if (!confirmed) return false;
+// Handle user confirming to end the game
+const handleEndGameConfirm = async () => {
+	showEndGameModal.value = false;
+	const success = await endActiveGame();
+	if (endGameResolve.value) {
+		endGameResolve.value(success);
+		endGameResolve.value = null;
+	}
+};
 
-	return await endActiveGame();
+// Handle user canceling the end game action
+const handleEndGameCancel = () => {
+	showEndGameModal.value = false;
+	if (endGameResolve.value) {
+		endGameResolve.value(false);
+		endGameResolve.value = null;
+	}
 };
 
 // Handle automatic game creation ("Start Game Now")
