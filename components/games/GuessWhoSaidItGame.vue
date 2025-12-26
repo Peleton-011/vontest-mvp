@@ -277,43 +277,9 @@ onMounted(async () => {
 </script>
 
 <template>
-	<div class="space-y-6">
-		<!-- Game Header -->
-		<div class="flex items-start justify-between gap-4">
-			<div class="flex items-start gap-4 flex-1">
-				<div class="p-3 rounded-lg bg-purple-100 dark:bg-purple-900/20">
-					<UIcon :name="gameMetadata.icon" class="w-8 h-8 text-purple-600" />
-				</div>
-				<div class="flex-1">
-					<h2 class="text-2xl font-bold">{{ gameMetadata.name }}</h2>
-					<p class="text-gray-400 dark:text-gray-400 mt-1">
-						{{ gameMetadata.description }}
-					</p>
-				</div>
-			</div>
-
-			<!-- Info Popover -->
-			<UPopover>
-				<UButton
-					variant="ghost"
-					icon="i-heroicons-information-circle"
-					size="sm"
-				/>
-				<template #content>
-					<div class="text-left space-y-2 p-4">
-						<p class="font-semibold">How to Play:</p>
-						<ol class="text-sm space-y-1 list-decimal list-inside">
-							<li v-for="(step, index) in gameMetadata.howToPlay" :key="index">
-								{{ step }}
-							</li>
-						</ol>
-					</div>
-				</template>
-			</UPopover>
-		</div>
-
+	<div class="guess-who-said-it-game space-y-8">
 		<!-- Error Display -->
-		<div v-if="error" class="text-red-600 bg-red-50 p-3 rounded">
+		<div v-if="error" class="text-red-600 bg-red-50 dark:bg-red-900/20 p-3 rounded">
 			{{ error }}
 		</div>
 
@@ -324,100 +290,126 @@ onMounted(async () => {
 		</div>
 
 		<!-- Active Game -->
-		<div v-else class="space-y-6">
-			<!-- Phase Indicator -->
-			<div class="text-center">
-				<UBadge
-					:color="currentGame.current_phase === 'submission' ? 'blue' : 'green'"
-					size="lg"
-				>
-					Phase {{ currentGame.current_phase === 'submission' ? '1' : '2' }}:
-					{{ currentGame.current_phase === 'submission' ? 'Submit Answers' : 'Guess Who Said What' }}
-				</UBadge>
-			</div>
-
-			<!-- Response Count Card -->
-			<div v-if="currentGame.current_phase === 'submission' && currentGame.status === 'active'" class="text-center">
-				<UCard class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-800/20">
-					<div class="py-6">
-						<div class="text-4xl font-bold text-purple-600 mb-2">
-							{{ responseCount }}
+		<div v-else class="space-y-8">
+			<!-- SECTION 1: Current Game -->
+			<div class="space-y-6">
+				<!-- Game Header -->
+				<div class="flex items-start justify-between gap-4">
+					<div class="flex items-start gap-4">
+						<div
+							:class="[
+								'p-3 rounded-lg',
+								`bg-${gameMetadata.color}-100 dark:bg-${gameMetadata.color}-900/20`,
+							]"
+						>
+							<UIcon
+								:name="gameMetadata.icon"
+								:class="['w-6 h-6', `text-${gameMetadata.color}-600`]"
+							/>
 						</div>
-						<div class="text-lg font-semibold mb-1">
-							{{ responseCount === 1 ? 'Response' : 'Responses' }}
-						</div>
-						<div class="text-sm text-gray-400">
-							Submit your answer to continue!
-						</div>
-					</div>
-				</UCard>
-			</div>
-
-			<!-- Game Prompt -->
-			<UCard class="overflow-hidden relative">
-				<!-- Background Image (if provided) -->
-				<div
-					v-if="(currentGame.prompt as GuessWhoSaidItPrompt).visual?.type === 'image'"
-					class="absolute inset-0 bg-cover bg-center opacity-20"
-					:style="{
-						backgroundImage: `url(${(currentGame.prompt as GuessWhoSaidItPrompt).visual?.value})`
-					}"
-				></div>
-
-				<div class="text-center py-6 relative z-10">
-					<!-- Custom Emoji Visual (if provided) -->
-					<div v-if="(currentGame.prompt as GuessWhoSaidItPrompt).visual?.type === 'emoji'" class="text-6xl mb-4">
-						{{ (currentGame.prompt as GuessWhoSaidItPrompt).visual?.value }}
-					</div>
-					<!-- Default Emoji (if no visual) -->
-					<div v-else class="text-3xl mb-2">❓</div>
-
-					<p class="text-xl font-semibold">
-						{{ (currentGame.prompt as GuessWhoSaidItPrompt).question }}
-					</p>
-				</div>
-			</UCard>
-
-			<!-- Phase 1: Submit Answer -->
-			<div v-if="currentGame.current_phase === 'submission'" class="space-y-4">
-				<div v-if="!userResponse && currentGame.status === 'active'">
-					<UFormField label="Your Answer (anonymous)">
-						<UTextarea
-							v-model="answerForm.answer"
-							placeholder="Enter your answer..."
-							:rows="4"
-						/>
-					</UFormField>
-
-					<UButton
-						@click="handleSubmitAnswer"
-						:loading="loading"
-						:disabled="!answerForm.answer.trim()"
-						block
-						size="lg"
-						class="mt-4"
-					>
-						Submit Answer
-					</UButton>
-				</div>
-
-				<!-- User's Answer Confirmation -->
-				<div v-if="userResponse" class="space-y-4">
-					<UCard class="bg-blue-50 dark:bg-blue-900/20">
-						<div class="text-center py-6">
-							<div class="text-3xl mb-3">✅</div>
-							<p class="font-semibold mb-2">Answer Submitted!</p>
-							<p class="text-sm text-gray-400">
-								Waiting for everyone to submit their answers...
+						<div>
+							<h2 class="text-2xl font-bold">{{ gameMetadata.name }}</h2>
+							<p class="text-sm text-gray-400 mt-1">
+								{{ gameMetadata.description }}
 							</p>
 						</div>
-					</UCard>
+					</div>
+
+					<!-- Info Popover -->
+					<UPopover>
+						<UButton
+							variant="ghost"
+							icon="i-heroicons-information-circle"
+							size="sm"
+						/>
+						<template #content>
+							<div class="text-left space-y-2 p-4">
+								<p class="font-semibold">How to Play:</p>
+								<ol class="text-sm space-y-1 list-decimal list-inside">
+									<li v-for="(step, index) in gameMetadata.howToPlay" :key="index">
+										{{ step }}
+									</li>
+								</ol>
+							</div>
+						</template>
+					</UPopover>
 				</div>
 
-			</div>
+				<!-- Phase Indicator -->
+				<div class="text-center">
+					<UBadge
+						:color="currentGame.current_phase === 'submission' ? 'blue' : 'green'"
+						size="lg"
+					>
+						Phase {{ currentGame.current_phase === 'submission' ? '1' : '2' }}:
+						{{ currentGame.current_phase === 'submission' ? 'Submit Answers' : 'Guess Who Said What' }}
+					</UBadge>
+				</div>
 
-			<!-- Phase 2: Guess Who Said What -->
-			<div v-if="currentGame.current_phase === 'guessing'" class="space-y-4">
+				<!-- Game Prompt -->
+				<UCard class="overflow-hidden relative">
+					<!-- Background Image (if provided) -->
+					<div
+						v-if="(currentGame.prompt as GuessWhoSaidItPrompt).visual?.type === 'image'"
+						class="absolute inset-0 bg-cover bg-center opacity-20"
+						:style="{
+							backgroundImage: `url(${(currentGame.prompt as GuessWhoSaidItPrompt).visual?.value})`
+						}"
+					></div>
+
+					<div class="text-center py-6 relative z-10">
+						<!-- Custom Emoji Visual (if provided) -->
+						<div v-if="(currentGame.prompt as GuessWhoSaidItPrompt).visual?.type === 'emoji'" class="text-6xl mb-4">
+							{{ (currentGame.prompt as GuessWhoSaidItPrompt).visual?.value }}
+						</div>
+						<!-- Default Emoji (if no visual) -->
+						<div v-else class="text-3xl mb-2">❓</div>
+
+						<p class="text-xl font-semibold">
+							{{ (currentGame.prompt as GuessWhoSaidItPrompt).question }}
+						</p>
+					</div>
+				</UCard>
+
+				<!-- Phase 1: Submit Answer -->
+				<div v-if="currentGame.current_phase === 'submission'" class="space-y-4">
+					<div v-if="!userResponse && currentGame.status === 'active'">
+						<UFormField label="Your Answer (anonymous)">
+							<UTextarea
+								v-model="answerForm.answer"
+								placeholder="Enter your answer..."
+								:rows="4"
+							/>
+						</UFormField>
+
+						<UButton
+							@click="handleSubmitAnswer"
+							:loading="loading"
+							:disabled="!answerForm.answer.trim()"
+							block
+							size="lg"
+							class="mt-4"
+						>
+							Submit Answer
+						</UButton>
+					</div>
+
+					<!-- User's Answer Confirmation -->
+					<div v-if="userResponse" class="space-y-4">
+						<UCard class="bg-blue-50 dark:bg-blue-900/20">
+							<div class="text-center py-6">
+								<div class="text-3xl mb-3">✅</div>
+								<p class="font-semibold mb-2">Answer Submitted!</p>
+								<p class="text-sm text-gray-400">
+									Waiting for everyone to submit their answers...
+								</p>
+							</div>
+						</UCard>
+					</div>
+				</div>
+
+				<!-- Phase 2: Guess Who Said What -->
+				<div v-if="currentGame.current_phase === 'guessing'" class="space-y-4">
 				<!-- Drag and Drop Guessing Interface -->
 				<div v-if="results && currentGame.status === 'active'" class="space-y-6">
 					<div class="text-center">
@@ -550,107 +542,130 @@ onMounted(async () => {
 					</UButton>
 				</div>
 
-				<!-- Guesses Submitted -->
-				<div v-if="userResponse?.guesses && currentGame.status === 'active'" class="space-y-4">
-					<UCard class="bg-blue-50 dark:bg-blue-900/20">
+					<!-- Guesses Submitted -->
+					<div v-if="userResponse?.guesses && currentGame.status === 'active'" class="space-y-4">
+						<UCard class="bg-blue-50 dark:bg-blue-900/20">
+							<div class="text-center py-6">
+								<div class="text-3xl mb-3">✅</div>
+								<p class="font-semibold mb-2">Guesses Submitted!</p>
+								<p class="text-sm text-gray-400">
+									Waiting for the game to end to see results...
+								</p>
+							</div>
+						</UCard>
+					</div>
+				</div>
+			</div>
+
+			<!-- Divider -->
+			<div class="border-t border-gray-200 dark:border-gray-700"></div>
+
+			<!-- SECTION 2: Results & Stats -->
+			<div class="space-y-6">
+				<div class="flex items-center justify-between">
+					<h3 class="text-xl font-bold">Results</h3>
+					<div v-if="isAdmin && currentGame.status === 'active'" class="flex gap-2">
+						<UButton
+							v-if="currentGame.current_phase === 'submission'"
+							variant="outline"
+							size="sm"
+							icon="i-heroicons-arrow-right"
+							:loading="loading"
+							@click="handleStartGuessingPhase"
+						>
+							Start Guessing Phase
+						</UButton>
+						<UButton
+							variant="outline"
+							size="sm"
+							icon="i-heroicons-check-circle"
+							:loading="loading"
+							@click="handleCompleteGame"
+						>
+							End Game & Publish Results
+						</UButton>
+					</div>
+				</div>
+
+				<!-- Response Count Card (always visible) -->
+				<UCard class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-800/20">
+					<div class="text-center py-6">
+						<div class="text-4xl font-bold text-purple-600 mb-2">
+							{{ responseCount }}
+						</div>
+						<div class="text-lg font-semibold mb-1">
+							{{ responseCount === 1 ? 'Response' : 'Responses' }} Submitted
+						</div>
+						<div v-if="!userResponse && currentGame.status === 'active'" class="text-sm text-gray-400">
+							Submit your choice to see detailed results!
+						</div>
+					</div>
+				</UCard>
+
+				<!-- Detailed Results (shown after user responds or game is completed) -->
+				<div v-if="results && currentGame.status === 'completed'">
+					<!-- Top Guesser -->
+					<UCard v-if="results.topGuesser" class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-800/20">
 						<div class="text-center py-6">
-							<div class="text-3xl mb-3">✅</div>
-							<p class="font-semibold mb-2">Guesses Submitted!</p>
-							<p class="text-sm text-gray-400">
-								Waiting for the game to end to see results...
+							<div class="text-4xl mb-3">🏆</div>
+							<p class="text-lg font-semibold mb-1">Top Guesser</p>
+							<p class="text-2xl font-bold text-yellow-600">{{ results.topGuesser.username }}</p>
+							<p class="text-sm text-gray-400 mt-1">
+								{{ results.topGuesser.correct }} correct guesses
 							</p>
 						</div>
 					</UCard>
-				</div>
 
-			</div>
-
-			<!-- Results (Game Completed) -->
-			<div v-if="results && currentGame.status === 'completed'" class="space-y-4">
-				<!-- Top Guesser -->
-				<UCard v-if="results.topGuesser" class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-800/20">
-					<div class="text-center py-6">
-						<div class="text-4xl mb-3">🏆</div>
-						<p class="text-lg font-semibold mb-1">Top Guesser</p>
-						<p class="text-2xl font-bold text-yellow-600">{{ results.topGuesser.username }}</p>
-						<p class="text-sm text-gray-400 mt-1">
-							{{ results.topGuesser.correct }} correct guesses
-						</p>
-					</div>
-				</UCard>
-
-				<!-- All Guesses Performance -->
-				<UCard>
-					<h3 class="text-lg font-semibold mb-4">Guess Accuracy</h3>
-					<div class="space-y-3">
-						<div
-							v-for="guesser in results.guesses"
-							:key="guesser.guesserUserId"
-							class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded"
-						>
-							<span class="font-semibold">{{ guesser.guesserUsername }}</span>
-							<div class="flex items-center gap-3">
-								<span class="text-sm text-gray-400">
-									{{ guesser.correctGuesses }}/{{ guesser.totalGuesses }} correct
-								</span>
-								<UBadge :color="guesser.accuracy >= 70 ? 'green' : guesser.accuracy >= 40 ? 'yellow' : 'red'">
-									{{ Math.round(guesser.accuracy) }}%
-								</UBadge>
+					<!-- All Guesses Performance -->
+					<div>
+						<h4 class="font-semibold mb-4">Guess Accuracy</h4>
+						<div class="space-y-3">
+							<div
+								v-for="guesser in results.guesses"
+								:key="guesser.guesserUserId"
+								class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded"
+							>
+								<span class="font-semibold">{{ guesser.guesserUsername }}</span>
+								<div class="flex items-center gap-3">
+									<span class="text-sm text-gray-400">
+										{{ guesser.correctGuesses }}/{{ guesser.totalGuesses }} correct
+									</span>
+									<UBadge :color="guesser.accuracy >= 70 ? 'green' : guesser.accuracy >= 40 ? 'yellow' : 'red'">
+										{{ Math.round(guesser.accuracy) }}%
+									</UBadge>
+								</div>
 							</div>
 						</div>
 					</div>
-				</UCard>
 
-				<!-- Who Actually Said What -->
-				<UCard>
-					<h3 class="font-semibold mb-4">Who Actually Said What</h3>
-					<div class="space-y-3">
-						<div
-							v-for="response in results.responses"
-							:key="response.responseId"
-							class="border-l-4 border-purple-500 pl-3"
-						>
-							<div class="flex items-center gap-2 mb-1">
-								<span class="font-semibold">{{ response.actualUsername }}</span>
-								<span class="text-sm text-gray-400">said:</span>
+					<!-- All Responses -->
+					<div v-if="results.responses.length > 0">
+						<h4 class="font-semibold mb-4">All Responses</h4>
+						<div class="space-y-3">
+							<div
+								v-for="response in results.responses"
+								:key="response.responseId"
+								class="border-l-4 border-purple-500 pl-3"
+							>
+								<div class="flex items-center gap-2 mb-1">
+									<span class="font-semibold">{{ response.actualUsername }}</span>
+									<span class="text-sm text-gray-400">said:</span>
+								</div>
+								<p class="text-sm text-gray-400 italic">
+									"{{ response.answer }}"
+								</p>
 							</div>
-							<p class="text-sm text-gray-400 italic">
-								"{{ response.answer }}"
-							</p>
 						</div>
 					</div>
-				</UCard>
-			</div>
-
-			<!-- Admin Controls -->
-			<div v-if="isAdmin && currentGame.status === 'active'" class="pt-6 border-t">
-				<div class="space-y-2">
-					<UButton
-						v-if="currentGame.current_phase === 'submission'"
-						variant="outline"
-						color="neutral"
-						icon="i-heroicons-arrow-right"
-						@click="handleStartGuessingPhase"
-					>
-						Start Guessing Phase
-					</UButton>
-					<UButton
-						variant="outline"
-						color="neutral"
-						icon="i-heroicons-check-circle"
-						@click="handleCompleteGame"
-					>
-						End Game & Post Results to Chat
-					</UButton>
 				</div>
-			</div>
 
-			<!-- Completed Message -->
-			<div v-if="currentGame.status === 'completed'" class="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded">
-				<UIcon name="i-heroicons-check-circle" class="w-6 h-6 inline text-green-600 mb-1" />
-				<p class="text-green-700 dark:text-green-400 font-semibold">
-					Game completed! Results have been posted to the chat.
-				</p>
+				<!-- Waiting for results message -->
+				<div v-else class="text-center py-8">
+					<UIcon name="i-heroicons-lock-closed" class="w-12 h-12 mx-auto text-gray-400 mb-3" />
+					<p class="text-gray-400">
+						{{ userResponse ? 'Waiting for game to end to see detailed results' : 'Submit your response to see results' }}
+					</p>
+				</div>
 			</div>
 		</div>
 	</div>

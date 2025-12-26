@@ -107,43 +107,9 @@ onMounted(async () => {
 </script>
 
 <template>
-	<div class="space-y-6">
-		<!-- Game Header -->
-		<div class="flex items-start justify-between gap-4">
-			<div class="flex items-start gap-4 flex-1">
-				<div class="p-3 rounded-lg bg-red-100 dark:bg-red-900/20">
-					<UIcon :name="gameMetadata.icon" class="w-8 h-8 text-red-600" />
-				</div>
-				<div class="flex-1">
-					<h2 class="text-2xl font-bold">{{ gameMetadata.name }}</h2>
-					<p class="text-gray-400 dark:text-gray-400 mt-1">
-						{{ gameMetadata.description }}
-					</p>
-				</div>
-			</div>
-
-			<!-- Info Popover -->
-			<UPopover>
-				<UButton
-					variant="ghost"
-					icon="i-heroicons-information-circle"
-					size="sm"
-				/>
-				<template #content>
-					<div class="text-left space-y-2 p-4">
-						<p class="font-semibold">How to Play:</p>
-						<ol class="text-sm space-y-1 list-decimal list-inside">
-							<li v-for="(step, index) in gameMetadata.howToPlay" :key="index">
-								{{ step }}
-							</li>
-						</ol>
-					</div>
-				</template>
-			</UPopover>
-		</div>
-
+	<div class="hot-takes-game space-y-8">
 		<!-- Error Display -->
-		<div v-if="error" class="text-red-600 bg-red-50 p-3 rounded">
+		<div v-if="error" class="text-red-600 bg-red-50 dark:bg-red-900/20 p-3 rounded">
 			{{ error }}
 		</div>
 
@@ -154,241 +120,293 @@ onMounted(async () => {
 		</div>
 
 		<!-- Active Game -->
-		<div v-else class="space-y-6">
-			<!-- Response Count Card (before user responds) -->
-			<div v-if="!userResponse && currentGame.status === 'active'" class="text-center">
+		<div v-else class="space-y-8">
+			<!-- SECTION 1: Current Game -->
+			<div class="space-y-6">
+				<!-- Game Header -->
+				<div class="flex items-start justify-between gap-4">
+					<div class="flex items-start gap-4">
+						<div
+							:class="[
+								'p-3 rounded-lg',
+								`bg-${gameMetadata.color}-100 dark:bg-${gameMetadata.color}-900/20`,
+							]"
+						>
+							<UIcon
+								:name="gameMetadata.icon"
+								:class="['w-6 h-6', `text-${gameMetadata.color}-600`]"
+							/>
+						</div>
+						<div>
+							<h2 class="text-2xl font-bold">{{ gameMetadata.name }}</h2>
+							<p class="text-sm text-gray-400 mt-1">
+								{{ gameMetadata.description }}
+							</p>
+						</div>
+					</div>
+
+					<!-- Info Popover -->
+					<UPopover>
+						<UButton
+							variant="ghost"
+							icon="i-heroicons-information-circle"
+							size="sm"
+						/>
+						<template #content>
+							<div class="text-left space-y-2 p-4">
+								<p class="font-semibold">How to Play:</p>
+								<ol class="text-sm space-y-1 list-decimal list-inside">
+									<li v-for="(step, index) in gameMetadata.howToPlay" :key="index">
+										{{ step }}
+									</li>
+								</ol>
+							</div>
+						</template>
+					</UPopover>
+				</div>
+
+				<!-- Game Prompt -->
+				<UCard class="overflow-hidden relative">
+					<!-- Background Image (if provided) -->
+					<div
+						v-if="(currentGame.prompt as HotTakesPrompt).visual?.type === 'image'"
+						class="absolute inset-0 bg-cover bg-center opacity-20"
+						:style="{
+							backgroundImage: `url(${(currentGame.prompt as HotTakesPrompt).visual?.value})`
+						}"
+					></div>
+
+					<div class="text-center py-6 relative z-10">
+						<!-- Custom Emoji Visual (if provided) -->
+						<div v-if="(currentGame.prompt as HotTakesPrompt).visual?.type === 'emoji'" class="text-6xl mb-4">
+							{{ (currentGame.prompt as HotTakesPrompt).visual?.value }}
+						</div>
+						<!-- Default Emoji (if no visual) -->
+						<div v-else class="text-3xl mb-2">🔥</div>
+
+						<p class="text-xl font-semibold">
+							{{ (currentGame.prompt as HotTakesPrompt).statement }}
+						</p>
+					</div>
+				</UCard>
+
+				<!-- Response Form (if not already responded) -->
+				<div v-if="!userResponse && currentGame.status === 'active'" class="space-y-4">
+					<!-- Stance Selection -->
+					<div class="grid grid-cols-3 gap-3">
+						<UCard
+							:class="[
+								'cursor-pointer transition-all text-center p-4',
+								responseForm.stance === 'agree' ? 'ring-2 ring-green-500 bg-green-50 dark:bg-green-900/20' : 'hover:scale-105'
+							]"
+							@click="responseForm.stance = 'agree'"
+						>
+							<div class="text-3xl mb-2">✅</div>
+							<div class="font-semibold">Agree</div>
+						</UCard>
+
+						<UCard
+							:class="[
+								'cursor-pointer transition-all text-center p-4',
+								responseForm.stance === 'neutral' ? 'ring-2 ring-gray-500 bg-gray-50 dark:bg-gray-900/20' : 'hover:scale-105'
+							]"
+							@click="responseForm.stance = 'neutral'"
+						>
+							<div class="text-3xl mb-2">🤷</div>
+							<div class="font-semibold">Neutral</div>
+						</UCard>
+
+						<UCard
+							:class="[
+								'cursor-pointer transition-all text-center p-4',
+								responseForm.stance === 'disagree' ? 'ring-2 ring-red-500 bg-red-50 dark:bg-red-900/20' : 'hover:scale-105'
+							]"
+							@click="responseForm.stance = 'disagree'"
+						>
+							<div class="text-3xl mb-2">❌</div>
+							<div class="font-semibold">Disagree</div>
+						</UCard>
+					</div>
+
+					<!-- Optional Reasoning -->
+					<UFormField label="Explain your reasoning (optional)">
+						<UTextarea
+							v-model="responseForm.reasoning"
+							placeholder="Why do you feel this way?"
+							:rows="3"
+						/>
+					</UFormField>
+
+					<UButton
+						@click="handleSubmitResponse"
+						:loading="loading"
+						:disabled="!responseForm.stance"
+						block
+						size="lg"
+					>
+						Submit Response
+					</UButton>
+				</div>
+			</div>
+
+			<!-- Divider -->
+			<div class="border-t border-gray-200 dark:border-gray-700"></div>
+
+			<!-- SECTION 2: Results & Stats -->
+			<div class="space-y-6">
+				<div class="flex items-center justify-between">
+					<h3 class="text-xl font-bold">Results</h3>
+					<div v-if="isAdmin && currentGame.status === 'active'" class="flex gap-2">
+						<UButton
+							variant="outline"
+							size="sm"
+							icon="i-heroicons-check-circle"
+							:loading="loading"
+							@click="handleCompleteGame"
+						>
+							End Game & Publish Results
+						</UButton>
+					</div>
+				</div>
+
+				<!-- Response Count Card (always visible) -->
 				<UCard class="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-800/20">
-					<div class="py-6">
+					<div class="text-center py-6">
 						<div class="text-4xl font-bold text-red-600 mb-2">
 							{{ responseCount }}
 						</div>
 						<div class="text-lg font-semibold mb-1">
-							{{ responseCount === 1 ? 'Response' : 'Responses' }}
+							{{ responseCount === 1 ? 'Response' : 'Responses' }} Submitted
 						</div>
-						<div class="text-sm text-gray-400">
-							Share your stance to see how others voted!
-						</div>
-					</div>
-				</UCard>
-			</div>
-
-			<!-- Game Prompt -->
-			<UCard class="overflow-hidden relative">
-				<!-- Background Image (if provided) -->
-				<div
-					v-if="(currentGame.prompt as HotTakesPrompt).visual?.type === 'image'"
-					class="absolute inset-0 bg-cover bg-center opacity-20"
-					:style="{
-						backgroundImage: `url(${(currentGame.prompt as HotTakesPrompt).visual?.value})`
-					}"
-				></div>
-
-				<div class="text-center py-6 relative z-10">
-					<!-- Custom Emoji Visual (if provided) -->
-					<div v-if="(currentGame.prompt as HotTakesPrompt).visual?.type === 'emoji'" class="text-6xl mb-4">
-						{{ (currentGame.prompt as HotTakesPrompt).visual?.value }}
-					</div>
-					<!-- Default Emoji (if no visual) -->
-					<div v-else class="text-3xl mb-2">🔥</div>
-
-					<p class="text-xl font-semibold">
-						{{ (currentGame.prompt as HotTakesPrompt).statement }}
-					</p>
-				</div>
-			</UCard>
-
-			<!-- Response Form (if not already responded) -->
-			<div v-if="!userResponse && currentGame.status === 'active'" class="space-y-4">
-				<!-- Stance Selection -->
-				<div class="grid grid-cols-3 gap-3">
-					<UCard
-						:class="[
-							'cursor-pointer transition-all text-center p-4',
-							responseForm.stance === 'agree' ? 'ring-2 ring-green-500 bg-green-50 dark:bg-green-900/20' : 'hover:scale-105'
-						]"
-						@click="responseForm.stance = 'agree'"
-					>
-						<div class="text-3xl mb-2">✅</div>
-						<div class="font-semibold">Agree</div>
-					</UCard>
-
-					<UCard
-						:class="[
-							'cursor-pointer transition-all text-center p-4',
-							responseForm.stance === 'neutral' ? 'ring-2 ring-gray-500 bg-gray-50 dark:bg-gray-900/20' : 'hover:scale-105'
-						]"
-						@click="responseForm.stance = 'neutral'"
-					>
-						<div class="text-3xl mb-2">🤷</div>
-						<div class="font-semibold">Neutral</div>
-					</UCard>
-
-					<UCard
-						:class="[
-							'cursor-pointer transition-all text-center p-4',
-							responseForm.stance === 'disagree' ? 'ring-2 ring-red-500 bg-red-50 dark:bg-red-900/20' : 'hover:scale-105'
-						]"
-						@click="responseForm.stance = 'disagree'"
-					>
-						<div class="text-3xl mb-2">❌</div>
-						<div class="font-semibold">Disagree</div>
-					</UCard>
-				</div>
-
-				<!-- Optional Reasoning -->
-				<UFormField label="Explain your reasoning (optional)">
-					<UTextarea
-						v-model="responseForm.reasoning"
-						placeholder="Why do you feel this way?"
-						:rows="3"
-					/>
-				</UFormField>
-
-				<UButton
-					@click="handleSubmitResponse"
-					:loading="loading"
-					:disabled="!responseForm.stance"
-					block
-					size="lg"
-				>
-					Submit Response
-				</UButton>
-			</div>
-
-			<!-- User's Response (after responding) -->
-			<div v-if="userResponse" class="space-y-4">
-				<UCard class="bg-blue-50 dark:bg-blue-900/20">
-					<div class="flex items-center gap-3">
-						<div class="text-2xl">
-							{{ userResponse.stance === 'agree' ? '✅' : userResponse.stance === 'disagree' ? '❌' : '🤷' }}
-						</div>
-						<div class="flex-1">
-							<p class="font-semibold">
-								You {{ userResponse.stance === 'agree' ? 'agreed' : userResponse.stance === 'disagree' ? 'disagreed' : 'stayed neutral' }}
-							</p>
-							<p v-if="userResponse.reasoning" class="text-sm text-gray-400 mt-1">
-								"{{ userResponse.reasoning }}"
-							</p>
+						<div v-if="!userResponse && currentGame.status === 'active'" class="text-sm text-gray-400">
+							Submit your choice to see detailed results!
 						</div>
 					</div>
 				</UCard>
 
-				<!-- Results -->
-				<div v-if="results" class="space-y-4">
-					<!-- Vote Breakdown -->
-					<UCard>
-						<h3 class="text-lg font-semibold mb-4">Results</h3>
-						<div class="space-y-3">
-							<div class="flex items-center gap-3">
-								<span class="text-2xl">✅</span>
-								<div class="flex-1">
-									<div class="flex justify-between mb-1">
-										<span>Agree</span>
-										<span class="font-semibold">{{ results.breakdown.agree }}</span>
-									</div>
-									<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-										<div
-											class="bg-green-500 h-2 rounded-full transition-all duration-1000 ease-out"
-											:style="{ width: `${(results.breakdown.agree / responseCount) * 100}%` }"
-										></div>
-									</div>
-								</div>
+				<!-- Detailed Results (shown after user responds or game is completed) -->
+				<div v-if="results && (userResponse || currentGame.status === 'completed')">
+					<!-- User's Response -->
+					<UCard class="bg-blue-50 dark:bg-blue-900/20">
+						<div class="flex items-center gap-3">
+							<div class="text-2xl">
+								{{ userResponse.stance === 'agree' ? '✅' : userResponse.stance === 'disagree' ? '❌' : '🤷' }}
 							</div>
-
-							<div class="flex items-center gap-3">
-								<span class="text-2xl">🤷</span>
-								<div class="flex-1">
-									<div class="flex justify-between mb-1">
-										<span>Neutral</span>
-										<span class="font-semibold">{{ results.breakdown.neutral }}</span>
-									</div>
-									<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-										<div
-											class="bg-gray-500 h-2 rounded-full transition-all duration-1000 ease-out"
-											:style="{ width: `${(results.breakdown.neutral / responseCount) * 100}%` }"
-										></div>
-									</div>
-								</div>
-							</div>
-
-							<div class="flex items-center gap-3">
-								<span class="text-2xl">❌</span>
-								<div class="flex-1">
-									<div class="flex justify-between mb-1">
-										<span>Disagree</span>
-										<span class="font-semibold">{{ results.breakdown.disagree }}</span>
-									</div>
-									<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-										<div
-											class="bg-red-500 h-2 rounded-full transition-all duration-1000 ease-out"
-											:style="{ width: `${(results.breakdown.disagree / responseCount) * 100}%` }"
-										></div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</UCard>
-
-					<!-- Top Debaters -->
-					<UCard v-if="results.topDebaters && results.topDebaters.length > 0">
-						<h3 class="font-semibold mb-3">🔥 Top Debaters</h3>
-						<div class="space-y-2">
-							<div
-								v-for="(username, index) in results.topDebaters"
-								:key="username"
-								class="flex items-center gap-2"
-							>
-								<span class="text-lg">{{ ['🥇', '🥈', '🥉'][index] || '•' }}</span>
-								<span>{{ username }}</span>
-							</div>
-						</div>
-					</UCard>
-
-					<!-- Who Said What -->
-					<UCard>
-						<h3 class="font-semibold mb-3">Who Said What</h3>
-						<div class="space-y-3">
-							<div
-								v-for="response in results.responses"
-								:key="response.userId"
-								class="border-l-4 pl-3"
-								:class="{
-									'border-green-500': response.stance === 'agree',
-									'border-gray-500': response.stance === 'neutral',
-									'border-red-500': response.stance === 'disagree'
-								}"
-							>
-								<div class="flex items-center gap-2 mb-1">
-									<span class="font-semibold">{{ response.username }}</span>
-									<span>{{ response.stance === 'agree' ? 'agrees' : response.stance === 'disagree' ? 'disagrees' : 'is neutral' }}</span>
-								</div>
-								<p v-if="response.reasoning" class="text-sm text-gray-400 italic">
-									"{{ response.reasoning }}"
+							<div class="flex-1">
+								<p class="font-semibold">
+									You {{ userResponse.stance === 'agree' ? 'agreed' : userResponse.stance === 'disagree' ? 'disagreed' : 'stayed neutral' }}
+								</p>
+								<p v-if="userResponse.reasoning" class="text-sm text-gray-400 mt-1">
+									"{{ userResponse.reasoning }}"
 								</p>
 							</div>
 						</div>
 					</UCard>
+
+					<!-- Vote Breakdown -->
+					<div class="space-y-6">
+						<div>
+							<h4 class="font-semibold mb-4">Vote Distribution</h4>
+							<div class="space-y-3">
+								<div class="flex items-center gap-3">
+									<span class="text-2xl">✅</span>
+									<div class="flex-1">
+										<div class="flex justify-between mb-1">
+											<span>Agree</span>
+											<span class="font-semibold">{{ results.breakdown.agree }}</span>
+										</div>
+										<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+											<div
+												class="bg-green-500 h-2 rounded-full transition-all duration-1000 ease-out"
+												:style="{ width: `${(results.breakdown.agree / responseCount) * 100}%` }"
+											></div>
+										</div>
+									</div>
+								</div>
+
+								<div class="flex items-center gap-3">
+									<span class="text-2xl">🤷</span>
+									<div class="flex-1">
+										<div class="flex justify-between mb-1">
+											<span>Neutral</span>
+											<span class="font-semibold">{{ results.breakdown.neutral }}</span>
+										</div>
+										<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+											<div
+												class="bg-gray-500 h-2 rounded-full transition-all duration-1000 ease-out"
+												:style="{ width: `${(results.breakdown.neutral / responseCount) * 100}%` }"
+											></div>
+										</div>
+									</div>
+								</div>
+
+								<div class="flex items-center gap-3">
+									<span class="text-2xl">❌</span>
+									<div class="flex-1">
+										<div class="flex justify-between mb-1">
+											<span>Disagree</span>
+											<span class="font-semibold">{{ results.breakdown.disagree }}</span>
+										</div>
+										<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+											<div
+												class="bg-red-500 h-2 rounded-full transition-all duration-1000 ease-out"
+												:style="{ width: `${(results.breakdown.disagree / responseCount) * 100}%` }"
+											></div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Top Debaters -->
+						<div v-if="results.topDebaters && results.topDebaters.length > 0">
+							<h4 class="font-semibold mb-3">🔥 Top Debaters</h4>
+							<div class="space-y-2">
+								<div
+									v-for="(username, index) in results.topDebaters"
+									:key="username"
+									class="flex items-center gap-2"
+								>
+									<span class="text-lg">{{ ['🥇', '🥈', '🥉'][index] || '•' }}</span>
+									<span>{{ username }}</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- All Responses -->
+						<div v-if="currentGame.status === 'completed' && results.responses.length > 0">
+							<h4 class="font-semibold mb-3">All Responses</h4>
+							<div class="space-y-3">
+								<div
+									v-for="response in results.responses"
+									:key="response.userId"
+									class="border-l-4 pl-3"
+									:class="{
+										'border-green-500': response.stance === 'agree',
+										'border-gray-500': response.stance === 'neutral',
+										'border-red-500': response.stance === 'disagree'
+									}"
+								>
+									<div class="flex items-center gap-2 mb-1">
+										<span class="font-semibold">{{ response.username }}</span>
+										<span>{{ response.stance === 'agree' ? 'agrees' : response.stance === 'disagree' ? 'disagrees' : 'is neutral' }}</span>
+									</div>
+									<p v-if="response.reasoning" class="text-sm text-gray-400 italic">
+										"{{ response.reasoning }}"
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
-			</div>
 
-			<!-- Admin Controls -->
-			<div v-if="isAdmin && currentGame.status === 'active'" class="pt-6 border-t">
-				<UButton
-					variant="outline"
-					color="neutral"
-					icon="i-heroicons-check-circle"
-					@click="handleCompleteGame"
-				>
-					End Game & Post Results to Chat
-				</UButton>
-			</div>
-
-			<!-- Completed Message -->
-			<div v-if="currentGame.status === 'completed'" class="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded">
-				<UIcon name="i-heroicons-check-circle" class="w-6 h-6 inline text-green-600 mb-1" />
-				<p class="text-green-700 dark:text-green-400 font-semibold">
-					Game completed! Results have been posted to the chat.
-				</p>
+				<!-- Waiting for results message -->
+				<div v-else class="text-center py-8">
+					<UIcon name="i-heroicons-lock-closed" class="w-12 h-12 mx-auto text-gray-400 mb-3" />
+					<p class="text-gray-400">
+						{{ userResponse ? 'Waiting for game to end to see detailed results' : 'Submit your response to see results' }}
+					</p>
+				</div>
 			</div>
 		</div>
 	</div>
