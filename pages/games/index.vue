@@ -48,7 +48,7 @@
 		</UiEmptyState>
 
 		<!-- Groups grid -->
-		<div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+		<div v-else class="grid grid-cols-1 gap-6">
 			<NuxtLink
 				v-for="group in groups"
 				:key="group.id"
