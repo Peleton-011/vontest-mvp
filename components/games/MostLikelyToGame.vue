@@ -176,9 +176,11 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 						@click="selectedUserId = member.userId"
 					>
 						<div class="flex flex-col items-center gap-2">
-							<div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-								{{ member.username.charAt(0).toUpperCase() }}
-							</div>
+							<UAvatar
+								:src="member.avatarUrl || ''"
+								:alt="member.username"
+								size="lg"
+							/>
 							<span class="font-semibold text-sm">{{ member.username }}</span>
 						</div>
 					</UCard>

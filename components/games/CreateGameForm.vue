@@ -245,65 +245,65 @@ const handleCancel = () => {
 					<div v-if="selectedGameType === 'would_you_rather'" class="space-y-4">
 						<h4 class="font-semibold">Enter Your Question</h4>
 
-						<UFormGroup label="Option A" required>
+						<UFormField label="Option A" required>
 							<UInput
 								v-model="wouldYouRatherForm.option_a"
 								placeholder="e.g., Have the ability to fly"
 								size="lg"
 							/>
-						</UFormGroup>
+						</UFormField>
 
 						<div class="text-center text-gray-400 font-bold">OR</div>
 
-						<UFormGroup label="Option B" required>
+						<UFormField label="Option B" required>
 							<UInput
 								v-model="wouldYouRatherForm.option_b"
 								placeholder="e.g., Have the ability to become invisible"
 								size="lg"
 							/>
-						</UFormGroup>
+						</UFormField>
 					</div>
 
 					<!-- Hot Takes Configuration -->
 					<div v-else-if="selectedGameType === 'hot_takes'" class="space-y-4">
 						<h4 class="font-semibold">Enter Your Statement</h4>
 
-						<UFormGroup label="Statement" required help="A bold or controversial statement for your group to react to">
+						<UFormField label="Statement" required help="A bold or controversial statement for your group to react to">
 							<UTextarea
 								v-model="hotTakesForm.statement"
 								placeholder="e.g., Pineapple belongs on pizza"
 								:rows="3"
 								size="lg"
 							/>
-						</UFormGroup>
+						</UFormField>
 					</div>
 
 					<!-- Guess Who Said It Configuration -->
 					<div v-else-if="selectedGameType === 'guess_who_said_it'" class="space-y-4">
 						<h4 class="font-semibold">Enter Your Question</h4>
 
-						<UFormGroup label="Question" required help="Everyone will answer anonymously, then try to guess who said what">
+						<UFormField label="Question" required help="Everyone will answer anonymously, then try to guess who said what">
 							<UTextarea
 								v-model="guessWhoSaidItForm.question"
 								placeholder="e.g., What's your most unpopular opinion?"
 								:rows="3"
 								size="lg"
 							/>
-						</UFormGroup>
+						</UFormField>
 					</div>
 
 					<!-- Most Likely To Configuration -->
 					<div v-else-if="selectedGameType === 'most_likely_to'" class="space-y-4">
 						<h4 class="font-semibold">Enter Your Scenario</h4>
 
-						<UFormGroup label="Scenario" required help="Who in the group is most likely to...">
+						<UFormField label="Scenario" required help="Who in the group is most likely to...">
 							<UTextarea
 								v-model="mostLikelyToForm.scenario"
 								placeholder="e.g., Win a dance competition"
 								:rows="3"
 								size="lg"
 							/>
-						</UFormGroup>
+						</UFormField>
 					</div>
 				</div>
 			</template>

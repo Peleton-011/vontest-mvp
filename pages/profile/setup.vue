@@ -101,17 +101,17 @@ const createProfile = async () => {
 
 			<form @submit.prevent="createProfile" class="space-y-6">
 				<!-- Username -->
-				<UFormGroup label="Username" required help="3-20 characters, letters, numbers, and underscores only">
+				<UFormField label="Username" required help="3-20 characters, letters, numbers, and underscores only">
 					<UInput
 						v-model="form.username"
 						placeholder="johndoe"
 						:disabled="loading"
 						autocomplete="username"
 					/>
-				</UFormGroup>
+				</UFormField>
 
 				<!-- Avatar URL (optional) -->
-				<UFormGroup
+				<UFormField
 					label="Avatar URL (optional)"
 					help="Leave blank to use an auto-generated avatar"
 				>
@@ -121,7 +121,7 @@ const createProfile = async () => {
 						:disabled="loading"
 						type="url"
 					/>
-				</UFormGroup>
+				</UFormField>
 
 				<!-- Preview -->
 				<div v-if="form.username" class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">

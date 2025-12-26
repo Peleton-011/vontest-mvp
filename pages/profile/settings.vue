@@ -122,7 +122,7 @@ const signOut = async () => {
 		<UCard v-else>
 			<form @submit.prevent="updateProfile" class="space-y-6">
 				<!-- Username -->
-				<UFormGroup
+				<UFormField
 					label="Username"
 					required
 					help="3-20 characters, letters, numbers, and underscores only"
@@ -134,10 +134,10 @@ const signOut = async () => {
 						:disabled="loading"
 						autocomplete="username"
 					/>
-				</UFormGroup>
+				</UFormField>
 
 				<!-- Avatar URL -->
-				<UFormGroup
+				<UFormField
 					label="Avatar URL"
 					help="Leave blank to use an auto-generated avatar based on your username"
 				>
@@ -148,7 +148,7 @@ const signOut = async () => {
 						:disabled="loading"
 						type="url"
 					/>
-				</UFormGroup>
+				</UFormField>
 
 				<!-- Preview -->
 				<div v-if="form.username" class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">

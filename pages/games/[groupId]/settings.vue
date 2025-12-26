@@ -44,7 +44,7 @@
 		<UCard v-else>
 			<form class="space-y-6" @submit.prevent="handleSubmit">
 				<!-- Group Name -->
-				<UFormGroup
+				<UFormField
 					label="Group Name"
 					name="name"
 					required
@@ -58,10 +58,10 @@
 						:disabled="loading"
 						autofocus
 					/>
-				</UFormGroup>
+				</UFormField>
 
 				<!-- Description -->
-				<UFormGroup
+				<UFormField
 					label="Description"
 					name="description"
 					help="Optional description (max 500 characters)"
@@ -74,10 +74,10 @@
 						size="lg"
 						:disabled="loading"
 					/>
-				</UFormGroup>
+				</UFormField>
 
 				<!-- Enabled Games -->
-				<UFormGroup
+				<UFormField
 					label="Select Games"
 					name="enabled_games"
 					required
@@ -130,10 +130,10 @@
 					<p v-if="form.enabled_games.value.length === 0" class="text-xs text-red-500 mt-2">
 						Please select at least one game type
 					</p>
-				</UFormGroup>
+				</UFormField>
 
 				<!-- Notification Settings -->
-				<UFormGroup
+				<UFormField
 					label="Daily Game Time"
 					name="notification_time"
 					help="When should new games be created each day?"
@@ -144,10 +144,10 @@
 						size="lg"
 						:disabled="loading"
 					/>
-				</UFormGroup>
+				</UFormField>
 
 				<!-- Timezone -->
-				<UFormGroup
+				<UFormField
 					label="Timezone"
 					name="timezone"
 					help="Select your timezone"
@@ -157,7 +157,7 @@
 						:items="timezones"
 						:disabled="loading"
 					/>
-				</UFormGroup>
+				</UFormField>
 
 				<!-- Error Display -->
 				<UAlert
