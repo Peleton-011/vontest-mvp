@@ -100,9 +100,9 @@ const formatDate = (dateString: string | null) => {
 				<div class="space-y-2">
 					<UButton
 						v-for="item in menuItems"
+                        :key="item.label"
                         variant="subtle"
-                        color="neutral"
-						:key="item.label"
+						color="neutral"
 						class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left cursor-pointer"
 						@click="handleMenuClick(item.to)"
 					>
