@@ -126,12 +126,15 @@ const handleCompleteGame = async () => {
 	}
 };
 
+// Realtime subscription channel
+const realtimeChannel = ref<ReturnType<typeof supabase.channel> | null>(null);
+
 onMounted(async () => {
 	await loadActiveGame();
 
 	// Subscribe to game changes
 	if (currentGame.value) {
-		const channel = supabase
+		realtimeChannel.value = supabase
 			.channel(`game-${currentGame.value.id}`)
 			.on(
 				'postgres_changes',
@@ -149,10 +152,12 @@ onMounted(async () => {
 				}
 			)
 			.subscribe();
+	}
+});
 
-		onUnmounted(() => {
-			supabase.removeChannel(channel);
-		});
+onUnmounted(() => {
+	if (realtimeChannel.value) {
+		supabase.removeChannel(realtimeChannel.value);
 	}
 });
 

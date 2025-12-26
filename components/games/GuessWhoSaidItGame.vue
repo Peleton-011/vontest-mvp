@@ -243,12 +243,15 @@ const handleUserDragEnd = () => {
 	draggedUserIndex.value = null;
 };
 
+// Realtime subscription channel
+const realtimeChannel = ref<ReturnType<typeof supabase.channel> | null>(null);
+
 onMounted(async () => {
 	await loadActiveGame();
 
 	// Subscribe to game instance changes for automatic phase transitions
 	if (currentGame.value) {
-		const channel = supabase
+		realtimeChannel.value = supabase
 			.channel(`game-${currentGame.value.id}`)
 			.on(
 				'postgres_changes',
@@ -267,11 +270,13 @@ onMounted(async () => {
 				}
 			)
 			.subscribe();
+	}
+});
 
-		// Cleanup on unmount
-		onUnmounted(() => {
-			supabase.removeChannel(channel);
-		});
+// Cleanup on unmount
+onUnmounted(() => {
+	if (realtimeChannel.value) {
+		supabase.removeChannel(realtimeChannel.value);
 	}
 });
 
