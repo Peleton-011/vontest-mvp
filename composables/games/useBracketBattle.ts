@@ -43,11 +43,55 @@ type GameResponse = Database['public']['Tables']['game_responses']['Row'];
 export const useBracketBattle = (groupId: string) => {
 	const supabase = useSupabaseClient<Database>();
 	const user = useSupabaseUser();
+	const { postResultsToChat } = useGameResults();
 
 	const loading = ref(false);
 	const error = ref<string | null>(null);
 	const currentGame = ref<GameInstance | null>(null);
 	const userResponse = ref<GameResponse | null>(null);
+
+	// Create a new Bracket Battle game
+	const createGame = async (
+		prompt: BracketBattlePrompt,
+		expiresInHours: number = 24
+	): Promise<{ success: boolean; gameId?: string; error?: string }> => {
+		if (!user.value) {
+			return { success: false, error: 'User not authenticated' };
+		}
+
+		loading.value = true;
+		error.value = null;
+
+		try {
+			const expiresAt = new Date();
+			expiresAt.setHours(expiresAt.getHours() + expiresInHours);
+
+			const { data: game, error: createError } = await supabase
+				.from('game_instances')
+				.insert({
+					group_id: groupId,
+					game_type: 'bracket_battle',
+					prompt: prompt,
+					expires_at: expiresAt.toISOString(),
+					status: 'active',
+					current_phase: 'nomination',
+					metadata: {
+						bracketSize: prompt.bracketSize,
+					},
+				})
+				.select()
+				.single();
+
+			if (createError) throw createError;
+
+			return { success: true, gameId: game.id };
+		} catch (e: any) {
+			error.value = e.message;
+			return { success: false, error: e.message };
+		} finally {
+			loading.value = false;
+		}
+	};
 
 	// Get active game for this group
 	const getActiveGame = async () => {
@@ -301,6 +345,7 @@ export const useBracketBattle = (groupId: string) => {
 		error,
 		currentGame,
 		userResponse,
+		createGame,
 		getActiveGame,
 		getUserResponse,
 		submitEntry,
