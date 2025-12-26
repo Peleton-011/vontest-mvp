@@ -110,10 +110,8 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Daily prediction question posted',
       'Everyone makes their predictions',
       'Oracle reveals the truth',
-      'Earn points for correct predictions'
+      'Oracle selects closest predictions'
     ],
-    disabled: true,
-    comingSoon: true,
   },
   dinner_party_dilemmas: {
     id: 'dinner_party_dilemmas',

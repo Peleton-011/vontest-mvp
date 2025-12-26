@@ -147,7 +147,7 @@ export const usePredictYourFriends = (groupId: string) => {
 			const { data, error: fetchError } = await supabase
 				.from('game_responses')
 				.select('*')
-				.eq('game_id', gameId)
+				.eq('game_instance_id', gameId)
 				.eq('user_id', user.value.id)
 				.single();
 
@@ -183,7 +183,7 @@ export const usePredictYourFriends = (groupId: string) => {
 			const { data, error: submitError } = await supabase
 				.from('game_responses')
 				.insert({
-					game_id: gameId,
+					game_instance_id: gameId,
 					user_id: user.value.id,
 					response_data: {
 						prediction,
@@ -217,7 +217,7 @@ export const usePredictYourFriends = (groupId: string) => {
 			const { data, error: submitError } = await supabase
 				.from('game_responses')
 				.insert({
-					game_id: gameId,
+					game_instance_id: gameId,
 					user_id: user.value.id,
 					response_data: {
 						oracleAnswer: answer,
@@ -257,7 +257,7 @@ export const usePredictYourFriends = (groupId: string) => {
 						selectedUserIds,
 					},
 				})
-				.eq('game_id', gameId)
+				.eq('game_instance_id', gameId)
 				.eq('user_id', user.value.id)
 				.select()
 				.single();
@@ -348,7 +348,7 @@ export const usePredictYourFriends = (groupId: string) => {
 					*,
 					profiles:user_id (username, avatar_url)
 				`)
-				.eq('game_id', gameId);
+				.eq('game_instance_id', gameId);
 
 			if (responsesError) throw responsesError;
 			if (!responses || responses.length === 0) {

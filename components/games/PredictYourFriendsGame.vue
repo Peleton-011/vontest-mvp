@@ -65,7 +65,7 @@ const loadActiveGame = async () => {
 			const { data: responses } = await supabase
 				.from('game_responses')
 				.select('id')
-				.eq('game_id', game.id);
+				.eq('game_instance_id', game.id);
 			responseCount.value = responses?.length || 0;
 		}
 	}
