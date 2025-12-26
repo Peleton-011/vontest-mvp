@@ -129,8 +129,6 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Group votes on best party',
       'Debate in dedicated threads'
     ],
-    disabled: true,
-    comingSoon: true,
   },
   two_truths_roulette: {
     id: 'two_truths_roulette',
@@ -165,8 +163,6 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Read public compliment feed',
       'Unused coins expire'
     ],
-    disabled: true,
-    comingSoon: true,
   },
   bracket_battle: {
     id: 'bracket_battle',
@@ -184,8 +180,6 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Debate each matchup',
       'Vote to advance winners'
     ],
-    disabled: true,
-    comingSoon: true,
   },
 };
 

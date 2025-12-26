@@ -152,6 +152,18 @@
 								v-else-if="activeGame.game_type === 'predict_your_friends'"
 								:group-id="groupId"
 							/>
+							<GamesDinnerPartyDilemmasGame
+								v-else-if="activeGame.game_type === 'dinner_party_dilemmas'"
+								:group-id="groupId"
+							/>
+							<GamesComplimentEconomyGame
+								v-else-if="activeGame.game_type === 'compliment_economy'"
+								:group-id="groupId"
+							/>
+							<GamesBracketBattleGame
+								v-else-if="activeGame.game_type === 'bracket_battle'"
+								:group-id="groupId"
+							/>
 							<div v-else class="text-center py-12">
 								<UIcon
 									name="i-heroicons-puzzle-piece"
