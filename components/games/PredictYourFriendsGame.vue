@@ -22,8 +22,9 @@ const {
 	completeGame,
 } = usePredictYourFriends(props.groupId);
 
-const { isAdmin } = useGroupMembers(computed(() => props.groupId));
+const { isAdmin, members } = useGroupMembers(computed(() => props.groupId));
 const supabase = useSupabaseClient();
+const user = useSupabaseUser();
 
 const gameMetadata = getGameMetadata('predict_your_friends');
 
@@ -41,6 +42,14 @@ const selectedPredictions = ref<Set<string>>(new Set());
 
 const results = ref<any>(null);
 const responseCount = ref(0);
+
+// Get Oracle profile info
+const oracleProfile = computed(() => {
+	if (!currentGame.value) return null;
+	const prompt = currentGame.value.prompt as PredictYourFriendsPrompt;
+	const oracleMember = members.value.find(m => m.user_id === prompt.oracleUserId);
+	return oracleMember || null;
+});
 
 // Load active game
 const loadActiveGame = async () => {
@@ -222,17 +231,29 @@ const showResults = computed(() => !!results.value && currentGame.value?.status 
 						{{ (currentGame.prompt as PredictYourFriendsPrompt).question }}
 					</h3>
 
-					<!-- Oracle Badge -->
-					<UBadge
-						v-if="isOracle"
-						color="yellow"
-						size="lg"
-					>
-						⭐ You are the Oracle
-					</UBadge>
-					<p v-else class="text-sm text-gray-400">
-						Predict what the Oracle will answer!
-					</p>
+					<!-- Oracle Display - Prominently show who the Oracle is -->
+					<div class="mt-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border-2 border-indigo-300 dark:border-indigo-700">
+						<p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-3">
+							{{ isOracle ? '⭐ YOU ARE THE ORACLE' : '🔮 THE ORACLE' }}
+						</p>
+						<div class="flex items-center justify-center gap-3">
+							<UAvatar
+								v-if="oracleProfile"
+								:src="oracleProfile.avatar_url"
+								:alt="oracleProfile.username"
+								size="lg"
+								class="ring-2 ring-indigo-400 dark:ring-indigo-500"
+							/>
+							<div>
+								<p class="font-bold text-lg text-indigo-900 dark:text-indigo-100">
+									{{ oracleProfile?.username || 'Loading...' }}
+								</p>
+								<p class="text-xs text-indigo-600 dark:text-indigo-400">
+									{{ isOracle ? 'Answer truthfully!' : 'Predict their answer' }}
+								</p>
+							</div>
+						</div>
+					</div>
 				</div>
 			</UCard>
 
