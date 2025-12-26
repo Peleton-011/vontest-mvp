@@ -50,8 +50,8 @@ const mostLikelyToForm = reactive({
 const loading = ref(false);
 const error = ref<string | null>(null);
 
-// Available game types (only active ones)
-const availableGameTypes = getAllGameTypes().filter(g => !g.disabled);
+// Available game types
+const availableGameTypes = getAllGameTypes();
 
 // Stepper items
 const stepperItems = ref<StepperItem[]>([
@@ -174,8 +174,8 @@ const handleCancel = () => {
 						<UCard
 							v-for="gameType in availableGameTypes"
 							:key="gameType.id"
-							class="cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all"
-							@click="selectGameType(gameType.id)"
+							:class="[gameType.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:ring-2 hover:ring-primary-500', 'transition-all']"
+							@click="!gameType.disabled && selectGameType(gameType.id)"
 						>
 							<div class="flex items-start gap-4">
 								<div
