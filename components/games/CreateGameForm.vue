@@ -153,7 +153,7 @@ const handleCancel = () => {
 </script>
 
 <template>
-	<div class="create-game-form">
+	<div class="create-game-form w-full max-w-4xl">
 		<!-- Error Display -->
 		<div v-if="error" class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded">
 			{{ error }}

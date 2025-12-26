@@ -416,7 +416,6 @@
 			<UModal
 				v-model:open="showCustomGameModal"
 				title="Create Custom Game"
-				:ui="{ width: 'sm:max-w-4xl' }"
 			>
 				<template #body>
 					<GamesCreateGameForm
