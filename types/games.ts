@@ -161,12 +161,10 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
     estimatedTime: 'Ongoing',
     howToPlay: [
       'Receive 5 coins per week',
-      'Award to friends with reasons',
+      'Award individually with reasons',
       'Read public compliment feed',
-      'Unused coins expire'
+      'Submit as many as you have coins'
     ],
-    disabled: true,
-    comingSoon: true,
   },
   bracket_battle: {
     id: 'bracket_battle',

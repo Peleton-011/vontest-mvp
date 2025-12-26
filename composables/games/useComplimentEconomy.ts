@@ -131,7 +131,7 @@ export const useComplimentEconomy = (groupId: string) => {
 			const { data, error: fetchError } = await supabase
 				.from('game_responses')
 				.select('*')
-				.eq('game_id', gameId)
+				.eq('game_instance_id', gameId)
 				.eq('user_id', user.value.id)
 				.single();
 
@@ -147,7 +147,73 @@ export const useComplimentEconomy = (groupId: string) => {
 		}
 	};
 
-	// Submit compliments
+	// Get user's compliments array
+	const getUserCompliments = () => {
+		if (!userResponse.value?.response_data) return [];
+		return (userResponse.value.response_data as any).compliments || [];
+	};
+
+	// Get coins spent by user
+	const getCoinsSpent = () => {
+		const compliments = getUserCompliments();
+		return compliments.reduce((total: number, comp: any) => total + (comp.coins || 0), 0);
+	};
+
+	// Add a single compliment (creates or updates user's response)
+	const addCompliment = async (
+		gameId: string,
+		recipientUserId: string,
+		coins: number,
+		reason: string
+	) => {
+		if (!user.value) {
+			return { success: false, error: 'Not authenticated' };
+		}
+
+		loading.value = true;
+		error.value = null;
+
+		try {
+			// Get current response if exists
+			await getUserResponse(gameId);
+
+			const existingCompliments = getUserCompliments();
+			const newCompliment = {
+				recipientUserId,
+				coins,
+				reason,
+			};
+
+			const updatedCompliments = [...existingCompliments, newCompliment];
+
+			// Upsert the response
+			const { data, error: upsertError } = await supabase
+				.from('game_responses')
+				.upsert({
+					game_instance_id: gameId,
+					user_id: user.value.id,
+					response_data: {
+						compliments: updatedCompliments,
+					},
+				}, {
+					onConflict: 'game_instance_id,user_id'
+				})
+				.select()
+				.single();
+
+			if (upsertError) throw upsertError;
+
+			userResponse.value = data;
+			return { success: true, data };
+		} catch (err: any) {
+			error.value = err.message;
+			return { success: false, error: err.message };
+		} finally {
+			loading.value = false;
+		}
+	};
+
+	// Submit compliments (legacy bulk method - kept for compatibility)
 	const submitCompliments = async (gameId: string, submission: ComplimentSubmission) => {
 		if (!user.value) {
 			return { success: false, error: 'Not authenticated' };
@@ -160,7 +226,7 @@ export const useComplimentEconomy = (groupId: string) => {
 			const { data, error: submitError } = await supabase
 				.from('game_responses')
 				.insert({
-					game_id: gameId,
+					game_instance_id: gameId,
 					user_id: user.value.id,
 					response_data: {
 						compliments: submission.compliments,
@@ -218,7 +284,7 @@ export const useComplimentEconomy = (groupId: string) => {
 					*,
 					profiles:user_id (username, avatar_url)
 				`)
-				.eq('game_id', gameId);
+				.eq('game_instance_id', gameId);
 
 			if (responsesError) throw responsesError;
 			if (!responses || responses.length === 0) {
@@ -333,6 +399,9 @@ export const useComplimentEconomy = (groupId: string) => {
 		createGame,
 		getActiveGame,
 		getUserResponse,
+		getUserCompliments,
+		getCoinsSpent,
+		addCompliment,
 		submitCompliments,
 		completeGame,
 		getResults,

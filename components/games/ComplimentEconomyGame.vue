@@ -13,7 +13,9 @@ const {
 	userResponse,
 	getActiveGame,
 	getUserResponse,
-	submitCompliments,
+	getUserCompliments,
+	getCoinsSpent,
+	addCompliment: addComplimentToGame,
 	getResults,
 	completeGame,
 } = useComplimentEconomy(props.groupId);
@@ -24,12 +26,12 @@ const user = useSupabaseUser();
 
 const gameMetadata = getGameMetadata('compliment_economy');
 
-// Compliment form state
-const compliments = ref<Array<{
-	recipientUserId: string;
-	coins: number;
-	reason: string;
-}>>([]);
+// Current compliment form state (for adding ONE compliment)
+const newCompliment = reactive({
+	recipientUserId: '',
+	coins: 1,
+	reason: '',
+});
 
 const results = ref<any>(null);
 const responseCount = ref(0);
@@ -52,7 +54,7 @@ const loadActiveGame = async () => {
 			const { data: responses } = await supabase
 				.from('game_responses')
 				.select('id')
-				.eq('game_id', game.id);
+				.eq('game_instance_id', game.id);
 			responseCount.value = responses?.length || 0;
 		}
 	}
@@ -65,50 +67,45 @@ const coinsPerPlayer = computed(() => {
 	return prompt.coinsPerPlayer || 5;
 });
 
+// Get user's submitted compliments
+const submittedCompliments = computed(() => {
+	return getUserCompliments();
+});
+
+// Calculate coins spent
+const coinsSpent = computed(() => {
+	return getCoinsSpent();
+});
+
 // Calculate remaining coins
-const coinsUsed = computed(() => {
-	return compliments.value.reduce((sum, c) => sum + c.coins, 0);
-});
-
 const coinsRemaining = computed(() => {
-	return coinsPerPlayer.value - coinsUsed.value;
+	return coinsPerPlayer.value - coinsSpent.value;
 });
-
-// Add compliment
-const addCompliment = () => {
-	compliments.value.push({
-		recipientUserId: '',
-		coins: 1,
-		reason: '',
-	});
-};
-
-// Remove compliment
-const removeCompliment = (index: number) => {
-	compliments.value.splice(index, 1);
-};
 
 // Filter members (exclude current user)
 const availableMembers = computed(() => {
 	return members.value.filter(m => m.user_id !== user.value?.id);
 });
 
-// Submit compliments
-const handleSubmitCompliments = async () => {
+// Submit a single compliment
+const handleSubmitCompliment = async () => {
 	if (!currentGame.value) return;
+	if (!newCompliment.recipientUserId || !newCompliment.reason.trim()) return;
+	if (newCompliment.coins < 1 || newCompliment.coins > coinsRemaining.value) return;
 
-	// Validate all compliments have recipient, coins, and reason
-	const validCompliments = compliments.value.filter(
-		c => c.recipientUserId && c.coins > 0 && c.reason.trim()
+	const result = await addComplimentToGame(
+		currentGame.value.id,
+		newCompliment.recipientUserId,
+		newCompliment.coins,
+		newCompliment.reason
 	);
 
-	if (validCompliments.length === 0) return;
-
-	const result = await submitCompliments(currentGame.value.id, {
-		compliments: validCompliments,
-	});
-
 	if (result.success) {
+		// Reset form
+		newCompliment.recipientUserId = '';
+		newCompliment.coins = 1;
+		newCompliment.reason = '';
+
 		await loadActiveGame();
 	}
 };
@@ -154,12 +151,19 @@ onMounted(async () => {
 
 const showResults = computed(() => !!results.value && currentGame.value?.status === 'completed');
 
-// Check if form is valid
-const isFormValid = computed(() => {
-	return compliments.value.length > 0 &&
-		compliments.value.every(c => c.recipientUserId && c.coins > 0 && c.reason.trim()) &&
-		coinsUsed.value <= coinsPerPlayer.value;
+// Check if form is valid for submitting single compliment
+const isComplimentValid = computed(() => {
+	return newCompliment.recipientUserId &&
+		newCompliment.coins > 0 &&
+		newCompliment.reason.trim() &&
+		newCompliment.coins <= coinsRemaining.value;
 });
+
+// Helper to get recipient name
+const getRecipientName = (userId: string) => {
+	const member = members.value.find(m => m.user_id === userId);
+	return member?.username || 'Unknown';
+};
 </script>
 
 <template>
@@ -193,113 +197,102 @@ const isFormValid = computed(() => {
 				</div>
 			</UCard>
 
-			<!-- Submit Compliments -->
-			<div v-if="!userResponse && currentGame.status === 'active'" class="space-y-4">
+			<!-- Award Compliments -->
+			<div v-if="currentGame.status === 'active'" class="space-y-4">
 				<!-- Coins Remaining -->
 				<div class="flex justify-between items-center p-4 bg-rose-50 dark:bg-rose-900/20 rounded-lg">
 					<span class="font-semibold">Coins Remaining</span>
-					<UBadge :color="coinsRemaining >= 0 ? 'rose' : 'red'" size="lg">
+					<UBadge :color="coinsRemaining > 0 ? 'rose' : 'gray'" size="lg">
 						{{ coinsRemaining }}/{{ coinsPerPlayer }}
 					</UBadge>
 				</div>
 
-				<!-- Compliment List -->
-				<div class="space-y-3">
+				<!-- Previously Submitted Compliments -->
+				<div v-if="submittedCompliments.length > 0" class="space-y-3">
+					<h4 class="font-semibold text-sm text-gray-600 dark:text-gray-400">
+						Your Compliments ({{ submittedCompliments.length }})
+					</h4>
 					<div
-						v-for="(compliment, index) in compliments"
+						v-for="(compliment, index) in submittedCompliments"
 						:key="index"
-						class="p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg space-y-3"
+						class="border-l-4 border-rose-500 bg-rose-50 dark:bg-rose-900/20 rounded-r-lg p-4"
 					>
-						<div class="flex justify-between items-start">
-							<span class="font-semibold text-sm">Compliment #{{ index + 1 }}</span>
-							<UButton
-								variant="ghost"
-								color="red"
-								size="xs"
-								icon="i-heroicons-x-mark"
-								@click="removeCompliment(index)"
-							/>
+						<div class="flex items-start gap-2 mb-2">
+							<UBadge color="rose" size="xs">{{ compliment.coins }} {{ compliment.coins === 1 ? 'coin' : 'coins' }}</UBadge>
+							<span class="text-gray-400 text-xs">to</span>
+							<span class="font-semibold text-sm">{{ getRecipientName(compliment.recipientUserId) }}</span>
 						</div>
-
-						<!-- Recipient Selection -->
-						<UFormField label="Award To" required>
-							<select
-								v-model="compliment.recipientUserId"
-								class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
-							>
-								<option value="">Select a person...</option>
-								<option
-									v-for="member in availableMembers"
-									:key="member.user_id"
-									:value="member.user_id"
-								>
-									{{ member.username }}
-								</option>
-							</select>
-						</UFormField>
-
-						<!-- Coins Amount -->
-						<UFormField label="Coins" required>
-							<select
-								v-model.number="compliment.coins"
-								class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
-							>
-								<option :value="1">1 coin</option>
-								<option :value="2">2 coins</option>
-								<option :value="3">3 coins</option>
-								<option :value="4">4 coins</option>
-								<option :value="5">5 coins</option>
-							</select>
-						</UFormField>
-
-						<!-- Reason -->
-						<UFormField label="Why do they deserve this?" required>
-							<UTextarea
-								v-model="compliment.reason"
-								placeholder="Be specific about what they did or how they helped..."
-								:rows="3"
-							/>
-						</UFormField>
+						<p class="text-sm text-gray-700 dark:text-gray-300">{{ compliment.reason }}</p>
 					</div>
 				</div>
 
-				<!-- Add Another Button -->
-				<UButton
-					@click="addCompliment"
-					variant="outline"
-					block
-					icon="i-heroicons-plus"
-					:disabled="coinsRemaining <= 0"
-				>
-					Add Another Compliment
-				</UButton>
+				<!-- Add New Compliment Form -->
+				<div v-if="coinsRemaining > 0" class="p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg space-y-3">
+					<h4 class="font-semibold text-sm">Award a New Compliment</h4>
 
-				<!-- Submit Button -->
-				<UButton
-					@click="handleSubmitCompliments"
-					:loading="loading"
-					:disabled="!isFormValid || coinsRemaining < 0"
-					block
-					size="lg"
-				>
-					Submit Compliments
-				</UButton>
-			</div>
+					<!-- Recipient Selection -->
+					<UFormField label="Award To" required>
+						<select
+							v-model="newCompliment.recipientUserId"
+							class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
+						>
+							<option value="">Select a person...</option>
+							<option
+								v-for="member in availableMembers"
+								:key="member.user_id"
+								:value="member.user_id"
+							>
+								{{ member.username }}
+							</option>
+						</select>
+					</UFormField>
 
-			<!-- Compliments Submitted -->
-			<div v-if="userResponse">
-				<UCard class="bg-blue-50 dark:bg-blue-900/20">
-					<div class="text-center py-6">
-						<div class="text-3xl mb-3">✅</div>
-						<p class="font-semibold mb-2">Compliments Submitted!</p>
-						<p class="text-sm text-gray-400">
-							You awarded {{ userResponse.response_data.compliments.length }} {{ userResponse.response_data.compliments.length === 1 ? 'compliment' : 'compliments' }}
-						</p>
-						<p class="text-sm text-gray-400 mt-2">
-							Waiting for the game to end...
-						</p>
-					</div>
-				</UCard>
+					<!-- Coins Amount -->
+					<UFormField label="Coins" required>
+						<select
+							v-model.number="newCompliment.coins"
+							class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
+						>
+							<option v-for="i in Math.min(coinsRemaining, 5)" :key="i" :value="i">{{ i }} {{ i === 1 ? 'coin' : 'coins' }}</option>
+						</select>
+					</UFormField>
+
+					<!-- Reason -->
+					<UFormField label="Why do they deserve this?" required>
+						<UTextarea
+							v-model="newCompliment.reason"
+							placeholder="Be specific about what they did or how they helped..."
+							:rows="3"
+						/>
+					</UFormField>
+
+					<!-- Submit Button -->
+					<UButton
+						@click="handleSubmitCompliment"
+						:loading="loading"
+						:disabled="!isComplimentValid"
+						block
+						size="lg"
+					>
+						Award Compliment
+					</UButton>
+				</div>
+
+				<!-- All Coins Used -->
+				<div v-else-if="coinsRemaining === 0 && submittedCompliments.length > 0">
+					<UCard class="bg-blue-50 dark:bg-blue-900/20">
+						<div class="text-center py-6">
+							<div class="text-3xl mb-3">✅</div>
+							<p class="font-semibold mb-2">All Coins Awarded!</p>
+							<p class="text-sm text-gray-400">
+								You've awarded all {{ coinsPerPlayer }} coins across {{ submittedCompliments.length }} {{ submittedCompliments.length === 1 ? 'compliment' : 'compliments' }}
+							</p>
+							<p class="text-sm text-gray-400 mt-2">
+								Waiting for the game to end...
+							</p>
+						</div>
+					</UCard>
+				</div>
 			</div>
 		</template>
 
