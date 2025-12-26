@@ -118,7 +118,7 @@
 									size="md"
 									variant="outline"
 									icon="i-heroicons-pencil"
-									@click="showCustomGameModal = true"
+									@click="handleOpenCustomGame"
 								>
 									Make Custom Game
 								</UButton>
@@ -696,9 +696,47 @@ const loadActiveGame = async () => {
 	}
 };
 
+// End the current active game
+const endActiveGame = async () => {
+	if (!activeGame.value) return true;
+
+	try {
+		const { error: updateError } = await supabase
+			.from('game_instances')
+			.update({ status: 'completed' })
+			.eq('id', activeGame.value.id);
+
+		if (updateError) throw updateError;
+
+		activeGame.value = null;
+		return true;
+	} catch (err) {
+		console.error('Error ending game:', err);
+		alert('Failed to end the current game');
+		return false;
+	}
+};
+
+// Check if there's an active game and prompt user
+const confirmEndCurrentGame = async (): Promise<boolean> => {
+	if (!activeGame.value) return true;
+
+	const confirmed = confirm(
+		'There is currently an active game. Do you want to end it and start a new one?'
+	);
+
+	if (!confirmed) return false;
+
+	return await endActiveGame();
+};
+
 // Handle automatic game creation ("Start Game Now")
 const handleStartGameNow = async () => {
 	if (!groupId.value) return;
+
+	// Check and end current game if user confirms
+	const canProceed = await confirmEndCurrentGame();
+	if (!canProceed) return;
 
 	const result = await createGameForGroup(groupId.value);
 
@@ -707,6 +745,15 @@ const handleStartGameNow = async () => {
 	} else {
 		alert(`Failed to create game: ${result.error}`);
 	}
+};
+
+// Handle opening custom game modal
+const handleOpenCustomGame = async () => {
+	// Check and end current game if user confirms
+	const canProceed = await confirmEndCurrentGame();
+	if (!canProceed) return;
+
+	showCustomGameModal.value = true;
 };
 
 // Handle game created from custom form
