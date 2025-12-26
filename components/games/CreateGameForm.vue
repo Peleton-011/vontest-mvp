@@ -443,15 +443,12 @@ const handleCancel = () => {
 						</UFormField>
 
 						<UFormField label="Bracket Size">
-							<URadio
+							<URadioGroup
 								v-model="bracketBattleForm.bracketSize"
-								:value="8"
-								label="8 competitors"
-							/>
-							<URadio
-								v-model="bracketBattleForm.bracketSize"
-								:value="16"
-								label="16 competitors"
+								:items="[
+									{ value: 8, label: '8 competitors' },
+									{ value: 16, label: '16 competitors' }
+								]"
 							/>
 						</UFormField>
 					</div>
