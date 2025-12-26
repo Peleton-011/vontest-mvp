@@ -49,7 +49,7 @@
 			<div class="flex items-start gap-6 mb-8">
 				<UAvatar :src="group.avatar_url" :alt="group.name" size="2xl" />
 				<div class="flex-1">
-					<h1 class="text-3xl font-bold">{{ group.name }}</h1>
+					<h1 class="text-2xl sm:text-3xl font-bold">{{ group.name }}</h1>
 					<p v-if="group.description" class="text-gray-600 mt-2">
 						{{ group.description }}
 					</p>
@@ -105,8 +105,9 @@
 									Auto-created at {{ settings.notification_time }} ({{ settings.timezone }})
 								</p>
 							</div>
-							<div class="flex gap-2">
+							<div class="flex gap-3">
 								<UButton
+									size="md"
 									icon="i-heroicons-sparkles"
 									:loading="gameSchedulerLoading"
 									@click="handleStartGameNow"
@@ -114,9 +115,10 @@
 									Start Game Now
 								</UButton>
 								<UButton
+									size="md"
 									variant="outline"
 									icon="i-heroicons-pencil"
-									@click="showCustomGameModal = true"
+									@click="handleOpenCustomGame"
 								>
 									Make Custom Game
 								</UButton>
@@ -140,6 +142,26 @@
 							/>
 							<GamesMostLikelyToGame
 								v-else-if="activeGame.game_type === 'most_likely_to'"
+								:group-id="groupId"
+							/>
+							<GamesTwoTruthsRouletteGame
+								v-else-if="activeGame.game_type === 'two_truths_roulette'"
+								:group-id="groupId"
+							/>
+							<GamesPredictYourFriendsGame
+								v-else-if="activeGame.game_type === 'predict_your_friends'"
+								:group-id="groupId"
+							/>
+							<GamesDinnerPartyDilemmasGame
+								v-else-if="activeGame.game_type === 'dinner_party_dilemmas'"
+								:group-id="groupId"
+							/>
+							<GamesComplimentEconomyGame
+								v-else-if="activeGame.game_type === 'compliment_economy'"
+								:group-id="groupId"
+							/>
+							<GamesBracketBattleGame
+								v-else-if="activeGame.game_type === 'bracket_battle'"
 								:group-id="groupId"
 							/>
 							<div v-else class="text-center py-12">
@@ -411,13 +433,51 @@
 			</UTabs>
 
 			<!-- Custom Game Modal -->
-			<UModal v-model:open="showCustomGameModal" title="Create Custom Game">
+			<UModal
+				v-model:open="showCustomGameModal"
+				title="Create Custom Game"
+				:ui="{ content: 'max-w-5xl' }"
+			>
 				<template #body>
 					<GamesCreateGameForm
 						:group-id="groupId"
 						@created="handleGameCreated"
 						@cancel="handleGameCanceled"
 					/>
+				</template>
+			</UModal>
+
+			<!-- End Game Confirmation Modal -->
+			<UModal
+				v-model:open="showEndGameModal"
+				title="End Current Game?"
+			>
+				<template #body>
+					<div class="py-4">
+						<p class="text-gray-700 dark:text-gray-300 mb-2">
+							There is currently an active game in progress.
+						</p>
+						<p class="text-gray-600 dark:text-gray-400">
+							Would you like to end it and start a new one? This action cannot be undone.
+						</p>
+					</div>
+				</template>
+				<template #footer>
+					<div class="flex justify-end gap-3">
+						<UButton
+							variant="ghost"
+							color="neutral"
+							@click="handleEndGameCancel"
+						>
+							Cancel
+						</UButton>
+						<UButton
+							color="error"
+							@click="handleEndGameConfirm"
+						>
+							Yes, End Game
+						</UButton>
+					</div>
 				</template>
 			</UModal>
 		</div>
@@ -488,6 +548,8 @@ const error = computed(() => groupError.value || membersError.value);
 const activeGame = ref<any>(null);
 const loadingGame = ref(false);
 const showCustomGameModal = ref(false);
+const showEndGameModal = ref(false);
+const endGameResolve = ref<((value: boolean) => void) | null>(null);
 
 // Chat state
 const supabase = useSupabaseClient<Database>();
@@ -670,9 +732,64 @@ const loadActiveGame = async () => {
 	}
 };
 
+// End the current active game
+const endActiveGame = async () => {
+	if (!activeGame.value) return true;
+
+	try {
+		const { error: updateError } = await supabase
+			.from('game_instances')
+			.update({ status: 'completed' })
+			.eq('id', activeGame.value.id);
+
+		if (updateError) throw updateError;
+
+		activeGame.value = null;
+		return true;
+	} catch (err) {
+		console.error('Error ending game:', err);
+		alert('Failed to end the current game');
+		return false;
+	}
+};
+
+// Check if there's an active game and prompt user
+const confirmEndCurrentGame = async (): Promise<boolean> => {
+	if (!activeGame.value) return true;
+
+	// Show modal and wait for user response
+	return new Promise((resolve) => {
+		endGameResolve.value = resolve;
+		showEndGameModal.value = true;
+	});
+};
+
+// Handle user confirming to end the game
+const handleEndGameConfirm = async () => {
+	showEndGameModal.value = false;
+	const success = await endActiveGame();
+	if (endGameResolve.value) {
+		endGameResolve.value(success);
+		endGameResolve.value = null;
+	}
+};
+
+// Handle user canceling the end game action
+const handleEndGameCancel = () => {
+	showEndGameModal.value = false;
+	if (endGameResolve.value) {
+		endGameResolve.value(false);
+		endGameResolve.value = null;
+	}
+};
+
 // Handle automatic game creation ("Start Game Now")
 const handleStartGameNow = async () => {
 	if (!groupId.value) return;
+
+	// Check and end current game if user confirms
+	const canProceed = await confirmEndCurrentGame();
+	if (!canProceed) return;
 
 	const result = await createGameForGroup(groupId.value);
 
@@ -681,6 +798,15 @@ const handleStartGameNow = async () => {
 	} else {
 		alert(`Failed to create game: ${result.error}`);
 	}
+};
+
+// Handle opening custom game modal
+const handleOpenCustomGame = async () => {
+	// Check and end current game if user confirms
+	const canProceed = await confirmEndCurrentGame();
+	if (!canProceed) return;
+
+	showCustomGameModal.value = true;
 };
 
 // Handle game created from custom form

@@ -103,17 +103,15 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
     description: 'Predict what your friends will do or think. Test how well you know them!',
     detailedDescription: 'Daily prediction question about group members. Everyone predicts, then one person gives the true answer. Points for accuracy and discussion about why people predicted what they did.',
     icon: 'i-heroicons-light-bulb',
-    color: 'cyan',
+    color: 'indigo',
     minPlayers: 3,
     estimatedTime: '5-10 minutes',
     howToPlay: [
       'Daily prediction question posted',
       'Everyone makes their predictions',
       'Oracle reveals the truth',
-      'Earn points for correct predictions'
+      'Oracle selects closest predictions'
     ],
-    disabled: true,
-    comingSoon: true,
   },
   dinner_party_dilemmas: {
     id: 'dinner_party_dilemmas',
@@ -141,7 +139,7 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
     description: 'Submit two truths and a lie about your week. Can friends spot the lie?',
     detailedDescription: 'Weekly game where everyone submits two truths and one lie about their week. Group votes on which is the lie. Points for fooling friends and guessing correctly!',
     icon: 'i-heroicons-sparkles',
-    color: 'indigo',
+    color: 'cyan',
     minPlayers: 3,
     estimatedTime: '5-10 minutes',
     howToPlay: [
@@ -150,8 +148,6 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Reveal correct answer',
       'Share stories in chat'
     ],
-    disabled: true,
-    comingSoon: true,
   },
   compliment_economy: {
     id: 'compliment_economy',
@@ -165,12 +161,10 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
     estimatedTime: 'Ongoing',
     howToPlay: [
       'Receive 5 coins per week',
-      'Award to friends with reasons',
+      'Award individually with reasons',
       'Read public compliment feed',
-      'Unused coins expire'
+      'Submit as many as you have coins'
     ],
-    disabled: true,
-    comingSoon: true,
   },
   bracket_battle: {
     id: 'bracket_battle',
@@ -206,4 +200,76 @@ export const isValidGameType = (type: string): type is GameType => {
 // Helper to get game metadata
 export const getGameMetadata = (type: GameType): GameTypeMetadata => {
   return GAME_TYPES[type];
+};
+
+// Helper to get color classes for a game type (Tailwind needs static classes)
+export const getGameColorClasses = (color: string) => {
+  const colorMap: Record<string, { icon: string; iconLarge: string; bg: string; bgDark: string; border: string; borderDark: string }> = {
+    blue: {
+      icon: 'text-blue-600',
+      iconLarge: 'text-blue-500',
+      bg: 'bg-blue-100',
+      bgDark: 'dark:bg-blue-900/20',
+      border: 'border-blue-200',
+      borderDark: 'dark:border-blue-800',
+    },
+    red: {
+      icon: 'text-red-600',
+      iconLarge: 'text-red-500',
+      bg: 'bg-red-100',
+      bgDark: 'dark:bg-red-900/20',
+      border: 'border-red-200',
+      borderDark: 'dark:border-red-800',
+    },
+    purple: {
+      icon: 'text-purple-600',
+      iconLarge: 'text-purple-500',
+      bg: 'bg-purple-100',
+      bgDark: 'dark:bg-purple-900/20',
+      border: 'border-purple-200',
+      borderDark: 'dark:border-purple-800',
+    },
+    cyan: {
+      icon: 'text-cyan-600',
+      iconLarge: 'text-cyan-500',
+      bg: 'bg-cyan-100',
+      bgDark: 'dark:bg-cyan-900/20',
+      border: 'border-cyan-200',
+      borderDark: 'dark:border-cyan-800',
+    },
+    indigo: {
+      icon: 'text-indigo-600',
+      iconLarge: 'text-indigo-500',
+      bg: 'bg-indigo-100',
+      bgDark: 'dark:bg-indigo-900/20',
+      border: 'border-indigo-200',
+      borderDark: 'dark:border-indigo-800',
+    },
+    pink: {
+      icon: 'text-pink-600',
+      iconLarge: 'text-pink-500',
+      bg: 'bg-pink-100',
+      bgDark: 'dark:bg-pink-900/20',
+      border: 'border-pink-200',
+      borderDark: 'dark:border-pink-800',
+    },
+    rose: {
+      icon: 'text-rose-600',
+      iconLarge: 'text-rose-500',
+      bg: 'bg-rose-100',
+      bgDark: 'dark:bg-rose-900/20',
+      border: 'border-rose-200',
+      borderDark: 'dark:border-rose-800',
+    },
+    orange: {
+      icon: 'text-orange-600',
+      iconLarge: 'text-orange-500',
+      bg: 'bg-orange-100',
+      bgDark: 'dark:bg-orange-900/20',
+      border: 'border-orange-200',
+      borderDark: 'dark:border-orange-800',
+    },
+  };
+
+  return colorMap[color] || colorMap.blue; // Default to blue if color not found
 };

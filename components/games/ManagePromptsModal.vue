@@ -445,7 +445,7 @@ const getGameTypeInfo = (gameType: string) => {
 						<div class="space-y-4 py-4">
 							<div v-if="prompts.length === 0" class="text-center py-12">
 								<UIcon name="i-heroicons-inbox" class="w-16 h-16 mx-auto text-gray-400 mb-4" />
-								<p class="text-gray-600">No custom prompts yet</p>
+								<p class="text-gray-400">No custom prompts yet</p>
 								<p class="text-sm text-gray-500 mt-1">
 									Create your first custom prompt in the other tab!
 								</p>
