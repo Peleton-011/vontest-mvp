@@ -49,58 +49,60 @@
 
 		<!-- Groups grid -->
 		<div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-			<UCard
+			<NuxtLink
 				v-for="group in groups"
 				:key="group.id"
-				class="hover:shadow-lg transition-shadow cursor-pointer"
-				@click="navigateTo(`/games/${group.id}`)"
+				:to="`/games/${group.id}`"
+				class="group focus:outline-none"
 			>
-				<template #header>
-					<div class="flex items-center gap-3">
-						<UAvatar
-							:src="group.avatar_url"
-							:alt="group.name"
-							size="lg"
-						/>
-						<div class="flex-1">
-							<h3 class="font-semibold text-lg">{{ group.name }}</h3>
-							<p class="text-sm text-gray-600">
-								{{ group.member_count }} {{ group.member_count === 1 ? 'member' : 'members' }}
-							</p>
+				<UCard
+					class="h-full hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group-focus-visible:ring-2 group-focus-visible:ring-primary-500"
+				>
+					<template #header>
+						<div class="flex items-center gap-3">
+							<UAvatar
+								:src="group.avatar_url"
+								:alt="`${group.name} group avatar`"
+								size="lg"
+							/>
+							<div class="flex-1">
+								<h3 class="font-semibold text-lg group-hover:text-primary-600 transition-colors">
+									{{ group.name }}
+								</h3>
+								<p class="text-sm text-gray-400 dark:text-gray-400">
+									{{ group.member_count }} {{ group.member_count === 1 ? 'member' : 'members' }}
+								</p>
+							</div>
 						</div>
-					</div>
-				</template>
+					</template>
 
-				<p v-if="group.description" class="text-gray-700 line-clamp-2">
-					{{ group.description }}
-				</p>
-				<p v-else class="text-gray-400 italic">
-					No description
-				</p>
+					<p v-if="group.description" class="text-gray-600 dark:text-gray-300 line-clamp-2">
+						{{ group.description }}
+					</p>
+					<p v-else class="text-gray-500 dark:text-gray-500 italic">
+						No description
+					</p>
 
-				<template #footer>
-					<div class="flex justify-between items-center text-sm">
-						<div class="flex items-center gap-4">
-							<span class="text-gray-600">
-								<UIcon name="i-heroicons-puzzle-piece" class="w-4 h-4 inline" />
-								{{ group.active_games_count || 0 }} active
-							</span>
-							<span class="text-gray-600">
-								<UIcon name="i-heroicons-trophy" class="w-4 h-4 inline" />
-								{{ group.total_games_count || 0 }} total
+					<template #footer>
+						<div class="flex justify-between items-center text-sm">
+							<div class="flex items-center gap-4">
+								<span class="text-gray-500 dark:text-gray-400" :title="`${group.active_games_count || 0} active games`">
+									<UIcon name="i-heroicons-puzzle-piece" class="w-4 h-4 inline" aria-hidden="true" />
+									{{ group.active_games_count || 0 }} active
+								</span>
+								<span class="text-gray-500 dark:text-gray-400" :title="`${group.total_games_count || 0} total games played`">
+									<UIcon name="i-heroicons-trophy" class="w-4 h-4 inline" aria-hidden="true" />
+									{{ group.total_games_count || 0 }} total
+								</span>
+							</div>
+							<span class="text-primary-600 group-hover:text-primary-500 transition-colors font-medium flex items-center gap-1">
+								View
+								<UIcon name="i-heroicons-arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
 							</span>
 						</div>
-						<UButton
-							size="xs"
-							variant="ghost"
-							trailing-icon="i-heroicons-arrow-right"
-							@click.stop="navigateTo(`/games/${group.id}`)"
-						>
-							View
-						</UButton>
-					</div>
-				</template>
-			</UCard>
+					</template>
+				</UCard>
+			</NuxtLink>
 		</div>
 	</div>
 </template>

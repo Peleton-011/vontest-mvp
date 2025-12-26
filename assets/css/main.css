@@ -27,6 +27,38 @@
 	}
 }
 
+/* Global focus-visible styles for accessibility */
+*:focus-visible {
+	@apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-neutral-900;
+}
+
+/* Better focus styles for buttons */
+button:focus-visible,
+a:focus-visible {
+	@apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-neutral-900;
+}
+
+/* Smooth transitions for interactive elements */
+button,
+a,
+[role="button"],
+input,
+textarea,
+select {
+	@apply transition-colors duration-200 ease-in-out;
+}
+
+/* Card hover effects */
+.hover-lift:hover {
+	@apply transform -translate-y-1 shadow-lg transition-all duration-200;
+}
+
+/* Disabled state styling */
+[disabled],
+[aria-disabled="true"] {
+	@apply opacity-60 cursor-not-allowed;
+}
+
 .markdown-body {
 	box-sizing: border-box;
 	min-width: 100%;
