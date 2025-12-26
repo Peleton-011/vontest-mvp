@@ -144,6 +144,14 @@
 								v-else-if="activeGame.game_type === 'most_likely_to'"
 								:group-id="groupId"
 							/>
+							<GamesTwoTruthsRouletteGame
+								v-else-if="activeGame.game_type === 'two_truths_roulette'"
+								:group-id="groupId"
+							/>
+							<GamesPredictYourFriendsGame
+								v-else-if="activeGame.game_type === 'predict_your_friends'"
+								:group-id="groupId"
+							/>
 							<div v-else class="text-center py-12">
 								<UIcon
 									name="i-heroicons-puzzle-piece"

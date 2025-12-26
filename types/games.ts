@@ -112,8 +112,6 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Oracle reveals the truth',
       'Earn points for correct predictions'
     ],
-    disabled: true,
-    comingSoon: true,
   },
   dinner_party_dilemmas: {
     id: 'dinner_party_dilemmas',
@@ -150,8 +148,6 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Reveal correct answer',
       'Share stories in chat'
     ],
-    disabled: true,
-    comingSoon: true,
   },
   compliment_economy: {
     id: 'compliment_economy',
