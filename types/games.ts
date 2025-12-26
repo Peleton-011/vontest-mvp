@@ -178,12 +178,10 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
     estimatedTime: '7-10 days',
     howToPlay: [
       'Nominate tournament entries',
-      'Seed top competitors',
-      'Debate each matchup',
-      'Vote to advance winners'
+      'Vote on each matchup',
+      'Winners advance to next round',
+      'Champion crowned after finals'
     ],
-    disabled: true,
-    comingSoon: true,
   },
 };
 

@@ -14,7 +14,9 @@ const {
 	getActiveGame,
 	getUserResponse,
 	submitEntry,
+	submitVote,
 	startVotingPhase,
+	advanceToNextRound,
 	getResults,
 	completeGame,
 } = useBracketBattle(props.groupId);
@@ -49,7 +51,7 @@ const loadActiveGame = async () => {
 			const { data: responses } = await supabase
 				.from('game_responses')
 				.select('id')
-				.eq('game_id', game.id);
+				.eq('game_instance_id', game.id);
 			responseCount.value = responses?.length || 0;
 		}
 	}
@@ -132,6 +134,59 @@ const tournamentTopic = computed(() => {
 	if (!currentGame.value) return '';
 	const prompt = currentGame.value.prompt as BracketBattlePrompt;
 	return prompt.topic || 'Tournament';
+});
+
+// Get current round from metadata
+const currentRound = computed(() => {
+	if (!currentGame.value) return 1;
+	const metadata = currentGame.value.metadata as any;
+	return metadata?.currentRound || 1;
+});
+
+// Get current round matchups
+const currentRoundMatchups = computed(() => {
+	if (!results.value || !results.value.bracket) return [];
+	return results.value.bracket.filter((m: any) => m.round === currentRound.value);
+});
+
+// Get entry by ID
+const getEntryById = (entryId: string) => {
+	if (!results.value || !results.value.allEntries) return null;
+	return results.value.allEntries.find((e: any) => e.id === entryId);
+};
+
+// Get user's votes
+const userVotes = computed(() => {
+	if (!userResponse.value || !userResponse.value.response_data) return {};
+	return userResponse.value.response_data.votes || {};
+});
+
+// Handle matchup vote
+const handleMatchupVote = async (matchupId: string, entryId: string) => {
+	if (!currentGame.value) return;
+
+	const result = await submitVote(currentGame.value.id, matchupId, entryId);
+	if (result.success) {
+		await loadActiveGame();
+	}
+};
+
+// Handle advance to next round (admin)
+const handleAdvanceToNextRound = async () => {
+	if (!currentGame.value) return;
+
+	const result = await advanceToNextRound(currentGame.value.id);
+	if (result.success) {
+		await loadActiveGame();
+	}
+};
+
+// Check if all matchups in current round have been voted on
+const allMatchupsVoted = computed(() => {
+	if (!currentRoundMatchups.value.length) return false;
+	return currentRoundMatchups.value.every((m: any) =>
+		userVotes.value[m.id] !== undefined
+	);
 });
 </script>
 
@@ -224,53 +279,117 @@ const tournamentTopic = computed(() => {
 				</div>
 			</div>
 
-			<!-- Voting Phase (simplified - show all entries) -->
+			<!-- Voting Phase - Matchups -->
 			<div v-if="currentGame.current_phase?.startsWith('voting')" class="space-y-4">
 				<UCard class="bg-orange-50 dark:bg-orange-900/20">
 					<div class="text-center py-4">
 						<div class="text-3xl mb-2">🏆</div>
-						<p class="font-semibold mb-2">Tournament in Progress!</p>
+						<p class="font-semibold mb-2">Round {{ currentRound }}</p>
 						<p class="text-sm text-gray-400">
-							Voting rounds will be conducted by the admin.
+							{{ currentGame.current_phase === 'voting_finals' ? 'Finals' : `Vote on matchups` }}
 						</p>
 					</div>
 				</UCard>
 
-				<!-- Show all entries -->
-				<div v-if="results && results.allEntries.length > 0">
-					<h4 class="font-semibold mb-3">Tournament Entries</h4>
-					<div class="grid grid-cols-2 gap-3">
-						<div
-							v-for="entry in results.allEntries"
-							:key="entry.id"
-							class="p-4 border-2 border-orange-300 dark:border-orange-700 rounded-lg"
-						>
-							<p class="font-semibold">{{ entry.name }}</p>
-							<p v-if="entry.description" class="text-xs text-gray-400 mt-1">
-								{{ entry.description }}
-							</p>
-							<p class="text-xs text-gray-500 mt-2">
-								By {{ entry.nominatedBy }}
-							</p>
+				<!-- Current Round Matchups -->
+				<div v-if="currentRoundMatchups.length > 0" class="space-y-4">
+					<div
+						v-for="matchup in currentRoundMatchups"
+						:key="matchup.id"
+						class="border-2 border-orange-300 dark:border-orange-700 rounded-lg p-4"
+					>
+						<div class="text-center text-xs text-gray-500 mb-3">
+							Matchup {{ matchup.id.split('-')[1] }}
+						</div>
+
+						<!-- VS Display -->
+						<div class="grid grid-cols-2 gap-4">
+							<!-- Entry 1 -->
+							<UButton
+								:variant="userVotes[matchup.id] === matchup.entry1Id ? 'solid' : 'outline'"
+								:color="userVotes[matchup.id] === matchup.entry1Id ? 'orange' : 'gray'"
+								@click="handleMatchupVote(matchup.id, matchup.entry1Id)"
+								:disabled="loading"
+								class="h-auto min-h-[80px]"
+							>
+								<div class="text-center w-full py-2">
+									<p class="font-semibold text-sm mb-1">
+										{{ getEntryById(matchup.entry1Id)?.name || 'Unknown' }}
+									</p>
+									<p v-if="getEntryById(matchup.entry1Id)?.description" class="text-xs opacity-70">
+										{{ getEntryById(matchup.entry1Id)?.description }}
+									</p>
+								</div>
+							</UButton>
+
+							<!-- Entry 2 -->
+							<UButton
+								:variant="userVotes[matchup.id] === matchup.entry2Id ? 'solid' : 'outline'"
+								:color="userVotes[matchup.id] === matchup.entry2Id ? 'orange' : 'gray'"
+								@click="handleMatchupVote(matchup.id, matchup.entry2Id)"
+								:disabled="loading"
+								class="h-auto min-h-[80px]"
+							>
+								<div class="text-center w-full py-2">
+									<p class="font-semibold text-sm mb-1">
+										{{ getEntryById(matchup.entry2Id)?.name || 'Unknown' }}
+									</p>
+									<p v-if="getEntryById(matchup.entry2Id)?.description" class="text-xs opacity-70">
+										{{ getEntryById(matchup.entry2Id)?.description }}
+									</p>
+								</div>
+							</UButton>
 						</div>
 					</div>
 				</div>
+
+				<!-- Voting Complete Indicator -->
+				<UCard v-if="allMatchupsVoted" class="bg-green-50 dark:bg-green-900/20">
+					<div class="text-center py-4">
+						<div class="text-3xl mb-2">✅</div>
+						<p class="font-semibold mb-1">You've voted on all matchups!</p>
+						<p class="text-sm text-gray-400">
+							Waiting for other players and admin to advance...
+						</p>
+					</div>
+				</UCard>
 			</div>
 		</template>
 
 		<!-- Admin Controls -->
 		<template #admin-controls>
 			<UButton
-				v-if="currentGame.current_phase === 'submission'"
+				v-if="currentGame.current_phase === 'nomination'"
 				variant="outline"
 				size="sm"
-				icon="i-heroicons-arrow-right"
+				icon="i-heroicons-play"
 				:loading="loading"
 				@click="handleStartVotingPhase"
 			>
 				Start Tournament
 			</UButton>
 			<UButton
+				v-if="currentGame.current_phase?.startsWith('voting') && currentGame.current_phase !== 'voting_finals'"
+				variant="outline"
+				size="sm"
+				icon="i-heroicons-arrow-right-circle"
+				:loading="loading"
+				@click="handleAdvanceToNextRound"
+			>
+				Advance to Next Round
+			</UButton>
+			<UButton
+				v-if="currentGame.current_phase === 'voting_finals'"
+				variant="outline"
+				size="sm"
+				icon="i-heroicons-trophy"
+				:loading="loading"
+				@click="handleAdvanceToNextRound"
+			>
+				Determine Champion
+			</UButton>
+			<UButton
+				v-if="currentGame.current_phase !== 'nomination' && currentGame.current_phase !== 'results'"
 				variant="outline"
 				size="sm"
 				icon="i-heroicons-check-circle"
