@@ -34,6 +34,20 @@
 					/>
 				</UFormField>
 
+				<!-- Group Avatar -->
+				<UFormField
+					label="Group Avatar"
+					name="avatar"
+					help="Upload an image or enter a URL for your group's avatar (optional)"
+				>
+					<UiImageUpload
+						v-model="form.avatar_url.value"
+						:disabled="loading"
+						alt="Group Avatar"
+						bucket="group-avatars"
+					/>
+				</UFormField>
+
 				<!-- Description -->
 				<UFormField
 					label="Description"

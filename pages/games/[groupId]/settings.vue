@@ -60,6 +60,20 @@
 					/>
 				</UFormField>
 
+				<!-- Group Avatar -->
+				<UFormField
+					label="Group Avatar"
+					name="avatar"
+					help="Upload an image or enter a URL for your group's avatar"
+				>
+					<UiImageUpload
+						v-model="form.avatar_url.value"
+						:disabled="loading"
+						alt="Group Avatar"
+						bucket="group-avatars"
+					/>
+				</UFormField>
+
 				<!-- Description -->
 				<UFormField
 					label="Description"
@@ -113,7 +127,7 @@
 										<UIcon
 											:name="gameType.icon"
 											class="w-5 h-5"
-											:class="`text-${gameType.color}-500`"
+											:class="getGameColorClasses(gameType.color).iconLarge"
 										/>
 										<span class="font-medium text-sm">{{ gameType.name }}</span>
 									</div>
@@ -248,7 +262,7 @@
 </template>
 
 <script setup lang="ts">
-import { getAllGameTypes, type GameType } from '~/types/games';
+import { getAllGameTypes, getGameColorClasses, type GameType } from '~/types/games';
 
 definePageMeta({
 	middleware: 'auth',
