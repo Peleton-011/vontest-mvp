@@ -54,8 +54,8 @@ const formatDate = (dateString: string | null) => {
 <template>
 	<UModal
 		:open="open"
-		@update:open="emit('update:open', $event)"
 		:ui="{ content: 'max-w-md' }"
+		@update:open="emit('update:open', $event)"
 	>
 		<template #body>
 			<div class="space-y-6">
@@ -82,7 +82,7 @@ const formatDate = (dateString: string | null) => {
 					<div class="text-center">
 						<p class="text-sm text-gray-600 dark:text-gray-400">Member Since</p>
 						<p class="font-semibold text-gray-900 dark:text-white mt-1">
-							{{ formatDate(profile?.created_at) }}
+							{{ formatDate(profile?.created_at ?? "") }}
 						</p>
 					</div>
 					<div class="text-center">
@@ -94,19 +94,21 @@ const formatDate = (dateString: string | null) => {
 				</div>
 
 				<!-- Divider -->
-				<div class="border-t border-gray-200 dark:border-gray-700"></div>
+				<div class="border-t border-gray-200 dark:border-gray-700"/>
 
 				<!-- Menu Options -->
 				<div class="space-y-2">
-					<button
+					<UButton
 						v-for="item in menuItems"
+                        variant="subtle"
+                        color="neutral"
 						:key="item.label"
-						class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left"
+						class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left cursor-pointer"
 						@click="handleMenuClick(item.to)"
 					>
 						<UIcon :name="item.icon" class="w-5 h-5 text-gray-600 dark:text-gray-400" />
 						<span class="font-medium text-gray-900 dark:text-white">{{ item.label }}</span>
-					</button>
+					</UButton>
 				</div>
 			</div>
 		</template>
