@@ -269,7 +269,10 @@ watch(() => groupedMessages.value.length, () => {
 					class="flex-1"
 					size="lg"
 					:disabled="isSubmitting"
+					aria-label="Type a message"
+					aria-describedby="chat-input-help"
 				/>
+				<span id="chat-input-help" class="sr-only">Press Enter to send message</span>
 				<UButton
 					type="submit"
 					size="lg"

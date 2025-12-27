@@ -1,11 +1,11 @@
 <template>
-	<div class="text-center py-12">
+	<div class="text-center py-12" role="status">
 		<div
-			class="w-16 h-16 mx-auto rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4 transition-transform hover:scale-105"
+			class="w-16 h-16 mx-auto rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4"
 		>
 			<UIcon
 				:name="icon"
-				class="w-10 h-10 text-gray-400"
+				class="w-10 h-10 text-gray-400 dark:text-gray-500"
 				aria-hidden="true"
 			/>
 		</div>
