@@ -93,9 +93,10 @@ watch(user, async (newUser) => {
 					</NuxtLink>
 				</template>
 				<template v-else-if="user">
-					<button
+					<UButton
 						@click="showProfileModal = true"
-						class="focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-full"
+						variant="ghost"
+						class="p-0 hover:bg-transparent focus:ring-2 focus:ring-primary-500 rounded-full"
 						aria-label="Open profile"
 					>
 						<UAvatar
@@ -105,7 +106,7 @@ watch(user, async (newUser) => {
 							size="md"
 							class="transition-transform hover:scale-110 cursor-pointer"
 						/>
-					</button>
+					</UButton>
 
 					<ProfileModal v-model:open="showProfileModal" />
 				</template>
@@ -124,10 +125,11 @@ watch(user, async (newUser) => {
 			<!-- Right side -->
 			<div class="flex items-center gap-3">
 				<!-- Profile Avatar -->
-				<button
+				<UButton
 					v-if="user"
 					@click="showProfileModal = true"
-					class="focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-full"
+					variant="ghost"
+					class="p-0 hover:bg-transparent focus:ring-2 focus:ring-primary-500 rounded-full"
 					aria-label="Open profile"
 				>
 					<UAvatar
@@ -137,16 +139,16 @@ watch(user, async (newUser) => {
 						size="sm"
 						class="transition-transform active:scale-95 cursor-pointer"
 					/>
-				</button>
+				</UButton>
 
 				<!-- Hamburger Menu -->
-				<button
+				<UButton
 					@click="showMobileMenu = true"
-					class="p-2 hover:bg-neutral-800 rounded-lg transition touch-target"
+					variant="ghost"
+					icon="i-heroicons-bars-3"
+					class="touch-target"
 					aria-label="Open menu"
-				>
-					<UIcon name="i-heroicons-bars-3" class="w-6 h-6" />
-				</button>
+				/>
 			</div>
 		</div>
 	</div>
@@ -154,7 +156,16 @@ watch(user, async (newUser) => {
 	<!-- Mobile Menu Modal -->
 	<UModal v-model="showMobileMenu" :ui="{ width: 'max-w-sm' }">
 		<div class="p-6 space-y-6">
-			<h2 class="text-xl font-bold">Menu</h2>
+			<div class="flex items-center justify-between">
+				<h2 class="text-xl font-bold">Menu</h2>
+				<UButton
+					@click="showMobileMenu = false"
+					variant="ghost"
+					icon="i-heroicons-x-mark"
+					size="sm"
+					aria-label="Close menu"
+				/>
+			</div>
 
 			<nav class="space-y-2">
 				<NuxtLink
