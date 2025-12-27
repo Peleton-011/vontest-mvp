@@ -21,6 +21,13 @@ onMounted(async () => {
 		await fetchProfile();
 	}
 });
+
+// Watch for user changes and refetch profile
+watch(user, async (newUser) => {
+	if (newUser) {
+		await fetchProfile();
+	}
+});
 </script>
 
 <template>
@@ -89,7 +96,8 @@ onMounted(async () => {
 						aria-label="Open profile"
 					>
 						<UAvatar
-							:src="profile?.avatar_url || ''"
+							:key="profile?.avatar_url"
+							:src="profile?.avatar_url"
 							:alt="profile?.username || user?.email || 'User'"
 							size="md"
 							class="transition-transform hover:scale-110 cursor-pointer"
