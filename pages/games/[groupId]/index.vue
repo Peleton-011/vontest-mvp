@@ -660,7 +660,7 @@
 								</div>
 
 								<!-- Admin actions dropdown (admin only, not for self) -->
-								<UDropdown
+								<UDropdownMenu
 									v-if="isAdmin && member.user_id !== user?.id"
 									:items="getMemberActions(member)"
 								>
@@ -669,7 +669,7 @@
 										icon="i-heroicons-ellipsis-vertical"
 										size="sm"
 									/>
-								</UDropdown>
+								</UDropdownMenu>
 							</div>
 						</UCard>
 					</div>
