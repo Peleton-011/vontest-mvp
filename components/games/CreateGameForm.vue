@@ -349,7 +349,7 @@ const handleCancel = () => {
 						</UFormField>
 					</div>
 
-					<!-- Guess Who Said It Configuration -->
+					<!-- Who Said It Configuration -->
 					<div v-else-if="selectedGameType === 'guess_who_said_it'" class="space-y-4">
 						<h4 class="font-semibold">Enter Your Question</h4>
 
@@ -377,7 +377,7 @@ const handleCancel = () => {
 						</UFormField>
 					</div>
 
-					<!-- Two Truths Roulette Configuration -->
+					<!-- Two Truths Configuration -->
 					<div v-else-if="selectedGameType === 'two_truths_roulette'" class="space-y-4">
 						<h4 class="font-semibold">Set the Topic</h4>
 
@@ -390,7 +390,7 @@ const handleCancel = () => {
 						</UFormField>
 					</div>
 
-					<!-- Predict Your Friends Configuration -->
+					<!-- Predictor Configuration -->
 					<div v-else-if="selectedGameType === 'predict_your_friends'" class="space-y-4">
 						<h4 class="font-semibold">Enter Your Question</h4>
 
@@ -417,7 +417,7 @@ const handleCancel = () => {
 						</UFormField>
 					</div>
 
-					<!-- Compliment Economy Configuration -->
+					<!-- Complimentary Configuration -->
 					<div v-else-if="selectedGameType === 'compliment_economy'" class="space-y-4">
 						<h4 class="font-semibold">Set the Theme</h4>
 
@@ -430,7 +430,7 @@ const handleCancel = () => {
 						</UFormField>
 					</div>
 
-					<!-- Bracket Battle Configuration -->
+					<!-- Bracket Royale Configuration -->
 					<div v-else-if="selectedGameType === 'bracket_battle'" class="space-y-4">
 						<h4 class="font-semibold">Set the Tournament Topic</h4>
 
@@ -511,7 +511,7 @@ const handleCancel = () => {
 						</div>
 					</div>
 
-					<!-- Guess Who Said It Preview -->
+					<!-- Who Said It Preview -->
 					<div v-else-if="selectedGameType === 'guess_who_said_it'" class="space-y-4">
 						<div>
 							<p class="text-sm text-gray-400 mb-2">Your Question</p>
@@ -536,7 +536,7 @@ const handleCancel = () => {
 						</div>
 					</div>
 
-					<!-- Two Truths Roulette Preview -->
+					<!-- Two Truths Preview -->
 					<div v-else-if="selectedGameType === 'two_truths_roulette'" class="space-y-4">
 						<div>
 							<p class="text-sm text-gray-400 mb-2">Topic</p>
@@ -547,7 +547,7 @@ const handleCancel = () => {
 						</div>
 					</div>
 
-					<!-- Predict Your Friends Preview -->
+					<!-- Predictor Preview -->
 					<div v-else-if="selectedGameType === 'predict_your_friends'" class="space-y-4">
 						<div>
 							<p class="text-sm text-gray-400 mb-2">Your Question</p>
@@ -569,7 +569,7 @@ const handleCancel = () => {
 						</div>
 					</div>
 
-					<!-- Compliment Economy Preview -->
+					<!-- Complimentary Preview -->
 					<div v-else-if="selectedGameType === 'compliment_economy'" class="space-y-4">
 						<div>
 							<p class="text-sm text-gray-400 mb-2">Theme</p>
@@ -581,7 +581,7 @@ const handleCancel = () => {
 						</div>
 					</div>
 
-					<!-- Bracket Battle Preview -->
+					<!-- Bracket Royale Preview -->
 					<div v-else-if="selectedGameType === 'bracket_battle'" class="space-y-4">
 						<div>
 							<p class="text-sm text-gray-400 mb-2">Tournament Topic</p>
