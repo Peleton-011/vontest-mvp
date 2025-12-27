@@ -94,7 +94,7 @@ Last Updated: 2025-12-27
 - Added `:key` binding to force avatar re-render
 - Removed empty string fallback for proper undefined handling
 
-### Phase 3: Game Components (40%)
+### Phase 3: Game Components (78%)
 
 #### GameHeader Component (`components/games/GameHeader.vue`)
 *Affects all 9 game types*
@@ -137,18 +137,72 @@ Last Updated: 2025-12-27
 - Touch feedback: `active:scale-95`, `touch-manipulation`
 - Hover disabled: `md:hover:scale-105`
 
+#### Most Likely To Game (`components/games/MostLikelyToGame.vue`)
+
+**Member Selection Grid:**
+- Grid: `grid-cols-2 md:grid-cols-3`
+- Gap: `gap-2 md:gap-3`
+- Card padding: `p-3 md:p-4`
+- Touch optimization: `touch-manipulation active:scale-95`
+- Avatar: `size="md" class="md:size-lg"`
+- Text: `text-xs md:text-sm`
+
+#### Guess Who Said It Game (`components/games/GuessWhoSaidItGame.vue`)
+
+**Phase Indicator:**
+- Badge sizing: `size="md" class="md:size-lg text-xs md:text-sm"`
+- Responsive phase text with mobile shortening
+
+**Sortable Lists:**
+- Grid: `grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4`
+- Item padding: `p-3 md:p-4`
+- Touch optimization throughout
+- Number badges: `w-5 h-5 md:w-6 md:h-6`
+- Text: `text-xs md:text-sm`
+
+#### Predict Your Friends Game (`components/games/PredictYourFriendsGame.vue`)
+
+**Phase Indicator:**
+- Badge with mobile/desktop labels
+- Oracle display with responsive sizing
+
+**Selection Lists:**
+- Touch-optimized prediction cards
+- Responsive avatar and text sizes
+- Mobile-friendly badge sizing
+
+#### Dinner Party Dilemmas Game (`components/games/DinnerPartyDilemmasGame.vue`)
+
+**Guest Selection:**
+- Grid: `grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3`
+- Touch optimization on cards
+- Responsive guest descriptions
+
+**Voting Cards:**
+- Touch-optimized submission cards
+- Responsive badge wrapping
+- Mobile-friendly text sizing
+
+#### Two Truths Roulette Game (`components/games/TwoTruthsRouletteGame.vue`)
+
+**Editable Statement Cards:**
+- Responsive padding: `p-3 md:p-6`
+- Touch feedback on cards
+- Number badges: `w-8 h-8 md:w-10 md:h-10`
+- Input sizing: `size="md" class="md:size-lg"`
+
+**Voting Interface:**
+- Touch-optimized statement selection
+- Responsive spacing throughout
+- Mobile-friendly results display
+
 ---
 
 ## 📋 Remaining Work
 
-### Phase 3: Game Components (60% remaining)
+### Phase 3: Game Components (22% remaining)
 
 **Need mobile optimization:**
-- [ ] Guess Who Said It
-- [ ] Most Likely To
-- [ ] Predictor (Predict Your Friends)
-- [ ] The Guests (Dinner Party Dilemmas)
-- [ ] Two Truths
 - [ ] Complimentary (Compliment Economy)
 - [ ] Bracket Royale (Bracket Battle)
 
@@ -194,12 +248,12 @@ Last Updated: 2025-12-27
 ## 📊 Statistics
 
 ### Code Changes
-- **Files Modified:** 10
+- **Files Modified:** 15
 - **Files Created:** 3
-- **Commits:** 5
-- **Lines Added:** ~600
-- **Lines Removed:** ~100
-- **Net Change:** ~500 lines
+- **Commits:** 8
+- **Lines Added:** ~1200
+- **Lines Removed:** ~400
+- **Net Change:** ~800 lines
 
 ### Components Affected
 - ✅ BottomNav (new)
@@ -208,7 +262,13 @@ Last Updated: 2025-12-27
 - ✅ GameLayout
 - ✅ WouldYouRatherGame
 - ✅ HotTakesGame
-- ⏳ 7 more game components
+- ✅ MostLikelyToGame
+- ✅ GuessWhoSaidItGame
+- ✅ PredictYourFriendsGame
+- ✅ DinnerPartyDilemmasGame
+- ✅ TwoTruthsRouletteGame
+- ⏳ ComplimentEconomyGame
+- ⏳ BracketBattleGame
 - ⏳ ChatSection
 - ⏳ Various modals
 
