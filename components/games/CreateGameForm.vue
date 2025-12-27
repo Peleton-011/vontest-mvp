@@ -81,8 +81,8 @@ const bracketBattleForm = reactive({
 const loading = ref(false);
 const error = ref<string | null>(null);
 
-// Available game types
-const availableGameTypes = getAllGameTypes();
+// Available game types (filter out disabled games)
+const availableGameTypes = getAllGameTypes().filter(game => !game.disabled);
 
 // Stepper items
 const stepperItems = ref<StepperItem[]>([
