@@ -197,29 +197,35 @@ const allVotesSubmitted = computed(() => {
 		<!-- Game Content Slot -->
 		<template #game-content>
 			<!-- Phase Indicator -->
-			<div class="text-center">
+			<div class="text-center mb-3 md:mb-4">
 				<UBadge
 					:color="currentGame.current_phase === 'submission' ? 'blue' : 'green'"
-					size="lg"
+					size="md"
+					class="md:size-lg text-xs md:text-sm"
 				>
-					Phase {{ currentGame.current_phase === 'submission' ? '1' : '2' }}:
-					{{ currentGame.current_phase === 'submission' ? 'Submit Statements' : 'Guess the Lies' }}
+					<span class="hidden sm:inline">
+						Phase {{ currentGame.current_phase === 'submission' ? '1' : '2' }}:
+						{{ currentGame.current_phase === 'submission' ? 'Submit Statements' : 'Guess the Lies' }}
+					</span>
+					<span class="sm:hidden">
+						Phase {{ currentGame.current_phase === 'submission' ? '1' : '2' }}
+					</span>
 				</UBadge>
 			</div>
 
 			<!-- Game Prompt -->
 			<UCard class="overflow-hidden relative">
-				<div class="text-center py-6 relative z-10">
+				<div class="text-center py-4 md:py-6 relative z-10">
 					<!-- Emoji -->
-					<div class="text-6xl mb-4">✨</div>
+					<div class="text-4xl md:text-6xl mb-3 md:mb-4">✨</div>
 
-					<h3 class="text-xl font-semibold mb-2">
+					<h3 class="text-lg md:text-xl font-semibold mb-1.5 md:mb-2">
 						Two Truths and a Lie
 						<span v-if="(currentGame.prompt as TwoTruthsRoulettePrompt)?.timeframe">
 							{{ (currentGame.prompt as TwoTruthsRoulettePrompt).timeframe }}
 						</span>
 					</h3>
-					<p class="text-sm text-gray-400">
+					<p class="text-xs md:text-sm text-gray-400">
 						Submit two truths and one lie. Can your friends spot which is which?
 					</p>
 				</div>
