@@ -45,7 +45,56 @@ a,
 input,
 textarea,
 select {
-	@apply transition-colors duration-200 ease-in-out;
+	@apply transition-all duration-200 ease-in-out;
+}
+
+/* Button micro-interactions */
+button:not(:disabled):active,
+[role="button"]:not([aria-disabled="true"]):active {
+	@apply transform scale-95;
+}
+
+/* Progress bar animations */
+.progress-bar {
+	@apply transition-all duration-1000 ease-out;
+}
+
+/* List item animations */
+.list-enter-active,
+.list-leave-active {
+	transition: all 0.3s ease;
+}
+
+.list-enter-from {
+	opacity: 0;
+	transform: translateY(20px);
+}
+
+.list-leave-to {
+	opacity: 0;
+	transform: translateX(-20px);
+}
+
+/* Message animations */
+.message-enter-active {
+	transition: all 0.3s ease-out;
+}
+
+.message-enter-from {
+	opacity: 0;
+	transform: translateY(10px);
+}
+
+/* Modal animations */
+.modal-enter-active,
+.modal-leave-active {
+	transition: all 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+	opacity: 0;
+	transform: scale(0.95);
 }
 
 /* Card hover effects */
