@@ -1,11 +1,24 @@
 <template>
 	<div class="container mx-auto px-3 md:px-4 py-4 md:py-8 pb-20 md:pb-8">
-		<div class="mb-8">
+		<!-- Mobile Back Button -->
+		<div class="md:hidden mb-4">
 			<UButton
 				to="/games"
 				variant="ghost"
 				icon="i-heroicons-arrow-left"
-				class="mb-4"
+				size="md"
+				class="touch-target"
+			>
+				Groups
+			</UButton>
+		</div>
+
+		<!-- Desktop Back Button -->
+		<div class="hidden md:block mb-8">
+			<UButton
+				to="/games"
+				variant="ghost"
+				icon="i-heroicons-arrow-left"
 			>
 				Back to Groups
 			</UButton>

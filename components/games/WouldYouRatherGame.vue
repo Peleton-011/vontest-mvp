@@ -95,12 +95,12 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 		<!-- Game Content Slot -->
 		<template #game-content>
 			<!-- Game Prompt Cards -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
 				<!-- Option A -->
 				<UCard
 					:class="[
-						'cursor-pointer transition-all overflow-hidden relative',
-						!userResponse ? 'hover:scale-105' : '',
+						'cursor-pointer transition-all overflow-hidden relative touch-manipulation active:scale-95 md:active:scale-100',
+						!userResponse ? 'md:hover:scale-105' : '',
 						responseForm.choice === 'a' && !userResponse ? 'ring-2 ring-blue-500' : '',
 						userResponse?.choice === 'a' ? 'bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500' : ''
 					]"
@@ -115,7 +115,7 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 						}"
 					></div>
 
-					<div class="text-center p-4 relative z-10">
+					<div class="text-center p-4 md:p-6 relative z-10">
 						<!-- Emoji Visual (if provided) -->
 						<div
 							v-if="(currentGame.prompt as WouldYouRatherPrompt).option_a_visual?.type === 'emoji'"
@@ -124,9 +124,9 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 							{{ (currentGame.prompt as WouldYouRatherPrompt).option_a_visual?.value }}
 						</div>
 
-						<div class="text-4xl font-bold text-blue-600 mb-3">A</div>
-						<div class="text-lg font-semibold">{{ (currentGame.prompt as WouldYouRatherPrompt).option_a }}</div>
-						<div v-if="userResponse?.choice === 'a'" class="text-blue-600 mt-3 font-semibold">
+						<div class="text-3xl md:text-4xl font-bold text-blue-600 mb-2 md:mb-3">A</div>
+						<div class="text-base md:text-lg font-semibold">{{ (currentGame.prompt as WouldYouRatherPrompt).option_a }}</div>
+						<div v-if="userResponse?.choice === 'a'" class="text-sm md:text-base text-blue-600 mt-2 md:mt-3 font-semibold">
 							✓ Your Choice (Intensity: {{ userResponse.intensity }}/10)
 						</div>
 					</div>
@@ -135,8 +135,8 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 				<!-- Option B -->
 				<UCard
 					:class="[
-						'cursor-pointer transition-all overflow-hidden relative',
-						!userResponse ? 'hover:scale-105' : '',
+						'cursor-pointer transition-all overflow-hidden relative touch-manipulation active:scale-95 md:active:scale-100',
+						!userResponse ? 'md:hover:scale-105' : '',
 						responseForm.choice === 'b' && !userResponse ? 'ring-2 ring-purple-500' : '',
 						userResponse?.choice === 'b' ? 'bg-purple-50 dark:bg-purple-900/20 ring-2 ring-purple-500' : ''
 					]"
@@ -151,7 +151,7 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 						}"
 					></div>
 
-					<div class="text-center p-4 relative z-10">
+					<div class="text-center p-4 md:p-6 relative z-10">
 						<!-- Emoji Visual (if provided) -->
 						<div
 							v-if="(currentGame.prompt as WouldYouRatherPrompt).option_b_visual?.type === 'emoji'"
@@ -160,9 +160,9 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 							{{ (currentGame.prompt as WouldYouRatherPrompt).option_b_visual?.value }}
 						</div>
 
-						<div class="text-4xl font-bold text-purple-600 mb-3">B</div>
-						<div class="text-lg font-semibold">{{ (currentGame.prompt as WouldYouRatherPrompt).option_b }}</div>
-						<div v-if="userResponse?.choice === 'b'" class="text-purple-600 mt-3 font-semibold">
+						<div class="text-3xl md:text-4xl font-bold text-purple-600 mb-2 md:mb-3">B</div>
+						<div class="text-base md:text-lg font-semibold">{{ (currentGame.prompt as WouldYouRatherPrompt).option_b }}</div>
+						<div v-if="userResponse?.choice === 'b'" class="text-sm md:text-base text-purple-600 mt-2 md:mt-3 font-semibold">
 							✓ Your Choice (Intensity: {{ userResponse.intensity }}/10)
 						</div>
 					</div>

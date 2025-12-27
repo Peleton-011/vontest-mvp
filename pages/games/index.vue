@@ -1,18 +1,19 @@
 <template>
-	<div class="container mx-auto px-4 py-8">
-		<div class="flex justify-between items-center mb-8">
-			<div>
-				<h1 class="text-2xl sm:text-3xl font-bold">My Groups</h1>
-				<p class="text-gray-600 mt-2">
+	<div class="container mx-auto px-3 md:px-4 py-4 md:py-8">
+		<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
+			<div class="flex-1">
+				<h1 class="text-xl md:text-3xl font-bold">My Groups</h1>
+				<p class="text-sm md:text-base text-gray-600 mt-1 md:mt-2">
 					Play daily social games with your friends
 				</p>
 			</div>
 			<UButton
 				to="/games/new"
-				size="lg"
+				size="md"
+				class="sm:size-lg w-full sm:w-auto touch-target"
 				icon="i-heroicons-plus"
 			>
-				Create Group
+				<span class="sm:inline">Create Group</span>
 			</UButton>
 		</div>
 
