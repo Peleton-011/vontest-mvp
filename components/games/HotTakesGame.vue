@@ -244,7 +244,7 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 								</div>
 								<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
 									<div
-										class="bg-green-500 h-2 rounded-full transition-all duration-1000 ease-out"
+										class="progress-bar bg-green-500 h-2 rounded-full"
 										:style="{ width: `${(results.breakdown.agree / responseCount) * 100}%` }"
 									></div>
 								</div>
@@ -260,7 +260,7 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 								</div>
 								<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
 									<div
-										class="bg-gray-500 h-2 rounded-full transition-all duration-1000 ease-out"
+										class="progress-bar bg-gray-500 h-2 rounded-full"
 										:style="{ width: `${(results.breakdown.neutral / responseCount) * 100}%` }"
 									></div>
 								</div>
@@ -276,7 +276,7 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 								</div>
 								<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
 									<div
-										class="bg-red-500 h-2 rounded-full transition-all duration-1000 ease-out"
+										class="progress-bar bg-red-500 h-2 rounded-full"
 										:style="{ width: `${(results.breakdown.disagree / responseCount) * 100}%` }"
 									></div>
 								</div>

@@ -30,56 +30,14 @@ const handleCompleteGame = () => {
 		</div>
 
 		<!-- No Active Game -->
-		<div v-if="!currentGame" class="text-center py-12">
-			<UIcon name="i-heroicons-puzzle-piece" class="w-16 h-16 mx-auto text-gray-400 mb-4" />
-			<p class="text-gray-400">Loading game...</p>
-		</div>
+		<UiLoading v-if="!currentGame" variant="inline" message="Loading game..." />
 
 		<!-- Active Game -->
 		<div v-else class="space-y-8">
 			<!-- SECTION 1: Current Game -->
 			<div class="space-y-6">
 				<!-- Game Header -->
-				<div class="flex items-start justify-between gap-4">
-					<div class="flex items-start gap-4">
-						<div
-							:class="[
-								'p-3 rounded-lg',
-								`bg-${gameMetadata.color}-100 dark:bg-${gameMetadata.color}-900/20`,
-							]"
-						>
-							<UIcon
-								:name="gameMetadata.icon"
-								:class="['w-6 h-6', `text-${gameMetadata.color}-600`]"
-							/>
-						</div>
-						<div>
-							<h2 class="text-2xl font-bold">{{ gameMetadata.name }}</h2>
-							<p class="text-sm text-gray-400 mt-1">
-								{{ gameMetadata.description }}
-							</p>
-						</div>
-					</div>
-
-					<!-- Info Popover -->
-					<UPopover>
-						<UButton
-							variant="ghost"
-							icon="i-heroicons-information-circle"
-							size="sm"
-						/>
-						<template #content>
-							<div class="text-left space-y-2 p-4">
-								<p class="font-semibold">How to Play:</p>
-								<ol class="text-sm space-y-1 list-decimal list-inside">
-									<li v-for="(step, index) in gameMetadata.howToPlay" :key="index">
-										{{ step }}
-									</li>
-								</ol>
-							</div>
-						</template>
-					</UPopover>
-				</div>
+				<GamesGameHeader :metadata="gameMetadata" />
 
 				<!-- Game Content Slot -->
 				<slot name="game-content" />

@@ -245,7 +245,7 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 							<span class="text-sm text-gray-400">{{ person.votes }} votes</span>
 							<div class="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
 								<div
-									class="bg-blue-500 h-2 rounded-full transition-all duration-1000 ease-out"
+									class="progress-bar bg-blue-500 h-2 rounded-full"
 									:style="{ width: `${(person.votes / responseCount) * 100}%` }"
 								></div>
 							</div>
