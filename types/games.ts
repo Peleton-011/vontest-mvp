@@ -129,8 +129,6 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Group votes on best party',
       'Debate in dedicated threads'
     ],
-    disabled: true,
-    comingSoon: true,
   },
   two_truths_roulette: {
     id: 'two_truths_roulette',

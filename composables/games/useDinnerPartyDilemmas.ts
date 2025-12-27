@@ -150,7 +150,7 @@ export const useDinnerPartyDilemmas = (groupId: string) => {
 			const { data, error: fetchError } = await supabase
 				.from('game_responses')
 				.select('*')
-				.eq('game_id', gameId)
+				.eq('game_instance_id', gameId)
 				.eq('user_id', user.value.id)
 				.single();
 
@@ -179,7 +179,7 @@ export const useDinnerPartyDilemmas = (groupId: string) => {
 			const { data, error: submitError } = await supabase
 				.from('game_responses')
 				.insert({
-					game_id: gameId,
+					game_instance_id: gameId,
 					user_id: user.value.id,
 					response_data: {
 						selectedGuestIds: submission.selectedGuestIds,
@@ -220,7 +220,7 @@ export const useDinnerPartyDilemmas = (groupId: string) => {
 						votedUserId,
 					},
 				})
-				.eq('game_id', gameId)
+				.eq('game_instance_id', gameId)
 				.eq('user_id', user.value.id)
 				.select()
 				.single();
@@ -311,7 +311,7 @@ export const useDinnerPartyDilemmas = (groupId: string) => {
 					*,
 					profiles:user_id (username, avatar_url)
 				`)
-				.eq('game_id', gameId);
+				.eq('game_instance_id', gameId);
 
 			if (responsesError) throw responsesError;
 			if (!responses || responses.length === 0) {
