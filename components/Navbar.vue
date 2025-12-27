@@ -154,19 +154,18 @@ watch(user, async (newUser) => {
 	</div>
 
 	<!-- Mobile Menu Modal -->
-	<UModal v-model="showMobileMenu" :ui="{ width: 'max-w-sm' }">
-		<div class="p-6 space-y-6">
-			<div class="flex items-center justify-between">
-				<h2 class="text-xl font-bold">Menu</h2>
-				<UButton
-					@click="showMobileMenu = false"
-					variant="ghost"
-					icon="i-heroicons-x-mark"
-					size="sm"
-					aria-label="Close menu"
-				/>
-			</div>
+	<UModal v-model:open="showMobileMenu">
+		<!-- Trigger button (hidden, menu is opened by hamburger button above) -->
+		<template #default>
+			<div class="hidden"></div>
+		</template>
 
+		<!-- Modal content -->
+		<template #header>
+			<h2 class="text-xl font-bold">Menu</h2>
+		</template>
+
+		<template #body>
 			<nav class="space-y-2">
 				<NuxtLink
 					to="/"
@@ -209,7 +208,7 @@ watch(user, async (newUser) => {
 					Sign Up
 				</UButton>
 			</div>
-		</div>
+		</template>
 	</UModal>
 
 	<!-- Profile Modal (shared by desktop and mobile) -->

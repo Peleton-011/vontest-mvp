@@ -804,9 +804,18 @@
 			</UModal>
 
 			<!-- Mobile Menu Modal (appears as bottom sheet on mobile) -->
-			<UModal v-model="showMobileMenu" :ui="{ width: 'max-w-md' }">
-				<div class="p-6 space-y-4">
+			<UModal v-model:open="showMobileMenu">
+				<!-- Trigger button (hidden, menu is opened by ellipsis button above) -->
+				<template #default>
+					<div class="hidden"></div>
+				</template>
+
+				<!-- Modal content -->
+				<template #header>
 					<h3 class="text-lg font-semibold">Group Menu</h3>
+				</template>
+
+				<template #body>
 					<div class="space-y-2">
 						<UButton
 							v-if="isAdmin"
@@ -829,7 +838,7 @@
 							Leave Group
 						</UButton>
 					</div>
-				</div>
+				</template>
 			</UModal>
 		</div>
 
