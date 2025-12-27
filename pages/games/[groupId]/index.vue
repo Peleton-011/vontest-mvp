@@ -1,16 +1,48 @@
 <template>
-	<div class="container mx-auto px-3 md:px-4 py-4 md:py-8 pb-20 md:pb-8">
-		<!-- Mobile Back Button -->
-		<div class="md:hidden mb-4">
-			<UButton
-				to="/games"
-				variant="ghost"
-				icon="i-heroicons-arrow-left"
-				size="md"
-				class="touch-target"
-			>
-				Groups
-			</UButton>
+	<div class="container mx-auto px-0 md:px-4 py-0 md:py-8 pb-20 md:pb-8">
+		<!-- Mobile Compact Header -->
+		<div class="md:hidden sticky top-0 z-10 bg-neutral-900 border-b border-neutral-800 px-3 py-2">
+			<div class="flex items-center justify-between gap-2">
+				<!-- Left: Back button -->
+				<UButton
+					to="/games"
+					variant="ghost"
+					icon="i-heroicons-arrow-left"
+					size="sm"
+					class="flex-shrink-0"
+					aria-label="Back to groups"
+				/>
+
+				<!-- Center: Group name -->
+				<div class="flex-1 min-w-0 text-center">
+					<h1 class="text-base font-semibold truncate">{{ group?.name || 'Loading...' }}</h1>
+				</div>
+
+				<!-- Right: Profile + Menu -->
+				<div class="flex items-center gap-2 flex-shrink-0">
+					<UButton
+						v-if="user"
+						@click="showProfileModal = true"
+						variant="ghost"
+						class="p-0 hover:bg-transparent"
+						aria-label="Open profile"
+					>
+						<UAvatar
+							:key="profile?.avatar_url"
+							:src="profile?.avatar_url"
+							:alt="profile?.username || user?.email || 'User'"
+							size="sm"
+						/>
+					</UButton>
+					<UButton
+						variant="ghost"
+						icon="i-heroicons-ellipsis-vertical"
+						size="sm"
+						@click="showMobileMenu = true"
+						aria-label="Open menu"
+					/>
+				</div>
+			</div>
 		</div>
 
 		<!-- Desktop Back Button -->
@@ -57,30 +89,7 @@
 		</div>
 
 		<!-- Group content -->
-		<div v-else>
-			<!-- Mobile Group Header -->
-			<div class="md:hidden mb-4 bg-neutral-800 rounded-lg p-4">
-				<div class="flex items-center gap-3 mb-3">
-					<UAvatar :src="group.avatar_url" :alt="group.name" size="lg" />
-					<div class="flex-1 min-w-0">
-						<h1 class="text-xl font-bold truncate">{{ group.name }}</h1>
-						<p class="text-sm text-gray-400">
-							{{ memberCount }} {{ memberCount === 1 ? "member" : "members" }}
-							<span v-if="isAdmin" class="text-green-500 ml-2">• Admin</span>
-						</p>
-					</div>
-					<UButton
-						variant="ghost"
-						icon="i-heroicons-ellipsis-vertical"
-						size="sm"
-						@click="showMobileMenu = true"
-					/>
-				</div>
-				<p v-if="group.description" class="text-sm text-gray-300 line-clamp-2">
-					{{ group.description }}
-				</p>
-			</div>
-
+		<div v-else class="md:pt-0">
 			<!-- Desktop Group Header -->
 			<div class="hidden md:flex items-start gap-6 mb-8">
 				<UAvatar :src="group.avatar_url" :alt="group.name" size="2xl" />
@@ -495,7 +504,7 @@
 			<!-- Mobile Tab Content (conditional rendering based on activeTab) -->
 			<div class="md:hidden">
 				<!-- Games Tab Content -->
-				<div v-show="activeTab === 'games'" class="py-4">
+				<div v-show="activeTab === 'games'" class="px-3 py-4">
 					<!-- Mobile Admin Controls -->
 					<div v-if="isAdmin" class="mb-4 space-y-3">
 						<div class="flex items-center justify-between">
@@ -601,7 +610,7 @@
 				</div>
 
 				<!-- Chat Tab Content -->
-				<div v-show="activeTab === 'chat'" class="py-4">
+				<div v-show="activeTab === 'chat'" class="px-3 py-4">
 					<!-- Loading State -->
 					<div v-if="!chatThreadId" class="text-center py-12">
 						<UIcon
@@ -616,7 +625,7 @@
 				</div>
 
 				<!-- Members Tab Content -->
-				<div v-show="activeTab === 'members'" class="py-4">
+				<div v-show="activeTab === 'members'" class="px-3 py-4">
 					<div class="flex justify-between items-center mb-6">
 						<h3 class="text-lg font-semibold">
 							Members ({{ memberCount }})
@@ -676,7 +685,7 @@
 				</div>
 
 				<!-- Invite Tab Content -->
-				<div v-show="activeTab === 'invite'" class="py-4">
+				<div v-show="activeTab === 'invite'" class="px-3 py-4">
 					<div class="flex justify-between items-center mb-6">
 						<h3 class="text-lg font-semibold">Invite Links</h3>
 						<UButton
@@ -812,10 +821,30 @@
 
 				<!-- Modal content -->
 				<template #header>
-					<h3 class="text-lg font-semibold">Group Menu</h3>
+					<h3 class="text-lg font-semibold">{{ group.name }}</h3>
 				</template>
 
 				<template #body>
+					<!-- Group Info -->
+					<div class="mb-4 pb-4 border-b border-neutral-800">
+						<div class="flex items-center gap-3 mb-3">
+							<UAvatar :src="group.avatar_url" :alt="group.name" size="lg" />
+							<div class="flex-1 min-w-0">
+								<p class="text-sm text-gray-400">
+									{{ memberCount }} {{ memberCount === 1 ? "member" : "members" }}
+								</p>
+								<p v-if="isAdmin" class="text-xs text-green-500 mt-0.5">
+									<UIcon name="i-heroicons-shield-check" class="w-3 h-3 inline" />
+									Admin
+								</p>
+							</div>
+						</div>
+						<p v-if="group.description" class="text-sm text-gray-300">
+							{{ group.description }}
+						</p>
+					</div>
+
+					<!-- Action Buttons -->
 					<div class="space-y-2">
 						<UButton
 							v-if="isAdmin"
@@ -840,6 +869,9 @@
 					</div>
 				</template>
 			</UModal>
+
+			<!-- Profile Modal -->
+			<ProfileModal v-model:open="showProfileModal" />
 		</div>
 
 		<!-- Bottom Navigation (Mobile Only) -->
@@ -862,6 +894,10 @@ const route = useRoute();
 const router = useRouter();
 const user = useSupabaseUser();
 const groupId = computed(() => route.params.groupId as string);
+
+// Profile state
+const { profile } = useProfile();
+const showProfileModal = ref(false);
 
 // Mobile menu state
 const showMobileMenu = ref(false);
