@@ -301,10 +301,12 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 			<div class="text-center">
 				<UBadge
 					:color="currentGame.current_phase === 'submission' ? 'blue' : 'green'"
-					size="lg"
+					size="md"
+					class="md:size-lg text-xs md:text-sm"
 				>
 					Phase {{ currentGame.current_phase === 'submission' ? '1' : '2' }}:
-					{{ currentGame.current_phase === 'submission' ? 'Submit Answers' : 'Guess Who Said What' }}
+					<span class="hidden sm:inline">{{ currentGame.current_phase === 'submission' ? 'Submit Answers' : 'Guess Who Said What' }}</span>
+					<span class="sm:hidden">{{ currentGame.current_phase === 'submission' ? 'Submit' : 'Guess' }}</span>
 				</UBadge>
 			</div>
 
@@ -319,15 +321,15 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 					}"
 				></div>
 
-				<div class="text-center py-6 relative z-10">
+				<div class="text-center py-4 md:py-6 relative z-10">
 					<!-- Custom Emoji Visual (if provided) -->
-					<div v-if="(currentGame.prompt as GuessWhoSaidItPrompt).visual?.type === 'emoji'" class="text-6xl mb-4">
+					<div v-if="(currentGame.prompt as GuessWhoSaidItPrompt).visual?.type === 'emoji'" class="text-4xl md:text-6xl mb-3 md:mb-4">
 						{{ (currentGame.prompt as GuessWhoSaidItPrompt).visual?.value }}
 					</div>
 					<!-- Default Emoji (if no visual) -->
-					<div v-else class="text-3xl mb-2">❓</div>
+					<div v-else class="text-2xl md:text-3xl mb-1.5 md:mb-2">❓</div>
 
-					<p class="text-xl font-semibold">
+					<p class="text-lg md:text-xl font-semibold">
 						{{ (currentGame.prompt as GuessWhoSaidItPrompt).question }}
 					</p>
 				</div>
@@ -384,29 +386,30 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 				</div>
 
 				<!-- Your Own Answer (Separated at Top) -->
-				<div v-if="userOwnResponseId" class="pb-4 mb-4 border-b-2 border-dashed border-blue-300">
-					<div class="grid grid-cols-2 gap-4">
+				<div v-if="userOwnResponseId" class="pb-3 md:pb-4 mb-3 md:mb-4 border-b-2 border-dashed border-blue-300">
+					<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
 						<!-- Your Response -->
-						<div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300">
-							<div class="flex items-center gap-2 mb-2">
-								<UBadge color="blue" size="xs">Your Answer</UBadge>
+						<div class="p-3 md:p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300">
+							<div class="flex items-center gap-2 mb-1.5 md:mb-2">
+								<UBadge color="blue" size="xs" class="md:size-sm">Your Answer</UBadge>
 							</div>
-							<p class="text-sm italic text-gray-700 dark:text-gray-300">
+							<p class="text-xs md:text-sm italic text-gray-700 dark:text-gray-300">
 								"{{ results.responses.find(r => r.responseId === userOwnResponseId)?.answer }}"
 							</p>
 						</div>
 
 						<!-- Your Profile -->
-						<div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300">
-							<div class="flex items-center gap-3">
+						<div class="p-3 md:p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300">
+							<div class="flex items-center gap-2 md:gap-3">
 								<UAvatar
 									:src="user?.user_metadata?.avatar_url || ''"
 									:alt="user?.user_metadata?.username || 'You'"
-									size="md"
+									size="sm"
+									class="md:size-md"
 								/>
 								<div>
-									<p class="font-semibold text-sm">{{ user?.user_metadata?.username || 'You' }}</p>
-									<UBadge color="blue" size="xs">You</UBadge>
+									<p class="font-semibold text-xs md:text-sm">{{ user?.user_metadata?.username || 'You' }}</p>
+									<UBadge color="blue" size="xs" class="md:size-sm">You</UBadge>
 								</div>
 							</div>
 						</div>
@@ -414,11 +417,11 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 				</div>
 
 				<!-- Two Sortable Lists -->
-				<div class="grid grid-cols-2 gap-4">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
 					<!-- Left Column: Responses (Sortable) -->
 					<div class="space-y-2">
-						<div class="text-center mb-3">
-							<UBadge color="purple">Answers</UBadge>
+						<div class="text-center mb-2 md:mb-3">
+							<UBadge color="purple" size="sm" class="md:size-md">Answers</UBadge>
 						</div>
 						<div
 							v-for="(response, index) in orderedResponses"
@@ -429,16 +432,16 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 							@drop.prevent="handleResponseDrop(index)"
 							@dragend="handleResponseDragEnd"
 							:class="[
-								'relative p-4 rounded-lg border-2 transition-all min-h-[80px] cursor-move',
-								'bg-white dark:bg-gray-800 border-gray-300 hover:border-purple-400 hover:shadow-md',
+								'relative p-3 md:p-4 rounded-lg border-2 transition-all min-h-[80px] cursor-move touch-manipulation',
+								'bg-white dark:bg-gray-800 border-gray-300 md:hover:border-purple-400 md:hover:shadow-md',
 								draggedResponseIndex === index ? 'opacity-50 scale-95' : ''
 							]"
 						>
 							<div class="flex items-start gap-2">
-								<div class="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-xs font-bold text-purple-600">
+								<div class="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-[10px] md:text-xs font-bold text-purple-600">
 									{{ index + 1 }}
 								</div>
-								<p class="text-sm italic text-gray-700 dark:text-gray-300 flex-1">
+								<p class="text-xs md:text-sm italic text-gray-700 dark:text-gray-300 flex-1">
 									"{{ response.answer }}"
 								</p>
 								<div class="flex-shrink-0">
@@ -453,8 +456,8 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 
 					<!-- Right Column: Users (Sortable) -->
 					<div class="space-y-2">
-						<div class="text-center mb-3">
-							<UBadge color="green">People</UBadge>
+						<div class="text-center mb-2 md:mb-3">
+							<UBadge color="green" size="sm" class="md:size-md">People</UBadge>
 						</div>
 						<div
 							v-for="(member, index) in orderedUsers"
@@ -465,24 +468,25 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 							@drop.prevent="handleUserDrop(index)"
 							@dragend="handleUserDragEnd"
 							:class="[
-								'relative p-4 rounded-lg border-2 transition-all min-h-[80px] cursor-move',
-								'bg-white dark:bg-gray-800 border-gray-300 hover:border-green-400 hover:shadow-md',
+								'relative p-3 md:p-4 rounded-lg border-2 transition-all min-h-[80px] cursor-move touch-manipulation',
+								'bg-white dark:bg-gray-800 border-gray-300 md:hover:border-green-400 md:hover:shadow-md',
 								draggedUserIndex === index ? 'opacity-50 scale-95' : ''
 							]"
 						>
 							<!-- Connecting Line -->
 							<div class="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-0.5 bg-green-300"></div>
 
-							<div class="flex items-center gap-3 ml-1">
-								<div class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center text-xs font-bold text-green-600">
+							<div class="flex items-center gap-2 md:gap-3 ml-1">
+								<div class="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center text-[10px] md:text-xs font-bold text-green-600">
 									{{ index + 1 }}
 								</div>
 								<UAvatar
 									:src="member.avatarUrl"
 									:alt="member.username"
-									size="sm"
+									size="xs"
+									class="md:size-sm"
 								/>
-								<p class="font-semibold text-sm flex-1">
+								<p class="font-semibold text-xs md:text-sm flex-1">
 									{{ member.username }}
 								</p>
 								<div class="flex-shrink-0">
@@ -546,11 +550,11 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 		<template #results>
 			<!-- Top Guesser -->
 			<UCard v-if="results.topGuesser" class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-800/20">
-				<div class="text-center py-6">
-					<div class="text-4xl mb-3">🏆</div>
-					<p class="text-lg font-semibold mb-1">Top Guesser</p>
-					<p class="text-2xl font-bold text-yellow-600">{{ results.topGuesser.username }}</p>
-					<p class="text-sm text-gray-400 mt-1">
+				<div class="text-center py-4 md:py-6">
+					<div class="text-3xl md:text-4xl mb-2 md:mb-3">🏆</div>
+					<p class="text-base md:text-lg font-semibold mb-1">Top Guesser</p>
+					<p class="text-xl md:text-2xl font-bold text-yellow-600">{{ results.topGuesser.username }}</p>
+					<p class="text-xs md:text-sm text-gray-400 mt-1">
 						{{ results.topGuesser.correct }} correct guesses
 					</p>
 				</div>
@@ -558,19 +562,19 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 
 			<!-- All Guesses Performance -->
 			<div>
-				<h4 class="font-semibold mb-4">Guess Accuracy</h4>
-				<div class="space-y-3">
+				<h4 class="font-semibold mb-3 md:mb-4 text-sm md:text-base">Guess Accuracy</h4>
+				<div class="space-y-2 md:space-y-3">
 					<div
 						v-for="guesser in results.guesses"
 						:key="guesser.guesserUserId"
-						class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded"
+						class="flex items-center justify-between p-2 md:p-3 bg-gray-50 dark:bg-gray-800 rounded"
 					>
-						<span class="font-semibold">{{ guesser.guesserUsername }}</span>
-						<div class="flex items-center gap-3">
-							<span class="text-sm text-gray-400">
+						<span class="font-semibold text-xs md:text-sm">{{ guesser.guesserUsername }}</span>
+						<div class="flex items-center gap-2 md:gap-3">
+							<span class="text-xs md:text-sm text-gray-400">
 								{{ guesser.correctGuesses }}/{{ guesser.totalGuesses }} correct
 							</span>
-							<UBadge :color="guesser.accuracy >= 70 ? 'green' : guesser.accuracy >= 40 ? 'yellow' : 'red'">
+							<UBadge size="xs" class="md:size-sm" :color="guesser.accuracy >= 70 ? 'green' : guesser.accuracy >= 40 ? 'yellow' : 'red'">
 								{{ Math.round(guesser.accuracy) }}%
 							</UBadge>
 						</div>
@@ -580,18 +584,18 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 
 			<!-- All Responses -->
 			<div v-if="results.responses.length > 0">
-				<h4 class="font-semibold mb-4">All Responses</h4>
-				<div class="space-y-3">
+				<h4 class="font-semibold mb-3 md:mb-4 text-sm md:text-base">All Responses</h4>
+				<div class="space-y-2 md:space-y-3">
 					<div
 						v-for="response in results.responses"
 						:key="response.responseId"
-						class="border-l-4 border-purple-500 pl-3"
+						class="border-l-4 border-purple-500 pl-2 md:pl-3"
 					>
 						<div class="flex items-center gap-2 mb-1">
-							<span class="font-semibold">{{ response.actualUsername }}</span>
-							<span class="text-sm text-gray-400">said:</span>
+							<span class="font-semibold text-xs md:text-sm">{{ response.actualUsername }}</span>
+							<span class="text-xs md:text-sm text-gray-400">said:</span>
 						</div>
-						<p class="text-sm text-gray-400 italic">
+						<p class="text-xs md:text-sm text-gray-400 italic">
 							"{{ response.answer }}"
 						</p>
 					</div>
