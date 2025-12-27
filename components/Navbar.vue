@@ -15,9 +15,19 @@ const isMobile = breakpoints.smaller("md");
 // Profile modal state
 const showProfileModal = ref(false);
 
+// Mobile menu state
+const showMobileMenu = ref(false);
+
 // Fetch profile when component mounts if user is logged in
 onMounted(async () => {
 	if (user.value) {
+		await fetchProfile();
+	}
+});
+
+// Watch for user changes and refetch profile
+watch(user, async (newUser) => {
+	if (newUser) {
 		await fetchProfile();
 	}
 });
@@ -25,9 +35,9 @@ onMounted(async () => {
 
 <template>
 	<nav class="w-full bg-neutral-900 text-white shadow-md">
-		<div
-			class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"
-		>
+		<!-- Desktop Nav -->
+		<div class="hidden md:block">
+			<div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 			<!-- Left side links -->
 			<div class="flex items-center space-x-6">
 				<NuxtLink
@@ -83,22 +93,125 @@ onMounted(async () => {
 					</NuxtLink>
 				</template>
 				<template v-else-if="user">
-					<button
+					<UButton
 						@click="showProfileModal = true"
-						class="focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-full"
+						variant="ghost"
+						class="p-0 hover:bg-transparent focus:ring-2 focus:ring-primary-500 rounded-full"
 						aria-label="Open profile"
 					>
 						<UAvatar
-							:src="profile?.avatar_url || ''"
+							:key="profile?.avatar_url"
+							:src="profile?.avatar_url"
 							:alt="profile?.username || user?.email || 'User'"
 							size="md"
 							class="transition-transform hover:scale-110 cursor-pointer"
 						/>
-					</button>
+					</UButton>
 
 					<ProfileModal v-model:open="showProfileModal" />
 				</template>
 			</div>
 		</div>
+	</div>
+
+	<!-- Mobile Nav -->
+	<div class="md:hidden">
+		<div class="px-4 py-3 flex items-center justify-between">
+			<!-- Logo/Home -->
+			<NuxtLink to="/" class="text-xl font-bold hover:text-primary-400 transition">
+				VonTest
+			</NuxtLink>
+
+			<!-- Right side -->
+			<div class="flex items-center gap-3">
+				<!-- Profile Avatar -->
+				<UButton
+					v-if="user"
+					@click="showProfileModal = true"
+					variant="ghost"
+					class="p-0 hover:bg-transparent focus:ring-2 focus:ring-primary-500 rounded-full"
+					aria-label="Open profile"
+				>
+					<UAvatar
+						:key="profile?.avatar_url"
+						:src="profile?.avatar_url"
+						:alt="profile?.username || user?.email || 'User'"
+						size="sm"
+						class="transition-transform active:scale-95 cursor-pointer"
+					/>
+				</UButton>
+
+				<!-- Hamburger Menu -->
+				<UButton
+					@click="showMobileMenu = true"
+					variant="ghost"
+					icon="i-heroicons-bars-3"
+					class="touch-target"
+					aria-label="Open menu"
+				/>
+			</div>
+		</div>
+	</div>
+
+	<!-- Mobile Menu Modal -->
+	<UModal v-model:open="showMobileMenu">
+		<!-- Trigger button (hidden, menu is opened by hamburger button above) -->
+		<template #default>
+			<div class="hidden"></div>
+		</template>
+
+		<!-- Modal content -->
+		<template #header>
+			<h2 class="text-xl font-bold">Menu</h2>
+		</template>
+
+		<template #body>
+			<nav class="space-y-2">
+				<NuxtLink
+					to="/"
+					class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-neutral-800 transition"
+					@click="showMobileMenu = false"
+				>
+					<UIcon name="i-heroicons-home" class="w-5 h-5" />
+					<span class="font-semibold">Home</span>
+				</NuxtLink>
+
+				<NuxtLink
+					v-if="user"
+					to="/dashboard"
+					class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-neutral-800 transition"
+					@click="showMobileMenu = false"
+				>
+					<UIcon name="i-heroicons-chart-bar" class="w-5 h-5" />
+					<span class="font-semibold">Dashboard</span>
+				</NuxtLink>
+
+				<NuxtLink
+					v-if="user"
+					to="/games"
+					class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-neutral-800 transition"
+					@click="showMobileMenu = false"
+				>
+					<UIcon name="i-heroicons-puzzle-piece" class="w-5 h-5" />
+					<span class="font-semibold">Games</span>
+				</NuxtLink>
+			</nav>
+
+			<!-- Auth buttons if not logged in -->
+			<div v-if="!user" class="space-y-3 pt-4 border-t border-neutral-800">
+				<UButton block to="/login" @click="showMobileMenu = false">
+					<UIcon name="i-lucide-log-in" class="mr-2" />
+					Login
+				</UButton>
+				<UButton block variant="outline" to="/signup" @click="showMobileMenu = false">
+					<UIcon name="i-lucide-user-plus" class="mr-2" />
+					Sign Up
+				</UButton>
+			</div>
+		</template>
+	</UModal>
+
+	<!-- Profile Modal (shared by desktop and mobile) -->
+	<ProfileModal v-model:open="showProfileModal" />
 	</nav>
 </template>

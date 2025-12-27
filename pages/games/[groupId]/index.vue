@@ -1,11 +1,48 @@
 <template>
-	<div class="container mx-auto px-4 py-8">
-		<div class="mb-8">
+	<div class="container mx-auto px-0 md:px-4 py-0 md:py-8 pb-20 md:pb-8">
+		<!-- Mobile Compact Header -->
+		<div class="md:hidden sticky top-0 z-10 bg-neutral-900 border-b border-neutral-800 px-3 py-2">
+			<div class="flex items-center justify-between gap-2">
+				<!-- Left: Back button -->
+				<UButton
+					to="/games"
+					variant="ghost"
+					icon="i-heroicons-arrow-left"
+					size="sm"
+					class="flex-shrink-0"
+					aria-label="Back to groups"
+				/>
+
+				<!-- Center: Group name -->
+				<div class="flex-1 min-w-0 text-center">
+					<h1 class="text-base font-semibold truncate">{{ group?.name || 'Loading...' }}</h1>
+				</div>
+
+				<!-- Right: Group Avatar + Menu -->
+				<div class="flex items-center gap-2 flex-shrink-0">
+					<UAvatar
+						:src="group?.avatar_url"
+						:alt="group?.name"
+						size="sm"
+						class="flex-shrink-0"
+					/>
+					<UButton
+						variant="ghost"
+						icon="i-heroicons-ellipsis-vertical"
+						size="sm"
+						@click="showMobileMenu = true"
+						aria-label="Open menu"
+					/>
+				</div>
+			</div>
+		</div>
+
+		<!-- Desktop Back Button -->
+		<div class="hidden md:block mb-8">
 			<UButton
 				to="/games"
 				variant="ghost"
 				icon="i-heroicons-arrow-left"
-				class="mb-4"
 			>
 				Back to Groups
 			</UButton>
@@ -44,9 +81,9 @@
 		</div>
 
 		<!-- Group content -->
-		<div v-else>
-			<!-- Group Header -->
-			<div class="flex items-start gap-6 mb-8">
+		<div v-else class="md:pt-0">
+			<!-- Desktop Group Header -->
+			<div class="hidden md:flex items-start gap-6 mb-8">
 				<UAvatar :src="group.avatar_url" :alt="group.name" size="2xl" />
 				<div class="flex-1">
 					<h1 class="text-2xl sm:text-3xl font-bold">{{ group.name }}</h1>
@@ -92,13 +129,46 @@
 				</div>
 			</div>
 
-			<!-- Tabs -->
-			<UTabs v-model="activeTab" :items="tabs" class="mb-8">
+			<!-- Desktop Tabs -->
+			<UTabs v-model="activeTab" :items="tabs" class="hidden md:block mb-8">
 				<!-- Games Tab -->
 				<template #games>
-					<div class="py-6">
-						<!-- Admin Controls -->
-						<div v-if="isAdmin" class="mb-6 flex justify-between items-center">
+					<div class="py-4 md:py-6">
+						<!-- Mobile Admin Controls -->
+						<div v-if="isAdmin" class="md:hidden mb-4 space-y-3">
+							<div class="flex items-center justify-between">
+								<div>
+									<h3 class="text-lg font-semibold">Daily Games</h3>
+									<p class="text-xs text-gray-400">
+										Auto at {{ settings.notification_time }}
+									</p>
+								</div>
+							</div>
+							<div class="grid grid-cols-2 gap-2">
+								<UButton
+									block
+									size="md"
+									icon="i-heroicons-sparkles"
+									:loading="gameSchedulerLoading"
+									@click="handleStartGameNow"
+								>
+									Start Now
+								</UButton>
+								<UButton
+									block
+									size="md"
+									variant="outline"
+									icon="i-heroicons-pencil"
+									@click="handleOpenCustomGame"
+								>
+									Custom
+								</UButton>
+							</div>
+							<GamesManagePromptsModal :group-id="groupId" button-block />
+						</div>
+
+						<!-- Desktop Admin Controls -->
+						<div v-if="isAdmin" class="hidden md:flex mb-6 justify-between items-center">
 							<div>
 								<h3 class="text-lg font-semibold">Daily Games</h3>
 								<p class="text-sm text-gray-600">
@@ -423,6 +493,268 @@
 				</template>
 			</UTabs>
 
+			<!-- Mobile Tab Content (conditional rendering based on activeTab) -->
+			<div class="md:hidden">
+				<!-- Games Tab Content -->
+				<div v-show="activeTab === 'games'" class="px-3 py-4">
+					<!-- Mobile Admin Controls -->
+					<div v-if="isAdmin" class="mb-4 space-y-3">
+						<div class="flex items-center justify-between">
+							<div>
+								<h3 class="text-lg font-semibold">Daily Games</h3>
+								<p class="text-xs text-gray-400">
+									Auto at {{ settings.notification_time }}
+								</p>
+							</div>
+						</div>
+						<div class="grid grid-cols-2 gap-2">
+							<UButton
+								block
+								size="md"
+								icon="i-heroicons-sparkles"
+								:loading="gameSchedulerLoading"
+								@click="handleStartGameNow"
+							>
+								Start Now
+							</UButton>
+							<UButton
+								block
+								size="md"
+								variant="outline"
+								icon="i-heroicons-pencil"
+								@click="handleOpenCustomGame"
+							>
+								Custom
+							</UButton>
+						</div>
+						<GamesManagePromptsModal :group-id="groupId" button-block />
+					</div>
+
+					<!-- Active Game -->
+					<div v-if="activeGame">
+						<GamesWouldYouRatherGame
+							v-if="activeGame.game_type === 'would_you_rather'"
+							:group-id="groupId"
+						/>
+						<GamesHotTakesGame
+							v-else-if="activeGame.game_type === 'hot_takes'"
+							:group-id="groupId"
+						/>
+						<GamesGuessWhoSaidItGame
+							v-else-if="activeGame.game_type === 'guess_who_said_it'"
+							:group-id="groupId"
+						/>
+						<GamesMostLikelyToGame
+							v-else-if="activeGame.game_type === 'most_likely_to'"
+							:group-id="groupId"
+						/>
+						<GamesTwoTruthsRouletteGame
+							v-else-if="activeGame.game_type === 'two_truths_roulette'"
+							:group-id="groupId"
+						/>
+						<GamesPredictYourFriendsGame
+							v-else-if="activeGame.game_type === 'predict_your_friends'"
+							:group-id="groupId"
+						/>
+						<GamesDinnerPartyDilemmasGame
+							v-else-if="activeGame.game_type === 'dinner_party_dilemmas'"
+							:group-id="groupId"
+						/>
+						<GamesComplimentEconomyGame
+							v-else-if="activeGame.game_type === 'compliment_economy'"
+							:group-id="groupId"
+						/>
+						<GamesBracketBattleGame
+							v-else-if="activeGame.game_type === 'bracket_battle'"
+							:group-id="groupId"
+						/>
+						<div v-else class="text-center py-12">
+							<UIcon
+								name="i-heroicons-puzzle-piece"
+								class="w-16 h-16 mx-auto text-gray-400"
+							/>
+							<h3 class="text-xl font-semibold mt-4">
+								{{ activeGame.game_type }}
+							</h3>
+							<p class="text-gray-600 mt-2">
+								This game type is not yet implemented
+							</p>
+						</div>
+					</div>
+
+					<!-- No Active Game -->
+					<div v-else class="text-center py-12">
+						<UIcon
+							name="i-heroicons-puzzle-piece"
+							class="w-16 h-16 mx-auto text-gray-400"
+						/>
+						<h3 class="text-xl font-semibold mt-4">
+							No active game
+						</h3>
+						<p class="text-gray-600 mt-2">
+							The next game will be created at
+							{{ settings.notification_time }}
+						</p>
+						<p v-if="isAdmin" class="text-sm text-gray-500 mt-1">
+							Or click "Start Now" above to start one manually
+						</p>
+					</div>
+				</div>
+
+				<!-- Chat Tab Content -->
+				<div v-show="activeTab === 'chat'" class="px-3 py-4">
+					<!-- Loading State -->
+					<div v-if="!chatThreadId" class="text-center py-12">
+						<UIcon
+							name="i-heroicons-arrow-path"
+							class="w-8 h-8 animate-spin mx-auto"
+						/>
+						<p class="mt-4 text-gray-600">Loading chat...</p>
+					</div>
+
+					<!-- Chat Component -->
+					<UiChatSection v-else :thread-id="chatThreadId" />
+				</div>
+
+				<!-- Members Tab Content -->
+				<div v-show="activeTab === 'members'" class="px-3 py-4">
+					<div class="flex justify-between items-center mb-6">
+						<h3 class="text-lg font-semibold">
+							Members ({{ memberCount }})
+						</h3>
+					</div>
+
+					<div class="space-y-3">
+						<UCard
+							v-for="member in members"
+							:key="member.user_id"
+							class="p-4"
+						>
+							<div class="flex items-center justify-between">
+								<div class="flex items-center gap-3">
+									<UAvatar
+										:src="member.avatar_url"
+										:alt="member.username || 'User'"
+										size="md"
+									/>
+									<div>
+										<p class="font-medium">
+											{{
+												member.username ||
+												"Unknown User"
+											}}
+											<span
+												v-if="member.user_id === user?.id"
+												class="text-xs text-gray-500"
+											>
+												(You)
+											</span>
+										</p>
+										<p class="text-sm text-gray-600">
+											{{
+												member.role === "admin"
+													? "Admin"
+													: "Member"
+											}}
+										</p>
+									</div>
+								</div>
+
+								<!-- Admin actions dropdown (admin only, not for self) -->
+								<UDropdownMenu
+									v-if="isAdmin && member.user_id !== user?.id"
+									:items="getMemberActions(member)"
+								>
+									<UButton
+										variant="ghost"
+										icon="i-heroicons-ellipsis-vertical"
+										size="sm"
+									/>
+								</UDropdownMenu>
+							</div>
+						</UCard>
+					</div>
+				</div>
+
+				<!-- Invite Tab Content -->
+				<div v-show="activeTab === 'invite'" class="px-3 py-4">
+					<div class="flex justify-between items-center mb-6">
+						<h3 class="text-lg font-semibold">Invite Links</h3>
+						<UButton
+							v-if="isAdmin"
+							size="sm"
+							icon="i-heroicons-plus"
+							@click="handleCreateInvite"
+						>
+							Create
+						</UButton>
+					</div>
+
+					<!-- Invite codes list -->
+					<div v-if="activeInviteCodes.length > 0" class="space-y-3">
+						<UCard
+							v-for="code in activeInviteCodes"
+							:key="code.id"
+							class="p-4"
+						>
+							<div class="flex flex-col gap-3">
+								<div class="flex items-start justify-between">
+									<div class="flex-1 min-w-0">
+										<p class="font-mono text-sm break-all">
+											{{ getInviteLink(code.code) }}
+										</p>
+										<p class="text-xs text-gray-500 mt-1">
+											Created
+											{{
+												new Date(
+													code.created_at
+												).toLocaleDateString()
+											}}
+										</p>
+									</div>
+								</div>
+
+								<div class="flex gap-2">
+									<UButton
+										size="sm"
+										block
+										@click="copyInviteLink(code.code)"
+									>
+										Copy Link
+									</UButton>
+									<UButton
+										v-if="isAdmin"
+										size="sm"
+										variant="outline"
+										color="error"
+										@click="handleDeactivateCode(code.id)"
+									>
+										Deactivate
+									</UButton>
+								</div>
+							</div>
+						</UCard>
+					</div>
+
+					<!-- Empty State -->
+					<UiEmptyState
+						v-else
+						icon="i-heroicons-link"
+						title="No active invite links"
+						:description="isAdmin ? 'Create an invite link to share with friends' : 'Ask an admin to create an invite link'"
+					>
+						<template v-if="isAdmin" #action>
+							<UButton
+								icon="i-heroicons-plus"
+								@click="handleCreateInvite"
+							>
+								Create Invite Link
+							</UButton>
+						</template>
+					</UiEmptyState>
+				</div>
+			</div>
+
 			<!-- Custom Game Modal -->
 			<UModal
 				v-model:open="showCustomGameModal"
@@ -471,7 +803,82 @@
 					</div>
 				</template>
 			</UModal>
+
+			<!-- Mobile Menu Modal (appears as bottom sheet on mobile) -->
+			<UModal v-model:open="showMobileMenu">
+				<!-- Trigger button (hidden, menu is opened by ellipsis button above) -->
+				<template #default>
+					<div class="hidden"></div>
+				</template>
+
+				<!-- Modal content -->
+				<template #header>
+					<h3 class="text-lg font-semibold">{{ group.name }}</h3>
+				</template>
+
+				<template #body>
+					<!-- Group Info -->
+					<div class="mb-4 pb-4 border-b border-neutral-800">
+						<div class="flex items-center gap-3 mb-3">
+							<UAvatar :src="group.avatar_url" :alt="group.name" size="lg" />
+							<div class="flex-1 min-w-0">
+								<p class="text-sm text-gray-400">
+									{{ memberCount }} {{ memberCount === 1 ? "member" : "members" }}
+								</p>
+								<p v-if="isAdmin" class="text-xs text-green-500 mt-0.5">
+									<UIcon name="i-heroicons-shield-check" class="w-3 h-3 inline" />
+									Admin
+								</p>
+							</div>
+						</div>
+						<p v-if="group.description" class="text-sm text-gray-300">
+							{{ group.description }}
+						</p>
+					</div>
+
+					<!-- Action Buttons -->
+					<div class="space-y-2">
+						<!-- Profile Button -->
+						<UButton
+							block
+							variant="outline"
+							icon="i-heroicons-user-circle"
+							@click="showProfileModal = true; showMobileMenu = false"
+						>
+							My Profile
+						</UButton>
+
+						<!-- Group Settings / Leave Group -->
+						<UButton
+							v-if="isAdmin"
+							block
+							variant="outline"
+							icon="i-heroicons-cog-6-tooth"
+							:to="`/games/${groupId}/settings`"
+							@click="showMobileMenu = false"
+						>
+							Group Settings
+						</UButton>
+						<UButton
+							v-if="!isAdmin"
+							block
+							variant="outline"
+							color="error"
+							icon="i-heroicons-arrow-right-on-rectangle"
+							@click="handleLeave(); showMobileMenu = false"
+						>
+							Leave Group
+						</UButton>
+					</div>
+				</template>
+			</UModal>
+
+			<!-- Profile Modal -->
+			<ProfileModal v-model:open="showProfileModal" />
 		</div>
+
+		<!-- Bottom Navigation (Mobile Only) -->
+		<BottomNav v-model="activeTab" :tabs="tabs" />
 	</div>
 </template>
 
@@ -490,6 +897,13 @@ const route = useRoute();
 const router = useRouter();
 const user = useSupabaseUser();
 const groupId = computed(() => route.params.groupId as string);
+
+// Profile state
+const { profile } = useProfile();
+const showProfileModal = ref(false);
+
+// Mobile menu state
+const showMobileMenu = ref(false);
 
 // Control active tab via query params
 const activeTab = computed({

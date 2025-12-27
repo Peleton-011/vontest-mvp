@@ -1,24 +1,24 @@
 <template>
-	<div class="flex items-start justify-between gap-4">
-		<div class="flex items-start gap-4 flex-1">
+	<div class="flex items-start justify-between gap-3 md:gap-4">
+		<div class="flex items-start gap-3 md:gap-4 flex-1 min-w-0">
 			<div
-				class="p-3 rounded-lg"
+				class="p-2 md:p-3 rounded-lg shrink-0"
 				:class="[
 					`bg-${metadata.color}-100 dark:bg-${metadata.color}-900/20`
 				]"
 			>
 				<UIcon
 					:name="metadata.icon"
-					class="w-8 h-8"
+					class="w-6 h-6 md:w-8 md:h-8"
 					:class="`text-${metadata.color}-600`"
 					aria-hidden="true"
 				/>
 			</div>
-			<div class="flex-1">
-				<h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+			<div class="flex-1 min-w-0">
+				<h2 class="text-lg md:text-2xl font-bold text-gray-900 dark:text-white truncate md:overflow-visible">
 					{{ metadata.name }}
 				</h2>
-				<p class="text-gray-600 dark:text-gray-400 mt-1">
+				<p class="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1 line-clamp-2 md:line-clamp-none">
 					{{ metadata.description }}
 				</p>
 			</div>
@@ -28,6 +28,8 @@
 			<UButton
 				variant="ghost"
 				icon="i-heroicons-question-mark-circle"
+				size="sm"
+				class="shrink-0 touch-target"
 				aria-label="How to play instructions"
 			/>
 			<template #panel>

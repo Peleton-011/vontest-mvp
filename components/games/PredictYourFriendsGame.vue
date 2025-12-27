@@ -198,18 +198,30 @@ const showResults = computed(() => !!results.value && currentGame.value?.status 
 		<!-- Game Content Slot -->
 		<template #game-content>
 			<!-- Phase Indicator -->
-			<div v-if="currentGame.current_phase" class="text-center mb-4">
+			<div v-if="currentGame.current_phase" class="text-center mb-3 md:mb-4">
 				<UBadge
 					:color="currentGame.current_phase === 'prediction' ? 'blue' : currentGame.current_phase === 'oracle_selection' ? 'yellow' : 'green'"
-					size="lg"
+					size="md"
+					class="md:size-lg text-xs md:text-sm"
 				>
-					{{
-						currentGame.current_phase === 'prediction'
-							? '📝 Phase 1: Make Predictions'
-							: currentGame.current_phase === 'oracle_selection'
-								? '⭐ Phase 2: Oracle Selection'
-								: '📊 Results'
-					}}
+					<span class="hidden sm:inline">
+						{{
+							currentGame.current_phase === 'prediction'
+								? '📝 Phase 1: Make Predictions'
+								: currentGame.current_phase === 'oracle_selection'
+									? '⭐ Phase 2: Oracle Selection'
+									: '📊 Results'
+						}}
+					</span>
+					<span class="sm:hidden">
+						{{
+							currentGame.current_phase === 'prediction'
+								? '📝 Predict'
+								: currentGame.current_phase === 'oracle_selection'
+									? '⭐ Oracle'
+									: '📊 Results'
+						}}
+					</span>
 				</UBadge>
 			</div>
 
@@ -224,36 +236,36 @@ const showResults = computed(() => !!results.value && currentGame.value?.status 
 					}"
 				></div>
 
-				<div class="text-center py-6 relative z-10">
+				<div class="text-center py-4 md:py-6 relative z-10">
 					<!-- Custom Emoji Visual (if provided) -->
-					<div v-if="(currentGame.prompt as PredictYourFriendsPrompt).visual?.type === 'emoji'" class="text-6xl mb-4">
+					<div v-if="(currentGame.prompt as PredictYourFriendsPrompt).visual?.type === 'emoji'" class="text-4xl md:text-6xl mb-3 md:mb-4">
 						{{ (currentGame.prompt as PredictYourFriendsPrompt).visual?.value }}
 					</div>
 					<!-- Default Emoji (if no visual) -->
-					<div v-else class="text-3xl mb-2">💡</div>
+					<div v-else class="text-2xl md:text-3xl mb-1.5 md:mb-2">💡</div>
 
-					<h3 class="text-xl font-semibold mb-4">
+					<h3 class="text-lg md:text-xl font-semibold mb-3 md:mb-4">
 						{{ (currentGame.prompt as PredictYourFriendsPrompt).question }}
 					</h3>
 
 					<!-- Oracle Display - Prominently show who the Oracle is -->
-					<div class="mt-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border-2 border-indigo-300 dark:border-indigo-700">
-						<p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-3">
+					<div class="mt-4 md:mt-6 p-3 md:p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border-2 border-indigo-300 dark:border-indigo-700">
+						<p class="text-[10px] md:text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-2 md:mb-3">
 							{{ isOracle ? '⭐ YOU ARE THE ORACLE' : '🔮 THE ORACLE' }}
 						</p>
-						<div class="flex items-center justify-center gap-3">
+						<div class="flex items-center justify-center gap-2 md:gap-3">
 							<UAvatar
 								v-if="oracleProfile"
 								:src="oracleProfile.avatar_url"
 								:alt="oracleProfile.username"
-								size="lg"
-								class="ring-2 ring-indigo-400 dark:ring-indigo-500"
+								size="md"
+								class="md:size-lg ring-2 ring-indigo-400 dark:ring-indigo-500"
 							/>
 							<div>
-								<p class="font-bold text-lg text-indigo-900 dark:text-indigo-100">
+								<p class="font-bold text-base md:text-lg text-indigo-900 dark:text-indigo-100">
 									{{ oracleProfile?.username || 'Loading...' }}
 								</p>
-								<p class="text-xs text-indigo-600 dark:text-indigo-400">
+								<p class="text-[10px] md:text-xs text-indigo-600 dark:text-indigo-400">
 									{{ isOracle ? 'Answer truthfully!' : 'Predict their answer' }}
 								</p>
 							</div>
@@ -263,12 +275,12 @@ const showResults = computed(() => !!results.value && currentGame.value?.status 
 			</UCard>
 
 			<!-- Oracle View: Submit Answer -->
-			<div v-if="isOracle && !userResponse && currentGame.status === 'active'" class="space-y-4">
+			<div v-if="isOracle && !userResponse && currentGame.status === 'active'" class="space-y-3 md:space-y-4">
 				<UCard class="bg-yellow-50 dark:bg-yellow-900/20">
-					<div class="text-center py-4">
-						<div class="text-3xl mb-2">⭐</div>
-						<p class="font-semibold mb-2">You are the Oracle!</p>
-						<p class="text-sm text-gray-400">
+					<div class="text-center py-3 md:py-4">
+						<div class="text-2xl md:text-3xl mb-1.5 md:mb-2">⭐</div>
+						<p class="font-semibold text-sm md:text-base mb-1.5 md:mb-2">You are the Oracle!</p>
+						<p class="text-xs md:text-sm text-gray-400">
 							Everyone is trying to predict your answer. Submit what you would actually choose!
 						</p>
 					</div>
@@ -294,15 +306,15 @@ const showResults = computed(() => !!results.value && currentGame.value?.status 
 			</div>
 
 			<!-- Oracle View: Answer Submitted (Prediction Phase) -->
-			<div v-if="isOracle && userResponse && currentGame.status === 'active' && currentGame.current_phase === 'prediction'" class="space-y-4">
+			<div v-if="isOracle && userResponse && currentGame.status === 'active' && currentGame.current_phase === 'prediction'" class="space-y-3 md:space-y-4">
 				<UCard class="bg-blue-50 dark:bg-blue-900/20">
-					<div class="text-center py-6">
-						<div class="text-3xl mb-3">✅</div>
-						<p class="font-semibold mb-2">Answer Submitted!</p>
-						<p class="text-sm text-gray-400">
+					<div class="text-center py-4 md:py-6">
+						<div class="text-2xl md:text-3xl mb-2 md:mb-3">✅</div>
+						<p class="font-semibold text-sm md:text-base mb-1.5 md:mb-2">Answer Submitted!</p>
+						<p class="text-xs md:text-sm text-gray-400">
 							Your answer: <span class="font-semibold text-gray-600 dark:text-gray-300">"{{ userResponse.response_data.oracleAnswer }}"</span>
 						</p>
-						<p class="text-sm text-gray-400 mt-2">
+						<p class="text-xs md:text-sm text-gray-400 mt-1.5 md:mt-2">
 							Waiting for everyone to make their predictions...
 						</p>
 					</div>
@@ -310,48 +322,49 @@ const showResults = computed(() => !!results.value && currentGame.value?.status 
 			</div>
 
 			<!-- Oracle View: Selection Phase -->
-			<div v-if="isOracle && currentGame.current_phase === 'oracle_selection'" class="space-y-4">
+			<div v-if="isOracle && currentGame.current_phase === 'oracle_selection'" class="space-y-3 md:space-y-4">
 				<UCard class="bg-yellow-50 dark:bg-yellow-900/20">
-					<div class="text-center py-4">
-						<div class="text-3xl mb-2">⭐</div>
-						<p class="font-semibold mb-2">Choose the Correct Predictions!</p>
-						<p class="text-sm text-gray-400">
+					<div class="text-center py-3 md:py-4">
+						<div class="text-2xl md:text-3xl mb-1.5 md:mb-2">⭐</div>
+						<p class="font-semibold text-sm md:text-base mb-1.5 md:mb-2">Choose the Correct Predictions!</p>
+						<p class="text-xs md:text-sm text-gray-400">
 							Your answer was: <span class="font-semibold text-gray-600 dark:text-gray-300">"{{ userResponse?.response_data?.oracleAnswer }}"</span>
 						</p>
-						<p class="text-sm text-gray-400 mt-1">
+						<p class="text-xs md:text-sm text-gray-400 mt-1">
 							Select which predictions best match what you meant.
 						</p>
 					</div>
 				</UCard>
 
 				<!-- Predictions to Review -->
-				<div v-if="results && results.predictions.length > 0" class="space-y-3">
+				<div v-if="results && results.predictions.length > 0" class="space-y-2 md:space-y-3">
 					<div
 						v-for="prediction in results.predictions"
 						:key="prediction.userId"
 						:class="[
-							'p-4 rounded-lg border-2 cursor-pointer transition-all',
+							'p-3 md:p-4 rounded-lg border-2 cursor-pointer transition-all touch-manipulation active:scale-95',
 							selectedPredictions.has(prediction.userId)
 								? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-								: 'border-gray-300 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-700'
+								: 'border-gray-300 dark:border-gray-600 md:hover:border-green-300 dark:md:hover:border-green-700'
 						]"
 						@click="togglePredictionSelection(prediction.userId)"
 					>
 						<div class="flex items-start justify-between">
-							<div class="flex items-center gap-3 flex-1">
+							<div class="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
 								<UAvatar
 									:src="prediction.avatarUrl"
 									:alt="prediction.username"
-									size="md"
+									size="sm"
+									class="md:size-md shrink-0"
 								/>
-								<div class="flex-1">
-									<p class="font-semibold">{{ prediction.username }}</p>
-									<p class="text-sm italic text-gray-600 dark:text-gray-400 mt-1">
+								<div class="flex-1 min-w-0">
+									<p class="font-semibold text-xs md:text-sm">{{ prediction.username }}</p>
+									<p class="text-xs md:text-sm italic text-gray-600 dark:text-gray-400 mt-0.5 md:mt-1">
 										"{{ prediction.prediction }}"
 									</p>
 								</div>
 							</div>
-							<div v-if="selectedPredictions.has(prediction.userId)" class="text-green-500 text-xl">
+							<div v-if="selectedPredictions.has(prediction.userId)" class="text-green-500 text-lg md:text-xl shrink-0">
 								✓
 							</div>
 						</div>
@@ -369,15 +382,15 @@ const showResults = computed(() => !!results.value && currentGame.value?.status 
 			</div>
 
 			<!-- Oracle View: Selections Submitted -->
-			<div v-if="isOracle && userResponse?.response_data?.selectedUserIds && currentGame.status === 'active' && currentGame.current_phase === 'oracle_selection'" class="space-y-4">
+			<div v-if="isOracle && userResponse?.response_data?.selectedUserIds && currentGame.status === 'active' && currentGame.current_phase === 'oracle_selection'" class="space-y-3 md:space-y-4">
 				<UCard class="bg-blue-50 dark:bg-blue-900/20">
-					<div class="text-center py-6">
-						<div class="text-3xl mb-3">✅</div>
-						<p class="font-semibold mb-2">Selections Submitted!</p>
-						<p class="text-sm text-gray-400">
+					<div class="text-center py-4 md:py-6">
+						<div class="text-2xl md:text-3xl mb-2 md:mb-3">✅</div>
+						<p class="font-semibold text-sm md:text-base mb-1.5 md:mb-2">Selections Submitted!</p>
+						<p class="text-xs md:text-sm text-gray-400">
 							You selected {{ userResponse.response_data.selectedUserIds.length }} correct {{ userResponse.response_data.selectedUserIds.length === 1 ? 'prediction' : 'predictions' }}
 						</p>
-						<p class="text-sm text-gray-400 mt-2">
+						<p class="text-xs md:text-sm text-gray-400 mt-1.5 md:mt-2">
 							Waiting for the game to end...
 						</p>
 					</div>
@@ -385,7 +398,7 @@ const showResults = computed(() => !!results.value && currentGame.value?.status 
 			</div>
 
 			<!-- Predictor View: Submit Prediction -->
-			<div v-if="!isOracle && !userResponse && currentGame.status === 'active'" class="space-y-4">
+			<div v-if="!isOracle && !userResponse && currentGame.status === 'active'" class="space-y-3 md:space-y-4">
 				<UFormField label="Your Prediction">
 					<UInput
 						v-model="predictionForm.prediction"
@@ -406,15 +419,15 @@ const showResults = computed(() => !!results.value && currentGame.value?.status 
 			</div>
 
 			<!-- Predictor View: Prediction Submitted -->
-			<div v-if="!isOracle && userResponse && currentGame.status === 'active'" class="space-y-4">
+			<div v-if="!isOracle && userResponse && currentGame.status === 'active'" class="space-y-3 md:space-y-4">
 				<UCard class="bg-blue-50 dark:bg-blue-900/20">
-					<div class="text-center py-6">
-						<div class="text-3xl mb-3">✅</div>
-						<p class="font-semibold mb-2">Prediction Submitted!</p>
-						<p class="text-sm text-gray-400">
+					<div class="text-center py-4 md:py-6">
+						<div class="text-2xl md:text-3xl mb-2 md:mb-3">✅</div>
+						<p class="font-semibold text-sm md:text-base mb-1.5 md:mb-2">Prediction Submitted!</p>
+						<p class="text-xs md:text-sm text-gray-400">
 							You predicted: <span class="font-semibold text-gray-600 dark:text-gray-300">"{{ userResponse.response_data.prediction }}"</span>
 						</p>
-						<p class="text-sm text-gray-400 mt-2">
+						<p class="text-xs md:text-sm text-gray-400 mt-1.5 md:mt-2">
 							{{
 								currentGame.current_phase === 'oracle_selection'
 									? 'The Oracle is reviewing predictions...'
@@ -453,19 +466,20 @@ const showResults = computed(() => !!results.value && currentGame.value?.status 
 		<template #results>
 			<!-- Oracle Reveal -->
 			<UCard class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-800/20">
-				<div class="text-center py-6">
-					<div class="text-4xl mb-3">⭐</div>
-					<p class="text-lg font-semibold mb-1">The Oracle Answered</p>
-					<p class="text-2xl font-bold text-yellow-600 mb-2">
+				<div class="text-center py-4 md:py-6">
+					<div class="text-3xl md:text-4xl mb-2 md:mb-3">⭐</div>
+					<p class="text-base md:text-lg font-semibold mb-1">The Oracle Answered</p>
+					<p class="text-xl md:text-2xl font-bold text-yellow-600 mb-1.5 md:mb-2">
 						"{{ results.correctAnswer }}"
 					</p>
-					<div class="flex items-center justify-center gap-2 mt-3">
+					<div class="flex items-center justify-center gap-2 mt-2 md:mt-3">
 						<UAvatar
 							:src="results.oracleAvatarUrl"
 							:alt="results.oracleUsername"
-							size="md"
+							size="sm"
+							class="md:size-md"
 						/>
-						<span class="text-sm text-gray-600 dark:text-gray-400">
+						<span class="text-xs md:text-sm text-gray-600 dark:text-gray-400">
 							{{ results.oracleUsername }}
 						</span>
 					</div>
@@ -474,18 +488,18 @@ const showResults = computed(() => !!results.value && currentGame.value?.status 
 
 			<!-- Correct Predictors -->
 			<UCard v-if="results.correctPredictors && results.correctPredictors.length > 0" class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-800/20">
-				<div class="text-center py-4">
-					<div class="text-3xl mb-3">🎯</div>
-					<p class="text-lg font-semibold mb-3">Correct Predictions</p>
-					<div class="space-y-2">
+				<div class="text-center py-3 md:py-4">
+					<div class="text-2xl md:text-3xl mb-2 md:mb-3">🎯</div>
+					<p class="text-base md:text-lg font-semibold mb-2 md:mb-3">Correct Predictions</p>
+					<div class="space-y-1.5 md:space-y-2">
 						<div
 							v-for="predictor in results.correctPredictors"
 							:key="predictor.userId"
-							class="flex items-center justify-center gap-3"
+							class="flex items-center justify-center gap-2 md:gap-3"
 						>
-							<span class="text-lg">✓</span>
-							<span class="font-semibold">{{ predictor.username }}</span>
-							<UBadge color="green">+{{ predictor.points }} points</UBadge>
+							<span class="text-base md:text-lg">✓</span>
+							<span class="font-semibold text-xs md:text-sm">{{ predictor.username }}</span>
+							<UBadge color="green" size="xs" class="md:size-sm">+{{ predictor.points }} points</UBadge>
 						</div>
 					</div>
 				</div>
@@ -493,9 +507,9 @@ const showResults = computed(() => !!results.value && currentGame.value?.status 
 
 			<!-- No Correct Predictions -->
 			<UCard v-else class="bg-gray-50 dark:bg-gray-800">
-				<div class="text-center py-6">
-					<div class="text-3xl mb-3">😅</div>
-					<p class="font-semibold text-gray-600 dark:text-gray-400">
+				<div class="text-center py-4 md:py-6">
+					<div class="text-2xl md:text-3xl mb-2 md:mb-3">😅</div>
+					<p class="font-semibold text-sm md:text-base text-gray-600 dark:text-gray-400">
 						No one guessed correctly!
 					</p>
 				</div>
@@ -503,34 +517,36 @@ const showResults = computed(() => !!results.value && currentGame.value?.status 
 
 			<!-- All Predictions -->
 			<div v-if="results.predictions && results.predictions.length > 0">
-				<h4 class="font-semibold mb-4">All Predictions</h4>
-				<div class="space-y-3">
+				<h4 class="font-semibold mb-3 md:mb-4 text-sm md:text-base">All Predictions</h4>
+				<div class="space-y-2 md:space-y-3">
 					<div
 						v-for="prediction in results.predictions"
 						:key="prediction.userId"
 						:class="[
-							'p-4 rounded-lg border-l-4',
+							'p-3 md:p-4 rounded-lg border-l-4',
 							prediction.isCorrect
 								? 'border-green-500 bg-green-50 dark:bg-green-900/20'
 								: 'border-red-500 bg-red-50 dark:bg-red-900/20'
 						]"
 					>
-						<div class="flex items-start justify-between">
-							<div class="flex items-center gap-3">
+						<div class="flex items-start justify-between gap-2">
+							<div class="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
 								<UAvatar
 									:src="prediction.avatarUrl"
 									:alt="prediction.username"
-									size="sm"
+									size="xs"
+									class="md:size-sm shrink-0"
 								/>
-								<div>
-									<p class="font-semibold">{{ prediction.username }}</p>
-									<p class="text-sm italic text-gray-600 dark:text-gray-400">
+								<div class="flex-1 min-w-0">
+									<p class="font-semibold text-xs md:text-sm">{{ prediction.username }}</p>
+									<p class="text-xs md:text-sm italic text-gray-600 dark:text-gray-400">
 										"{{ prediction.prediction }}"
 									</p>
 								</div>
 							</div>
-							<UBadge :color="prediction.isCorrect ? 'green' : 'red'">
-								{{ prediction.isCorrect ? '✓ Correct' : '✗ Wrong' }}
+							<UBadge size="xs" class="md:size-sm shrink-0" :color="prediction.isCorrect ? 'green' : 'red'">
+								<span class="hidden sm:inline">{{ prediction.isCorrect ? '✓ Correct' : '✗ Wrong' }}</span>
+								<span class="sm:hidden">{{ prediction.isCorrect ? '✓' : '✗' }}</span>
 							</UBadge>
 						</div>
 					</div>

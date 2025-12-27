@@ -73,18 +73,15 @@ const promptForm = reactive({
 	tags: [] as string[],
 });
 
-// Game type options
-const gameTypeOptions = [
-	{ value: 'would_you_rather', label: 'Would You Rather', icon: GAME_TYPES.would_you_rather.icon, disabled: false },
-	{ value: 'hot_takes', label: 'Hot Takes', icon: GAME_TYPES.hot_takes.icon, disabled: false },
-	{ value: 'guess_who_said_it', label: 'Who Said It', icon: GAME_TYPES.guess_who_said_it.icon, disabled: false },
-	{ value: 'most_likely_to', label: 'Most Likely To', icon: GAME_TYPES.most_likely_to.icon, disabled: false },
-	{ value: 'predict_your_friends', label: 'Predictor (Coming Soon)', icon: GAME_TYPES.predict_your_friends.icon, disabled: true },
-	{ value: 'dinner_party_dilemmas', label: 'The Guests (Coming Soon)', icon: GAME_TYPES.dinner_party_dilemmas.icon, disabled: true },
-	{ value: 'two_truths_roulette', label: 'Two Truths (Coming Soon)', icon: GAME_TYPES.two_truths_roulette.icon, disabled: true },
-	{ value: 'compliment_economy', label: 'Complimentary (Coming Soon)', icon: GAME_TYPES.compliment_economy.icon, disabled: true },
-	{ value: 'bracket_battle', label: 'Bracket Royale (Coming Soon)', icon: GAME_TYPES.bracket_battle.icon, disabled: true },
-];
+// Game type options - dynamically generated from GAME_TYPES
+const gameTypeOptions = Object.values(GAME_TYPES)
+	.filter(game => !game.disabled) // Filter out disabled games
+	.map(game => ({
+		value: game.id,
+		label: game.name,
+		icon: game.icon,
+		disabled: false
+	}));
 
 // Reset form
 const resetForm = () => {

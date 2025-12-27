@@ -197,29 +197,35 @@ const allVotesSubmitted = computed(() => {
 		<!-- Game Content Slot -->
 		<template #game-content>
 			<!-- Phase Indicator -->
-			<div class="text-center">
+			<div class="text-center mb-3 md:mb-4">
 				<UBadge
 					:color="currentGame.current_phase === 'submission' ? 'blue' : 'green'"
-					size="lg"
+					size="md"
+					class="md:size-lg text-xs md:text-sm"
 				>
-					Phase {{ currentGame.current_phase === 'submission' ? '1' : '2' }}:
-					{{ currentGame.current_phase === 'submission' ? 'Submit Statements' : 'Guess the Lies' }}
+					<span class="hidden sm:inline">
+						Phase {{ currentGame.current_phase === 'submission' ? '1' : '2' }}:
+						{{ currentGame.current_phase === 'submission' ? 'Submit Statements' : 'Guess the Lies' }}
+					</span>
+					<span class="sm:hidden">
+						Phase {{ currentGame.current_phase === 'submission' ? '1' : '2' }}
+					</span>
 				</UBadge>
 			</div>
 
 			<!-- Game Prompt -->
 			<UCard class="overflow-hidden relative">
-				<div class="text-center py-6 relative z-10">
+				<div class="text-center py-4 md:py-6 relative z-10">
 					<!-- Emoji -->
-					<div class="text-6xl mb-4">✨</div>
+					<div class="text-4xl md:text-6xl mb-3 md:mb-4">✨</div>
 
-					<h3 class="text-xl font-semibold mb-2">
+					<h3 class="text-lg md:text-xl font-semibold mb-1.5 md:mb-2">
 						Two Truths and a Lie
 						<span v-if="(currentGame.prompt as TwoTruthsRoulettePrompt)?.timeframe">
 							{{ (currentGame.prompt as TwoTruthsRoulettePrompt).timeframe }}
 						</span>
 					</h3>
-					<p class="text-sm text-gray-400">
+					<p class="text-xs md:text-sm text-gray-400">
 						Submit two truths and one lie. Can your friends spot which is which?
 					</p>
 				</div>
@@ -228,37 +234,38 @@ const allVotesSubmitted = computed(() => {
 			<!-- Phase 1: Submit Statements -->
 			<div v-if="currentGame.current_phase === 'submission'" class="space-y-4">
 				<div v-if="!userResponse && currentGame.status === 'active'">
-					<div class="space-y-4">
-						<p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-4">
+					<div class="space-y-3 md:space-y-4">
+						<p class="text-xs md:text-sm text-gray-600 dark:text-gray-400 text-center mb-3 md:mb-4">
 							Click each card to edit your statements. The first two are truths, the last one is the lie.
 						</p>
 
 						<!-- Truth Card 1 -->
 						<UCard
 							:class="[
-								'cursor-pointer transition-all p-6',
+								'cursor-pointer transition-all p-3 md:p-6 touch-manipulation active:scale-95',
 								'bg-green-50 dark:bg-green-900/20 border-2 border-green-500',
-								editingCard === 1 ? 'ring-4 ring-green-400' : 'hover:scale-102'
+								editingCard === 1 ? 'ring-4 ring-green-400' : 'md:hover:scale-102'
 							]"
 							@click="handleCardClick(1)"
 						>
-							<div class="flex items-start gap-3">
-								<div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center font-bold text-green-700 dark:text-green-300">
+							<div class="flex items-start gap-2 md:gap-3">
+								<div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center font-bold text-sm md:text-base text-green-700 dark:text-green-300">
 									1
 								</div>
-								<div class="flex-1">
-									<div class="flex items-center gap-2 mb-2">
-										<span class="text-xs font-semibold text-green-600 dark:text-green-400">TRUTH</span>
+								<div class="flex-1 min-w-0">
+									<div class="flex items-center gap-2 mb-1 md:mb-2">
+										<span class="text-[10px] md:text-xs font-semibold text-green-600 dark:text-green-400">TRUTH</span>
 									</div>
 									<UInput
 										v-if="editingCard === 1"
 										v-model="submissionForm.statement1"
 										placeholder="Enter your first truth..."
-										size="lg"
+										size="md"
+										class="md:size-lg"
 										autofocus
 										@blur="handleCardBlur"
 									/>
-									<p v-else class="text-gray-700 dark:text-gray-300">
+									<p v-else class="text-xs md:text-sm text-gray-700 dark:text-gray-300">
 										{{ submissionForm.statement1 || 'Click to add your first truth...' }}
 									</p>
 								</div>
@@ -268,29 +275,30 @@ const allVotesSubmitted = computed(() => {
 						<!-- Truth Card 2 -->
 						<UCard
 							:class="[
-								'cursor-pointer transition-all p-6',
+								'cursor-pointer transition-all p-3 md:p-6 touch-manipulation active:scale-95',
 								'bg-green-50 dark:bg-green-900/20 border-2 border-green-500',
-								editingCard === 2 ? 'ring-4 ring-green-400' : 'hover:scale-102'
+								editingCard === 2 ? 'ring-4 ring-green-400' : 'md:hover:scale-102'
 							]"
 							@click="handleCardClick(2)"
 						>
-							<div class="flex items-start gap-3">
-								<div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center font-bold text-green-700 dark:text-green-300">
+							<div class="flex items-start gap-2 md:gap-3">
+								<div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center font-bold text-sm md:text-base text-green-700 dark:text-green-300">
 									2
 								</div>
-								<div class="flex-1">
-									<div class="flex items-center gap-2 mb-2">
-										<span class="text-xs font-semibold text-green-600 dark:text-green-400">TRUTH</span>
+								<div class="flex-1 min-w-0">
+									<div class="flex items-center gap-2 mb-1 md:mb-2">
+										<span class="text-[10px] md:text-xs font-semibold text-green-600 dark:text-green-400">TRUTH</span>
 									</div>
 									<UInput
 										v-if="editingCard === 2"
 										v-model="submissionForm.statement2"
 										placeholder="Enter your second truth..."
-										size="lg"
+										size="md"
+										class="md:size-lg"
 										autofocus
 										@blur="handleCardBlur"
 									/>
-									<p v-else class="text-gray-700 dark:text-gray-300">
+									<p v-else class="text-xs md:text-sm text-gray-700 dark:text-gray-300">
 										{{ submissionForm.statement2 || 'Click to add your second truth...' }}
 									</p>
 								</div>
@@ -300,29 +308,30 @@ const allVotesSubmitted = computed(() => {
 						<!-- Lie Card 3 -->
 						<UCard
 							:class="[
-								'cursor-pointer transition-all p-6',
+								'cursor-pointer transition-all p-3 md:p-6 touch-manipulation active:scale-95',
 								'bg-red-50 dark:bg-red-900/20 border-2 border-red-500',
-								editingCard === 3 ? 'ring-4 ring-red-400' : 'hover:scale-102'
+								editingCard === 3 ? 'ring-4 ring-red-400' : 'md:hover:scale-102'
 							]"
 							@click="handleCardClick(3)"
 						>
-							<div class="flex items-start gap-3">
-								<div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center font-bold text-red-700 dark:text-red-300">
+							<div class="flex items-start gap-2 md:gap-3">
+								<div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center font-bold text-sm md:text-base text-red-700 dark:text-red-300">
 									3
 								</div>
-								<div class="flex-1">
-									<div class="flex items-center gap-2 mb-2">
-										<span class="text-xs font-semibold text-red-600 dark:text-red-400">LIE</span>
+								<div class="flex-1 min-w-0">
+									<div class="flex items-center gap-2 mb-1 md:mb-2">
+										<span class="text-[10px] md:text-xs font-semibold text-red-600 dark:text-red-400">LIE</span>
 									</div>
 									<UInput
 										v-if="editingCard === 3"
 										v-model="submissionForm.statement3"
 										placeholder="Enter your lie..."
-										size="lg"
+										size="md"
+										class="md:size-lg"
 										autofocus
 										@blur="handleCardBlur"
 									/>
-									<p v-else class="text-gray-700 dark:text-gray-300">
+									<p v-else class="text-xs md:text-sm text-gray-700 dark:text-gray-300">
 										{{ submissionForm.statement3 || 'Click to add your lie...' }}
 									</p>
 								</div>
@@ -344,10 +353,10 @@ const allVotesSubmitted = computed(() => {
 				<!-- Submitted confirmation -->
 				<div v-if="userResponse">
 					<UCard class="bg-blue-50 dark:bg-blue-900/20">
-						<div class="text-center py-6">
-							<div class="text-3xl mb-3">✅</div>
-							<p class="font-semibold mb-2">Statements Submitted!</p>
-							<p class="text-sm text-gray-400">
+						<div class="text-center py-4 md:py-6">
+							<div class="text-2xl md:text-3xl mb-2 md:mb-3">✅</div>
+							<p class="font-semibold text-sm md:text-base mb-1.5 md:mb-2">Statements Submitted!</p>
+							<p class="text-xs md:text-sm text-gray-400">
 								Waiting for everyone to submit...
 							</p>
 						</div>
@@ -356,38 +365,39 @@ const allVotesSubmitted = computed(() => {
 			</div>
 
 			<!-- Phase 2: Guess the Lies -->
-			<div v-if="currentGame.current_phase === 'guessing'" class="space-y-6">
+			<div v-if="currentGame.current_phase === 'guessing'" class="space-y-4 md:space-y-6">
 				<!-- Your Own Submission -->
-				<div v-if="ownSubmission" class="pb-4 mb-4 border-b-2 border-dashed border-blue-300">
-					<div class="flex items-start gap-3 mb-2">
+				<div v-if="ownSubmission" class="pb-3 md:pb-4 mb-3 md:mb-4 border-b-2 border-dashed border-blue-300">
+					<div class="flex items-start gap-2 md:gap-3 mb-2">
 						<UAvatar
 							:src="ownSubmission.avatarUrl"
 							:alt="ownSubmission.username"
-							size="md"
+							size="sm"
+							class="md:size-md"
 						/>
-						<div class="flex-1">
-							<div class="flex items-center gap-2 mb-3">
-								<span class="font-semibold">{{ ownSubmission.username }}</span>
+						<div class="flex-1 min-w-0">
+							<div class="flex items-center gap-2 mb-2 md:mb-3">
+								<span class="font-semibold text-xs md:text-sm">{{ ownSubmission.username }}</span>
 								<UBadge color="blue" size="xs">You</UBadge>
 							</div>
 
-							<div class="space-y-2">
+							<div class="space-y-1.5 md:space-y-2">
 								<div
 									v-for="(statement, index) in ownSubmission.statements"
 									:key="index"
 									:class="[
-										'p-3 rounded-lg text-sm',
+										'p-2 md:p-3 rounded-lg',
 										index + 1 === ownSubmission.lieIndex
 											? 'bg-red-50 dark:bg-red-900/20 border-2 border-red-500'
 											: 'bg-gray-50 dark:bg-gray-800'
 									]"
 								>
-									<div class="flex items-start gap-2">
-										<div class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-xs font-bold">
+									<div class="flex items-start gap-1.5 md:gap-2">
+										<div class="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-[10px] md:text-xs font-bold">
 											{{ index + 1 }}
 										</div>
-										<p class="flex-1">{{ statement }}</p>
-										<div v-if="index + 1 === ownSubmission.lieIndex" class="text-red-500 text-xs font-semibold">
+										<p class="flex-1 text-xs md:text-sm">{{ statement }}</p>
+										<div v-if="index + 1 === ownSubmission.lieIndex" class="text-red-500 text-[10px] md:text-xs font-semibold shrink-0">
 											LIE
 										</div>
 									</div>
@@ -398,44 +408,46 @@ const allVotesSubmitted = computed(() => {
 				</div>
 
 				<!-- Other Users' Submissions -->
-				<div v-if="currentGame.status === 'active' && otherSubmissions.length > 0" class="space-y-6">
-					<p class="text-sm text-gray-400 text-center">
+				<div v-if="currentGame.status === 'active' && otherSubmissions.length > 0" class="space-y-4 md:space-y-6">
+					<p class="text-xs md:text-sm text-gray-400 text-center">
 						Vote on which statement is the lie for each person:
 					</p>
 
 					<div
 						v-for="submission in otherSubmissions"
 						:key="submission.userId"
-						class="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-4"
+						class="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 md:p-4"
 					>
-						<div class="flex items-center gap-3 mb-4">
+						<div class="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
 							<UAvatar
 								:src="submission.avatarUrl"
 								:alt="submission.username"
-								size="md"
+								size="sm"
+								class="md:size-md"
 							/>
-							<span class="font-semibold">{{ submission.username }}</span>
+							<span class="font-semibold text-xs md:text-sm">{{ submission.username }}</span>
 						</div>
 
-						<div class="space-y-2">
+						<div class="space-y-1.5 md:space-y-2">
 							<div
 								v-for="(statement, index) in submission.statements"
 								:key="index"
 								:class="[
-									'p-3 rounded-lg cursor-pointer transition-all',
+									'p-2 md:p-3 rounded-lg cursor-pointer transition-all touch-manipulation active:scale-95',
 									votes[submission.userId] === index + 1
 										? 'ring-2 ring-red-500 bg-red-50 dark:bg-red-900/20'
-										: 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
+										: 'bg-gray-50 dark:bg-gray-800 md:hover:bg-gray-100 dark:md:hover:bg-gray-700'
 								]"
 								@click="votes[submission.userId] = index + 1"
 							>
-								<div class="flex items-start gap-2">
-									<div class="flex-shrink-0 w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-xs font-bold">
+								<div class="flex items-start gap-1.5 md:gap-2">
+									<div class="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-[10px] md:text-xs font-bold">
 										{{ index + 1 }}
 									</div>
-									<p class="flex-1 text-sm">{{ statement }}</p>
-									<div v-if="votes[submission.userId] === index + 1" class="text-xs font-semibold text-red-500">
-										This is the lie
+									<p class="flex-1 text-xs md:text-sm">{{ statement }}</p>
+									<div v-if="votes[submission.userId] === index + 1" class="text-[10px] md:text-xs font-semibold text-red-500 shrink-0">
+										<span class="hidden sm:inline">This is the lie</span>
+										<span class="sm:hidden">Lie</span>
 									</div>
 								</div>
 							</div>
@@ -456,10 +468,10 @@ const allVotesSubmitted = computed(() => {
 				<!-- Votes submitted -->
 				<div v-if="userResponse?.response_data?.votes && currentGame.status === 'active'">
 					<UCard class="bg-blue-50 dark:bg-blue-900/20">
-						<div class="text-center py-6">
-							<div class="text-3xl mb-3">✅</div>
-							<p class="font-semibold mb-2">Votes Submitted!</p>
-							<p class="text-sm text-gray-400">
+						<div class="text-center py-4 md:py-6">
+							<div class="text-2xl md:text-3xl mb-2 md:mb-3">✅</div>
+							<p class="font-semibold text-sm md:text-base mb-1.5 md:mb-2">Votes Submitted!</p>
+							<p class="text-xs md:text-sm text-gray-400">
 								Waiting for the game to end...
 							</p>
 						</div>
@@ -495,18 +507,18 @@ const allVotesSubmitted = computed(() => {
 		<template #results>
 			<!-- Top Foolers -->
 			<UCard v-if="results.topFoolers && results.topFoolers.length > 0" class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-800/20">
-				<div class="text-center py-4">
-					<div class="text-3xl mb-3">🎭</div>
-					<p class="text-lg font-semibold mb-3">Top Deceivers</p>
-					<div class="space-y-2">
+				<div class="text-center py-3 md:py-4">
+					<div class="text-2xl md:text-3xl mb-2 md:mb-3">🎭</div>
+					<p class="text-base md:text-lg font-semibold mb-2 md:mb-3">Top Deceivers</p>
+					<div class="space-y-1.5 md:space-y-2">
 						<div
 							v-for="(fooler, index) in results.topFoolers"
 							:key="fooler.userId"
-							class="flex items-center justify-center gap-3"
+							class="flex items-center justify-center gap-2 md:gap-3"
 						>
-							<span class="text-lg">{{ ['🥇', '🥈', '🥉'][index] }}</span>
-							<span class="font-semibold">{{ fooler.username }}</span>
-							<UBadge>{{ fooler.fooledCount }} fooled</UBadge>
+							<span class="text-base md:text-lg">{{ ['🥇', '🥈', '🥉'][index] }}</span>
+							<span class="font-semibold text-xs md:text-sm">{{ fooler.username }}</span>
+							<UBadge size="xs" class="md:size-sm">{{ fooler.fooledCount }} fooled</UBadge>
 						</div>
 					</div>
 				</div>
@@ -514,18 +526,18 @@ const allVotesSubmitted = computed(() => {
 
 			<!-- Top Detectives -->
 			<UCard v-if="results.topDetectives && results.topDetectives.length > 0" class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-800/20">
-				<div class="text-center py-4">
-					<div class="text-3xl mb-3">🕵️</div>
-					<p class="text-lg font-semibold mb-3">Top Detectives</p>
-					<div class="space-y-2">
+				<div class="text-center py-3 md:py-4">
+					<div class="text-2xl md:text-3xl mb-2 md:mb-3">🕵️</div>
+					<p class="text-base md:text-lg font-semibold mb-2 md:mb-3">Top Detectives</p>
+					<div class="space-y-1.5 md:space-y-2">
 						<div
 							v-for="(detective, index) in results.topDetectives"
 							:key="detective.userId"
-							class="flex items-center justify-center gap-3"
+							class="flex items-center justify-center gap-2 md:gap-3"
 						>
-							<span class="text-lg">{{ ['🥇', '🥈', '🥉'][index] }}</span>
-							<span class="font-semibold">{{ detective.username }}</span>
-							<UBadge>{{ detective.correctGuesses }} correct</UBadge>
+							<span class="text-base md:text-lg">{{ ['🥇', '🥈', '🥉'][index] }}</span>
+							<span class="font-semibold text-xs md:text-sm">{{ detective.username }}</span>
+							<UBadge size="xs" class="md:size-sm">{{ detective.correctGuesses }} correct</UBadge>
 						</div>
 					</div>
 				</div>
@@ -533,45 +545,46 @@ const allVotesSubmitted = computed(() => {
 
 			<!-- All Submissions with Reveals -->
 			<div v-if="results.submissions && results.submissions.length > 0">
-				<h4 class="font-semibold mb-4">All Submissions</h4>
-				<div class="space-y-4">
+				<h4 class="font-semibold mb-3 md:mb-4 text-sm md:text-base">All Submissions</h4>
+				<div class="space-y-3 md:space-y-4">
 					<div
 						v-for="submission in results.submissions"
 						:key="submission.userId"
-						class="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-4"
+						class="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 md:p-4"
 					>
-						<div class="flex items-center gap-3 mb-4">
+						<div class="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
 							<UAvatar
 								:src="submission.avatarUrl"
 								:alt="submission.username"
-								size="md"
+								size="sm"
+								class="md:size-md"
 							/>
 							<div class="flex-1">
-								<span class="font-semibold">{{ submission.username }}</span>
-								<div class="text-xs text-gray-400 mt-1">
+								<span class="font-semibold text-xs md:text-sm">{{ submission.username }}</span>
+								<div class="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">
 									Fooled {{ submission.fooledCount }} {{ submission.fooledCount === 1 ? 'person' : 'people' }}
 								</div>
 							</div>
 						</div>
 
-						<div class="space-y-2">
+						<div class="space-y-1.5 md:space-y-2">
 							<div
 								v-for="(statement, index) in submission.statements"
 								:key="index"
 								:class="[
-									'p-3 rounded-lg',
+									'p-2 md:p-3 rounded-lg',
 									index + 1 === submission.lieIndex
 										? 'bg-red-50 dark:bg-red-900/20 border-2 border-red-500'
 										: 'bg-green-50 dark:bg-green-900/20 border-2 border-green-500'
 								]"
 							>
-								<div class="flex items-start gap-2">
-									<div class="flex-shrink-0 w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-xs font-bold">
+								<div class="flex items-start gap-1.5 md:gap-2">
+									<div class="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-[10px] md:text-xs font-bold">
 										{{ index + 1 }}
 									</div>
-									<p class="flex-1 text-sm">{{ statement }}</p>
+									<p class="flex-1 text-xs md:text-sm">{{ statement }}</p>
 									<div :class="[
-										'text-xs font-semibold',
+										'text-[10px] md:text-xs font-semibold shrink-0',
 										index + 1 === submission.lieIndex ? 'text-red-500' : 'text-green-500'
 									]">
 										{{ index + 1 === submission.lieIndex ? 'LIE' : 'TRUTH' }}
@@ -581,16 +594,16 @@ const allVotesSubmitted = computed(() => {
 						</div>
 
 						<!-- Who voted what -->
-						<div v-if="submission.votes.length > 0" class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-							<p class="text-xs font-semibold text-gray-400 mb-2">Votes:</p>
-							<div class="flex flex-wrap gap-2">
+						<div v-if="submission.votes.length > 0" class="mt-2 md:mt-3 pt-2 md:pt-3 border-t border-gray-200 dark:border-gray-700">
+							<p class="text-[10px] md:text-xs font-semibold text-gray-400 mb-1.5 md:mb-2">Votes:</p>
+							<div class="flex flex-wrap gap-1 md:gap-2">
 								<UBadge
 									v-for="vote in submission.votes"
 									:key="vote.voterId"
 									:color="vote.wasCorrect ? 'green' : 'red'"
 									size="xs"
 								>
-									{{ vote.voterUsername }}: {{ vote.wasCorrect ? '✓' : '✗' }} (guessed #{{ vote.guessedLieIndex }})
+									{{ vote.voterUsername }}: {{ vote.wasCorrect ? '✓' : '✗' }} (#{{ vote.guessedLieIndex }})
 								</UBadge>
 							</div>
 						</div>

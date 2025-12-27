@@ -146,7 +146,7 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 					<!-- Default Emoji (if no visual) -->
 					<div v-else class="text-3xl mb-2">🔥</div>
 
-					<p class="text-xl font-semibold">
+					<p class="text-base md:text-xl font-semibold">
 						{{ (currentGame.prompt as HotTakesPrompt).statement }}
 					</p>
 				</div>
@@ -155,38 +155,38 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 			<!-- Response Form (if not already responded) -->
 			<div v-if="!userResponse && currentGame.status === 'active'" class="space-y-4">
 				<!-- Stance Selection -->
-				<div class="grid grid-cols-3 gap-3">
+				<div class="grid grid-cols-3 gap-2 md:gap-3">
 					<UCard
 						:class="[
-							'cursor-pointer transition-all text-center p-4',
-							responseForm.stance === 'agree' ? 'ring-2 ring-green-500 bg-green-50 dark:bg-green-900/20' : 'hover:scale-105'
+							'cursor-pointer transition-all text-center p-3 md:p-4 touch-manipulation active:scale-95',
+							responseForm.stance === 'agree' ? 'ring-2 ring-green-500 bg-green-50 dark:bg-green-900/20' : 'md:hover:scale-105'
 						]"
 						@click="responseForm.stance = 'agree'"
 					>
-						<div class="text-3xl mb-2">✅</div>
-						<div class="font-semibold">Agree</div>
+						<div class="text-2xl md:text-3xl mb-1 md:mb-2">✅</div>
+						<div class="text-sm md:text-base font-semibold">Agree</div>
 					</UCard>
 
 					<UCard
 						:class="[
-							'cursor-pointer transition-all text-center p-4',
-							responseForm.stance === 'neutral' ? 'ring-2 ring-gray-500 bg-gray-50 dark:bg-gray-900/20' : 'hover:scale-105'
+							'cursor-pointer transition-all text-center p-3 md:p-4 touch-manipulation active:scale-95',
+							responseForm.stance === 'neutral' ? 'ring-2 ring-gray-500 bg-gray-50 dark:bg-gray-900/20' : 'md:hover:scale-105'
 						]"
 						@click="responseForm.stance = 'neutral'"
 					>
-						<div class="text-3xl mb-2">🤷</div>
-						<div class="font-semibold">Neutral</div>
+						<div class="text-2xl md:text-3xl mb-1 md:mb-2">🤷</div>
+						<div class="text-sm md:text-base font-semibold">Neutral</div>
 					</UCard>
 
 					<UCard
 						:class="[
-							'cursor-pointer transition-all text-center p-4',
-							responseForm.stance === 'disagree' ? 'ring-2 ring-red-500 bg-red-50 dark:bg-red-900/20' : 'hover:scale-105'
+							'cursor-pointer transition-all text-center p-3 md:p-4 touch-manipulation active:scale-95',
+							responseForm.stance === 'disagree' ? 'ring-2 ring-red-500 bg-red-50 dark:bg-red-900/20' : 'md:hover:scale-105'
 						]"
 						@click="responseForm.stance = 'disagree'"
 					>
-						<div class="text-3xl mb-2">❌</div>
-						<div class="font-semibold">Disagree</div>
+						<div class="text-2xl md:text-3xl mb-1 md:mb-2">❌</div>
+						<div class="text-sm md:text-base font-semibold">Disagree</div>
 					</UCard>
 				</div>
 

@@ -94,7 +94,11 @@ const groupedMessages = computed(() => {
 	return grouped;
 });
 
-onMounted(loadComments);
+onMounted(async () => {
+	await loadComments();
+	await nextTick();
+	scrollToBottom();
+});
 
 // Handler: post a new message
 const postMessage = async () => {

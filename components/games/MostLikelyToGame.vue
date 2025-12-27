@@ -163,30 +163,31 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 
 			<!-- Voting Form (if not already voted) -->
 			<div v-if="!userResponse && currentGame.status === 'active'" class="space-y-4">
-				<div class="text-center mb-4">
-					<p class="text-sm text-gray-400">
+				<div class="text-center mb-3 md:mb-4">
+					<p class="text-xs md:text-sm text-gray-400">
 						Select who you think fits this scenario best
 					</p>
 				</div>
 
 				<!-- Member Selection Grid -->
-				<div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+				<div class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
 					<UCard
 						v-for="member in groupMembers"
 						:key="member.userId"
 						:class="[
-							'cursor-pointer transition-all text-center p-4',
-							selectedUserId === member.userId ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'hover:scale-105'
+							'cursor-pointer transition-all text-center p-3 md:p-4 touch-manipulation active:scale-95',
+							selectedUserId === member.userId ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'md:hover:scale-105'
 						]"
 						@click="selectedUserId = member.userId"
 					>
-						<div class="flex flex-col items-center gap-2">
+						<div class="flex flex-col items-center gap-1.5 md:gap-2">
 							<UAvatar
 								:src="member.avatarUrl || ''"
 								:alt="member.username"
-								size="lg"
+								size="md"
+								class="md:size-lg"
 							/>
-							<span class="font-semibold text-sm">{{ member.username }}</span>
+							<span class="font-semibold text-xs md:text-sm">{{ member.username }}</span>
 						</div>
 					</UCard>
 				</div>
