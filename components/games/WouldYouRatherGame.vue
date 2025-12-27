@@ -217,7 +217,7 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 							</div>
 							<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
 								<div
-									class="bg-blue-500 h-4 rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
+									class="progress-bar bg-blue-500 h-4 rounded-full flex items-center justify-end pr-2"
 									:style="{
 										width: `${(results.votes.option_a / (results.votes.option_a + results.votes.option_b) * 100) || 0}%`
 									}"
@@ -239,7 +239,7 @@ const showResults = computed(() => !!results.value && (!!userResponse.value || c
 							</div>
 							<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
 								<div
-									class="bg-purple-500 h-4 rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
+									class="progress-bar bg-purple-500 h-4 rounded-full flex items-center justify-end pr-2"
 									:style="{
 										width: `${(results.votes.option_b / (results.votes.option_a + results.votes.option_b) * 100) || 0}%`
 									}"

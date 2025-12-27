@@ -56,7 +56,7 @@ const loadActiveGame = async () => {
 			const { data: responses } = await supabase
 				.from('game_responses')
 				.select('id')
-				.eq('game_id', game.id);
+				.eq('game_instance_id', game.id);
 			responseCount.value = responses?.length || 0;
 		}
 	}
@@ -205,7 +205,7 @@ const otherSubmissions = computed(() => {
 					<div class="text-6xl mb-4">🍽️</div>
 
 					<h3 class="text-xl font-semibold mb-2">
-						Dinner Party Dilemmas
+						The Guests
 						<span v-if="(currentGame.prompt as DinnerPartyDilemmasPrompt)?.theme">
 							: {{ (currentGame.prompt as DinnerPartyDilemmasPrompt).theme }}
 						</span>

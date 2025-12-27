@@ -1,18 +1,18 @@
 <template>
 	<div
 		class="flex flex-col items-center justify-center"
-		:class="containerClasses"
+		:class="variantClasses"
 		role="status"
 		aria-live="polite"
 		aria-busy="true"
 	>
 		<div class="relative">
-			<!-- Pulse background -->
+			<!-- Pulse background for visual effect -->
 			<div
-				v-if="variant !== 'compact'"
 				class="absolute inset-0 bg-primary-500 rounded-full opacity-20 animate-ping"
+				aria-hidden="true"
 			></div>
-			<!-- Spinner -->
+			<!-- Spinning icon -->
 			<UIcon
 				:name="icon"
 				:class="iconClasses"
@@ -20,13 +20,10 @@
 				aria-hidden="true"
 			/>
 		</div>
-		<p
-			v-if="message && variant !== 'compact'"
-			class="mt-4 text-gray-600 dark:text-gray-400"
-			aria-hidden="true"
-		>
+		<p v-if="message" class="mt-4 text-gray-400 dark:text-gray-500">
 			{{ message }}
 		</p>
+		<!-- Screen reader only text -->
 		<span class="sr-only">{{ message || 'Loading, please wait' }}</span>
 	</div>
 </template>
@@ -44,12 +41,12 @@ const props = withDefaults(
 	}
 );
 
-const containerClasses = computed(() => {
+const variantClasses = computed(() => {
 	switch (props.variant) {
 		case 'fullscreen':
 			return 'min-h-screen';
 		case 'compact':
-			return 'py-2';
+			return 'py-4';
 		default:
 			return 'py-12';
 	}
@@ -58,25 +55,11 @@ const containerClasses = computed(() => {
 const iconClasses = computed(() => {
 	switch (props.variant) {
 		case 'compact':
-			return 'w-4 h-4';
+			return 'w-4 h-4 text-primary-500';
 		case 'inline':
-			return 'w-6 h-6';
+			return 'w-6 h-6 text-primary-500';
 		default:
-			return 'w-8 h-8';
+			return 'w-8 h-8 text-primary-500';
 	}
 });
 </script>
-
-<style scoped>
-.sr-only {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
-	white-space: nowrap;
-	border-width: 0;
-}
-</style>

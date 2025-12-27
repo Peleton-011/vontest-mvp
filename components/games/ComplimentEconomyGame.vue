@@ -191,7 +191,7 @@ const getRecipientName = (userId: string) => {
 					<div class="text-6xl mb-4">💝</div>
 
 					<h3 class="text-xl font-semibold mb-2">
-						The Compliment Economy
+						Complimentary
 					</h3>
 					<p class="text-sm text-gray-400 mb-3">
 						You have {{ coinsPerPlayer }} compliment coins to award to your friends.

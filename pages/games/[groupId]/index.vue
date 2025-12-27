@@ -404,30 +404,21 @@
 						</div>
 
 						<!-- Empty State -->
-						<div v-else class="text-center py-12">
-							<UIcon
-								name="i-heroicons-link"
-								class="w-16 h-16 mx-auto text-gray-400"
-							/>
-							<h3 class="text-xl font-semibold mt-4">
-								No active invite links
-							</h3>
-							<p class="text-gray-600 mt-2">
-								{{
-									isAdmin
-										? "Create an invite link to share with friends"
-										: "Ask an admin to create an invite link"
-								}}
-							</p>
-							<UButton
-								v-if="isAdmin"
-								class="mt-6"
-								icon="i-heroicons-plus"
-								@click="handleCreateInvite"
-							>
-								Create Invite Link
-							</UButton>
-						</div>
+						<UiEmptyState
+							v-else
+							icon="i-heroicons-link"
+							title="No active invite links"
+							:description="isAdmin ? 'Create an invite link to share with friends' : 'Ask an admin to create an invite link'"
+						>
+							<template v-if="isAdmin" #action>
+								<UButton
+									icon="i-heroicons-plus"
+									@click="handleCreateInvite"
+								>
+									Create Invite Link
+								</UButton>
+							</template>
+						</UiEmptyState>
 					</div>
 				</template>
 			</UTabs>

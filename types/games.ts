@@ -64,8 +64,8 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
   },
   guess_who_said_it: {
     id: 'guess_who_said_it',
-    name: 'Guess Who Said It',
-    shortName: 'Guess Who',
+    name: 'Who Said It',
+    shortName: 'Who Said It',
     description: 'Submit anonymous responses, then guess who said what!',
     detailedDescription: 'Everyone anonymously answers a question, then you try to match answers to people. Great for learning surprising things about your friends!',
     icon: 'i-heroicons-question-mark-circle',
@@ -98,8 +98,8 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
   },
   predict_your_friends: {
     id: 'predict_your_friends',
-    name: 'Predict Your Friends',
-    shortName: 'Predict',
+    name: 'Predictor',
+    shortName: 'Predictor',
     description: 'Predict what your friends will do or think. Test how well you know them!',
     detailedDescription: 'Daily prediction question about group members. Everyone predicts, then one person gives the true answer. Points for accuracy and discussion about why people predicted what they did.',
     icon: 'i-heroicons-light-bulb',
@@ -115,8 +115,8 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
   },
   dinner_party_dilemmas: {
     id: 'dinner_party_dilemmas',
-    name: 'Dinner Party Dilemmas',
-    shortName: 'Dinner Party',
+    name: 'The Guests',
+    shortName: 'The Guests',
     description: 'Curate the most interesting dinner party guest list.',
     detailedDescription: 'Weekly challenge: invite 3 out of 8 figures to your dinner party from historical figures, fictional characters, or celebrities. Submit picks with reasoning and group votes on whose party would be most interesting.',
     icon: 'i-heroicons-user-group',
@@ -129,12 +129,10 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
       'Group votes on best party',
       'Debate in dedicated threads'
     ],
-    disabled: true,
-    comingSoon: true,
   },
   two_truths_roulette: {
     id: 'two_truths_roulette',
-    name: 'Two Truths Roulette',
+    name: 'Two Truths',
     shortName: 'Two Truths',
     description: 'Submit two truths and a lie about your week. Can friends spot the lie?',
     detailedDescription: 'Weekly game where everyone submits two truths and one lie about their week. Group votes on which is the lie. Points for fooling friends and guessing correctly!',
@@ -151,8 +149,8 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
   },
   compliment_economy: {
     id: 'compliment_economy',
-    name: 'The Compliment Economy',
-    shortName: 'Compliments',
+    name: 'Complimentary',
+    shortName: 'Complimentary',
     description: 'Award compliment coins to friends for specific moments. Make appreciation intentional.',
     detailedDescription: 'Each week you get 5 compliment coins to award to friends for specific things. Must include explanation. Public feed of compliments with reactions. Coins expire weekly!',
     icon: 'i-heroicons-heart',
@@ -168,8 +166,8 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
   },
   bracket_battle: {
     id: 'bracket_battle',
-    name: 'Bracket Battle Royale',
-    shortName: 'Bracket',
+    name: 'Bracket Royale',
+    shortName: 'Bracket Royale',
     description: 'Settle debates tournament-style with single-elimination brackets.',
     detailedDescription: 'Create 8 or 16-competitor tournaments for any topic. Group debates each matchup before voting. Winners advance until final champion. Perfect for settling those ongoing arguments!',
     icon: 'i-heroicons-trophy',
@@ -178,12 +176,10 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
     estimatedTime: '7-10 days',
     howToPlay: [
       'Nominate tournament entries',
-      'Seed top competitors',
-      'Debate each matchup',
-      'Vote to advance winners'
+      'Vote on each matchup',
+      'Winners advance to next round',
+      'Champion crowned after finals'
     ],
-    disabled: true,
-    comingSoon: true,
   },
 };
 

@@ -31,6 +31,9 @@
 						size="lg"
 						:disabled="loading"
 						autofocus
+						aria-label="Group name"
+						aria-required="true"
+						aria-describedby="name-help"
 					/>
 				</UFormField>
 
@@ -61,6 +64,8 @@
 						:rows="3"
 						size="lg"
 						:disabled="loading"
+						aria-label="Group description"
+						aria-describedby="description-help"
 					/>
 				</UFormField>
 
@@ -71,7 +76,12 @@
 					required
 					help="Choose which games this group will play (select at least one)"
 				>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+					<div
+						class="grid grid-cols-1 md:grid-cols-2 gap-3"
+						role="group"
+						aria-labelledby="games-label"
+					>
+						<span id="games-label" class="sr-only">Select games for your group</span>
 						<div
 							v-for="gameType in availableGames"
 							:key="gameType.id"
@@ -131,6 +141,8 @@
 						type="time"
 						size="lg"
 						:disabled="loading"
+						aria-label="Daily game creation time"
+						aria-describedby="notification-time-help"
 					/>
 				</UFormField>
 
@@ -143,7 +155,10 @@
 					<USelect
 						v-model="form.timezone.value"
 						:items="timezones"
+						size="lg"
 						:disabled="loading"
+						aria-label="Timezone"
+						aria-describedby="timezone-help"
 					/>
 				</UFormField>
 
