@@ -404,7 +404,7 @@ const handleCancel = () => {
 						</UFormField>
 					</div>
 
-					<!-- Dinner Party Dilemmas Configuration -->
+					<!-- The Guests Configuration -->
 					<div v-else-if="selectedGameType === 'dinner_party_dilemmas'" class="space-y-4">
 						<h4 class="font-semibold">Set the Theme</h4>
 
@@ -558,7 +558,7 @@ const handleCancel = () => {
 						</div>
 					</div>
 
-					<!-- Dinner Party Dilemmas Preview -->
+					<!-- The Guests Preview -->
 					<div v-else-if="selectedGameType === 'dinner_party_dilemmas'" class="space-y-4">
 						<div>
 							<p class="text-sm text-gray-400 mb-2">Theme</p>

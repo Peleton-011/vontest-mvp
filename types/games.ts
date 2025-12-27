@@ -115,8 +115,8 @@ export const GAME_TYPES: Record<GameType, GameTypeMetadata> = {
   },
   dinner_party_dilemmas: {
     id: 'dinner_party_dilemmas',
-    name: 'Dinner Party Dilemmas',
-    shortName: 'Dinner Party',
+    name: 'The Guests',
+    shortName: 'The Guests',
     description: 'Curate the most interesting dinner party guest list.',
     detailedDescription: 'Weekly challenge: invite 3 out of 8 figures to your dinner party from historical figures, fictional characters, or celebrities. Submit picks with reasoning and group votes on whose party would be most interesting.',
     icon: 'i-heroicons-user-group',
