@@ -95,22 +95,25 @@ export type Database = {
           comment: string
           created_at: string
           id: string
+          message_type: string | null
           thread_id: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           comment: string
           created_at?: string
           id?: string
+          message_type?: string | null
           thread_id?: string
-          user_id?: string
+          user_id?: string | null
         }
         Update: {
           comment?: string
           created_at?: string
           id?: string
+          message_type?: string | null
           thread_id?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
