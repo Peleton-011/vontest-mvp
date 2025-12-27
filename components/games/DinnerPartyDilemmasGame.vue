@@ -186,31 +186,41 @@ const otherSubmissions = computed(() => {
 		<!-- Game Content Slot -->
 		<template #game-content>
 			<!-- Phase Indicator -->
-			<div v-if="currentGame.current_phase" class="text-center mb-4">
+			<div v-if="currentGame.current_phase" class="text-center mb-3 md:mb-4">
 				<UBadge
 					:color="currentGame.current_phase === 'submission' ? 'blue' : 'purple'"
-					size="lg"
+					size="md"
+					class="md:size-lg text-xs md:text-sm"
 				>
-					{{
-						currentGame.current_phase === 'submission'
-							? '📝 Phase 1: Create Your Party'
-							: '🗳️ Phase 2: Vote for Best Party'
-					}}
+					<span class="hidden sm:inline">
+						{{
+							currentGame.current_phase === 'submission'
+								? '📝 Phase 1: Create Your Party'
+								: '🗳️ Phase 2: Vote for Best Party'
+						}}
+					</span>
+					<span class="sm:hidden">
+						{{
+							currentGame.current_phase === 'submission'
+								? '📝 Create Party'
+								: '🗳️ Vote'
+						}}
+					</span>
 				</UBadge>
 			</div>
 
 			<!-- Game Prompt -->
 			<UCard class="overflow-hidden relative">
-				<div class="text-center py-6 relative z-10">
-					<div class="text-6xl mb-4">🍽️</div>
+				<div class="text-center py-4 md:py-6 relative z-10">
+					<div class="text-4xl md:text-6xl mb-3 md:mb-4">🍽️</div>
 
-					<h3 class="text-xl font-semibold mb-2">
+					<h3 class="text-lg md:text-xl font-semibold mb-1.5 md:mb-2">
 						The Guests
 						<span v-if="(currentGame.prompt as DinnerPartyDilemmasPrompt)?.theme">
 							: {{ (currentGame.prompt as DinnerPartyDilemmasPrompt).theme }}
 						</span>
 					</h3>
-					<p class="text-sm text-gray-400">
+					<p class="text-xs md:text-sm text-gray-400">
 						Choose 3 guests from the list below. Who would make the most interesting dinner party?
 					</p>
 				</div>
@@ -221,30 +231,30 @@ const otherSubmissions = computed(() => {
 				<div v-if="!userResponse && currentGame.status === 'active'">
 					<!-- Guest Selection -->
 					<div>
-						<div class="flex justify-between items-center mb-3">
-							<h4 class="font-semibold">Select 3 Guests</h4>
-							<UBadge>{{ selectedGuests.size }}/3 selected</UBadge>
+						<div class="flex justify-between items-center mb-2 md:mb-3">
+							<h4 class="font-semibold text-sm md:text-base">Select 3 Guests</h4>
+							<UBadge size="xs" class="md:size-sm">{{ selectedGuests.size }}/3 selected</UBadge>
 						</div>
 
-						<div class="grid grid-cols-2 gap-3">
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
 							<div
 								v-for="guest in guestOptions"
 								:key="guest.id"
 								:class="[
-									'p-4 rounded-lg border-2 cursor-pointer transition-all',
+									'p-3 md:p-4 rounded-lg border-2 cursor-pointer transition-all touch-manipulation active:scale-95',
 									selectedGuests.has(guest.id)
 										? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20'
-										: 'border-gray-300 dark:border-gray-600 hover:border-pink-300'
+										: 'border-gray-300 dark:border-gray-600 md:hover:border-pink-300'
 								]"
 								@click="toggleGuestSelection(guest.id)"
 							>
-								<div class="flex items-start gap-3">
-									<div v-if="selectedGuests.has(guest.id)" class="text-pink-500 text-xl flex-shrink-0">
+								<div class="flex items-start gap-2 md:gap-3">
+									<div v-if="selectedGuests.has(guest.id)" class="text-pink-500 text-lg md:text-xl flex-shrink-0">
 										✓
 									</div>
 									<div class="flex-1 min-w-0">
-										<p class="font-semibold truncate">{{ guest.name }}</p>
-										<p v-if="guest.description" class="text-xs text-gray-400 mt-1 line-clamp-2">
+										<p class="font-semibold text-xs md:text-sm truncate">{{ guest.name }}</p>
+										<p v-if="guest.description" class="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1 line-clamp-2">
 											{{ guest.description }}
 										</p>
 									</div>
@@ -276,10 +286,10 @@ const otherSubmissions = computed(() => {
 				<!-- Lineup submitted -->
 				<div v-if="userResponse">
 					<UCard class="bg-blue-50 dark:bg-blue-900/20">
-						<div class="text-center py-6">
-							<div class="text-3xl mb-3">✅</div>
-							<p class="font-semibold mb-2">Party Lineup Submitted!</p>
-							<p class="text-sm text-gray-400">
+						<div class="text-center py-4 md:py-6">
+							<div class="text-2xl md:text-3xl mb-2 md:mb-3">✅</div>
+							<p class="font-semibold text-sm md:text-base mb-1.5 md:mb-2">Party Lineup Submitted!</p>
+							<p class="text-xs md:text-sm text-gray-400">
 								Waiting for everyone to create their parties...
 							</p>
 						</div>
@@ -288,49 +298,51 @@ const otherSubmissions = computed(() => {
 			</div>
 
 			<!-- Phase 2: Vote -->
-			<div v-if="currentGame.current_phase === 'voting'" class="space-y-4">
+			<div v-if="currentGame.current_phase === 'voting'" class="space-y-3 md:space-y-4">
 				<div v-if="!userResponse?.response_data?.votedUserId && currentGame.status === 'active' && otherSubmissions.length > 0">
-					<p class="text-sm text-gray-400 text-center mb-4">
+					<p class="text-xs md:text-sm text-gray-400 text-center mb-3 md:mb-4">
 						Vote for the party you'd most want to attend:
 					</p>
 
-					<div class="space-y-4">
+					<div class="space-y-2 md:space-y-3">
 						<div
 							v-for="submission in otherSubmissions"
 							:key="submission.userId"
 							:class="[
-								'p-4 rounded-lg border-2 cursor-pointer transition-all',
+								'p-3 md:p-4 rounded-lg border-2 cursor-pointer transition-all touch-manipulation active:scale-95',
 								selectedVote === submission.userId
 									? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
-									: 'border-gray-300 dark:border-gray-600 hover:border-purple-300'
+									: 'border-gray-300 dark:border-gray-600 md:hover:border-purple-300'
 							]"
 							@click="selectedVote = submission.userId"
 						>
-							<div class="flex items-start gap-3 mb-3">
+							<div class="flex items-start gap-2 md:gap-3 mb-2 md:mb-3">
 								<UAvatar
 									:src="submission.avatarUrl"
 									:alt="submission.username"
-									size="md"
+									size="sm"
+									class="md:size-md shrink-0"
 								/>
-								<div class="flex-1">
-									<p class="font-semibold">{{ submission.username }}'s Party</p>
-									<div class="flex flex-wrap gap-2 mt-2">
+								<div class="flex-1 min-w-0">
+									<p class="font-semibold text-xs md:text-sm">{{ submission.username }}'s Party</p>
+									<div class="flex flex-wrap gap-1 md:gap-2 mt-1 md:mt-2">
 										<UBadge
 											v-for="guest in submission.selectedGuests"
 											:key="guest.id"
 											color="pink"
-											size="sm"
+											size="xs"
+											class="md:size-sm"
 										>
 											{{ guest.name }}
 										</UBadge>
 									</div>
 								</div>
-								<div v-if="selectedVote === submission.userId" class="text-purple-500 text-xl">
+								<div v-if="selectedVote === submission.userId" class="text-purple-500 text-lg md:text-xl shrink-0">
 									✓
 								</div>
 							</div>
 
-							<p class="text-sm text-gray-600 dark:text-gray-400 italic pl-1">
+							<p class="text-xs md:text-sm text-gray-600 dark:text-gray-400 italic pl-0.5 md:pl-1">
 								"{{ submission.reasoning }}"
 							</p>
 						</div>
@@ -351,10 +363,10 @@ const otherSubmissions = computed(() => {
 				<!-- Vote submitted -->
 				<div v-if="userResponse?.response_data?.votedUserId">
 					<UCard class="bg-blue-50 dark:bg-blue-900/20">
-						<div class="text-center py-6">
-							<div class="text-3xl mb-3">✅</div>
-							<p class="font-semibold mb-2">Vote Submitted!</p>
-							<p class="text-sm text-gray-400">
+						<div class="text-center py-4 md:py-6">
+							<div class="text-2xl md:text-3xl mb-2 md:mb-3">✅</div>
+							<p class="font-semibold text-sm md:text-base mb-1.5 md:mb-2">Vote Submitted!</p>
+							<p class="text-xs md:text-sm text-gray-400">
 								Waiting for the game to end...
 							</p>
 						</div>
@@ -390,35 +402,36 @@ const otherSubmissions = computed(() => {
 		<template #results>
 			<!-- Winner -->
 			<UCard v-if="results.winner" class="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-800/20">
-				<div class="text-center py-6">
-					<div class="text-4xl mb-3">🏆</div>
-					<p class="text-lg font-semibold mb-1">Most Interesting Party</p>
-					<p class="text-2xl font-bold text-pink-600 mb-2">
+				<div class="text-center py-4 md:py-6">
+					<div class="text-3xl md:text-4xl mb-2 md:mb-3">🏆</div>
+					<p class="text-base md:text-lg font-semibold mb-1">Most Interesting Party</p>
+					<p class="text-xl md:text-2xl font-bold text-pink-600 mb-1.5 md:mb-2">
 						{{ results.winner.username }}
 					</p>
-					<UBadge color="pink">{{ results.winner.voteCount }} {{ results.winner.voteCount === 1 ? 'vote' : 'votes' }}</UBadge>
+					<UBadge color="pink" size="xs" class="md:size-sm">{{ results.winner.voteCount }} {{ results.winner.voteCount === 1 ? 'vote' : 'votes' }}</UBadge>
 				</div>
 			</UCard>
 
 			<!-- All Submissions -->
 			<div v-if="results.submissions && results.submissions.length > 0">
-				<h4 class="font-semibold mb-4">All Party Lineups</h4>
-				<div class="space-y-4">
+				<h4 class="font-semibold mb-3 md:mb-4 text-sm md:text-base">All Party Lineups</h4>
+				<div class="space-y-3 md:space-y-4">
 					<div
 						v-for="submission in results.submissions"
 						:key="submission.userId"
-						class="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-4"
+						class="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 md:p-4"
 					>
-						<div class="flex items-start justify-between mb-3">
-							<div class="flex items-center gap-3">
+						<div class="flex items-start justify-between mb-2 md:mb-3">
+							<div class="flex items-center gap-2 md:gap-3">
 								<UAvatar
 									:src="submission.avatarUrl"
 									:alt="submission.username"
-									size="md"
+									size="sm"
+									class="md:size-md"
 								/>
 								<div>
-									<p class="font-semibold">{{ submission.username }}</p>
-									<div class="text-sm text-gray-400">
+									<p class="font-semibold text-xs md:text-sm">{{ submission.username }}</p>
+									<div class="text-xs md:text-sm text-gray-400">
 										{{ submission.voteCount }} {{ submission.voteCount === 1 ? 'vote' : 'votes' }}
 									</div>
 								</div>
@@ -426,13 +439,15 @@ const otherSubmissions = computed(() => {
 						</div>
 
 						<!-- Guests -->
-						<div class="mb-3">
-							<p class="text-xs font-semibold text-gray-400 mb-2">GUESTS:</p>
-							<div class="flex flex-wrap gap-2">
+						<div class="mb-2 md:mb-3">
+							<p class="text-[10px] md:text-xs font-semibold text-gray-400 mb-1 md:mb-2">GUESTS:</p>
+							<div class="flex flex-wrap gap-1 md:gap-2">
 								<UBadge
 									v-for="guest in submission.selectedGuests"
 									:key="guest.id"
 									color="pink"
+									size="xs"
+									class="md:size-sm"
 								>
 									{{ guest.name }}
 								</UBadge>
@@ -440,8 +455,8 @@ const otherSubmissions = computed(() => {
 						</div>
 
 						<!-- Reasoning -->
-						<div class="bg-gray-50 dark:bg-gray-800 rounded p-3">
-							<p class="text-sm italic text-gray-600 dark:text-gray-400">
+						<div class="bg-gray-50 dark:bg-gray-800 rounded p-2 md:p-3">
+							<p class="text-xs md:text-sm italic text-gray-600 dark:text-gray-400">
 								"{{ submission.reasoning }}"
 							</p>
 						</div>
