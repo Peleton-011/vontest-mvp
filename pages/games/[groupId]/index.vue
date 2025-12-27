@@ -18,22 +18,14 @@
 					<h1 class="text-base font-semibold truncate">{{ group?.name || 'Loading...' }}</h1>
 				</div>
 
-				<!-- Right: Profile + Menu -->
+				<!-- Right: Group Avatar + Menu -->
 				<div class="flex items-center gap-2 flex-shrink-0">
-					<UButton
-						v-if="user"
-						@click="showProfileModal = true"
-						variant="ghost"
-						class="p-0 hover:bg-transparent"
-						aria-label="Open profile"
-					>
-						<UAvatar
-							:key="profile?.avatar_url"
-							:src="profile?.avatar_url"
-							:alt="profile?.username || user?.email || 'User'"
-							size="sm"
-						/>
-					</UButton>
+					<UAvatar
+						:src="group?.avatar_url"
+						:alt="group?.name"
+						size="sm"
+						class="flex-shrink-0"
+					/>
 					<UButton
 						variant="ghost"
 						icon="i-heroicons-ellipsis-vertical"
@@ -846,6 +838,17 @@
 
 					<!-- Action Buttons -->
 					<div class="space-y-2">
+						<!-- Profile Button -->
+						<UButton
+							block
+							variant="outline"
+							icon="i-heroicons-user-circle"
+							@click="showProfileModal = true; showMobileMenu = false"
+						>
+							My Profile
+						</UButton>
+
+						<!-- Group Settings / Leave Group -->
 						<UButton
 							v-if="isAdmin"
 							block
