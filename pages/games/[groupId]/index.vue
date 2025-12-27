@@ -1,5 +1,5 @@
 <template>
-	<div class="container mx-auto px-4 py-8">
+	<div class="container mx-auto px-3 md:px-4 py-4 md:py-8 pb-20 md:pb-8">
 		<div class="mb-8">
 			<UButton
 				to="/games"
@@ -45,8 +45,31 @@
 
 		<!-- Group content -->
 		<div v-else>
-			<!-- Group Header -->
-			<div class="flex items-start gap-6 mb-8">
+			<!-- Mobile Group Header -->
+			<div class="md:hidden mb-4 bg-neutral-800 rounded-lg p-4">
+				<div class="flex items-center gap-3 mb-3">
+					<UAvatar :src="group.avatar_url" :alt="group.name" size="lg" />
+					<div class="flex-1 min-w-0">
+						<h1 class="text-xl font-bold truncate">{{ group.name }}</h1>
+						<p class="text-sm text-gray-400">
+							{{ memberCount }} {{ memberCount === 1 ? "member" : "members" }}
+							<span v-if="isAdmin" class="text-green-500 ml-2">• Admin</span>
+						</p>
+					</div>
+					<UButton
+						variant="ghost"
+						icon="i-heroicons-ellipsis-vertical"
+						size="sm"
+						@click="showMobileMenu = true"
+					/>
+				</div>
+				<p v-if="group.description" class="text-sm text-gray-300 line-clamp-2">
+					{{ group.description }}
+				</p>
+			</div>
+
+			<!-- Desktop Group Header -->
+			<div class="hidden md:flex items-start gap-6 mb-8">
 				<UAvatar :src="group.avatar_url" :alt="group.name" size="2xl" />
 				<div class="flex-1">
 					<h1 class="text-2xl sm:text-3xl font-bold">{{ group.name }}</h1>
@@ -96,9 +119,42 @@
 			<UTabs v-model="activeTab" :items="tabs" class="mb-8">
 				<!-- Games Tab -->
 				<template #games>
-					<div class="py-6">
-						<!-- Admin Controls -->
-						<div v-if="isAdmin" class="mb-6 flex justify-between items-center">
+					<div class="py-4 md:py-6">
+						<!-- Mobile Admin Controls -->
+						<div v-if="isAdmin" class="md:hidden mb-4 space-y-3">
+							<div class="flex items-center justify-between">
+								<div>
+									<h3 class="text-lg font-semibold">Daily Games</h3>
+									<p class="text-xs text-gray-400">
+										Auto at {{ settings.notification_time }}
+									</p>
+								</div>
+							</div>
+							<div class="grid grid-cols-2 gap-2">
+								<UButton
+									block
+									size="md"
+									icon="i-heroicons-sparkles"
+									:loading="gameSchedulerLoading"
+									@click="handleStartGameNow"
+								>
+									Start Now
+								</UButton>
+								<UButton
+									block
+									size="md"
+									variant="outline"
+									icon="i-heroicons-pencil"
+									@click="handleOpenCustomGame"
+								>
+									Custom
+								</UButton>
+							</div>
+							<GamesManagePromptsModal :group-id="groupId" button-block />
+						</div>
+
+						<!-- Desktop Admin Controls -->
+						<div v-if="isAdmin" class="hidden md:flex mb-6 justify-between items-center">
 							<div>
 								<h3 class="text-lg font-semibold">Daily Games</h3>
 								<p class="text-sm text-gray-600">
@@ -471,7 +527,39 @@
 					</div>
 				</template>
 			</UModal>
+
+			<!-- Mobile Menu Drawer -->
+			<UDrawer v-model:open="showMobileMenu" side="bottom">
+				<div class="p-6 space-y-4">
+					<h3 class="text-lg font-semibold">Group Menu</h3>
+					<div class="space-y-2">
+						<UButton
+							v-if="isAdmin"
+							block
+							variant="outline"
+							icon="i-heroicons-cog-6-tooth"
+							:to="`/games/${groupId}/settings`"
+							@click="showMobileMenu = false"
+						>
+							Group Settings
+						</UButton>
+						<UButton
+							v-if="!isAdmin"
+							block
+							variant="outline"
+							color="error"
+							icon="i-heroicons-arrow-right-on-rectangle"
+							@click="handleLeave(); showMobileMenu = false"
+						>
+							Leave Group
+						</UButton>
+					</div>
+				</div>
+			</UDrawer>
 		</div>
+
+		<!-- Bottom Navigation (Mobile Only) -->
+		<BottomNav v-model="activeTab" :tabs="tabs" />
 	</div>
 </template>
 
@@ -490,6 +578,9 @@ const route = useRoute();
 const router = useRouter();
 const user = useSupabaseUser();
 const groupId = computed(() => route.params.groupId as string);
+
+// Mobile menu state
+const showMobileMenu = ref(false);
 
 // Control active tab via query params
 const activeTab = computed({
